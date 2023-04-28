@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Web_Api_CRUD.Infraestructure;
 using Web_Api_CRUD.Model;
 using Web_Api_CRUD.Model.DTO;
@@ -19,19 +20,17 @@ namespace Web_Api_CRUD.Repository
     public class ClienteRepository : IClienteRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ClienteRepository(ApplicationDbContext context)
+        public ClienteRepository(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Guid> CreateAsync(ClienteDTO clienteDto)
         {
-            var cliente = new Cliente
-            {
-                Nome = clienteDto.Nome
-            };
-
+            Cliente cliente = _mapper.Map<Cliente>(clienteDto);
             _context.clientes.Add(cliente);
             await _context.SaveChangesAsync();
 
@@ -62,9 +61,7 @@ namespace Web_Api_CRUD.Repository
             {
                 throw new Exception($"Cliente com o ID {id} não encontrado");
             }
-
-            cliente.Nome = clienteDto.Nome;
-
+            cliente = _mapper.Map<Cliente>(clienteDto);
             await _context.SaveChangesAsync();
         }
 

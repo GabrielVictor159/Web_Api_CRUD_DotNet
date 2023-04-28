@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Web_Api_CRUD.Infraestructure;
 using Web_Api_CRUD.Model;
 using Web_Api_CRUD.Model.DTO;
@@ -11,7 +12,7 @@ namespace Web_Api_CRUD.Repository
     public interface IPedidoRepository
     {
         Task<Guid> CreateAsync(PedidoDTO pedidoDto);
-        Task<List<PedidoDTO>> GetAllPageAsync(int index, int size);
+        Task<List<Pedido>> GetAllPageAsync(int index, int size);
         Task<Pedido> GetPedidoByIdAsync(Guid id);
         Task UpdateAsync(Guid id, PedidoDTO pedidoDto);
         Task DeleteAsync(Guid id);
@@ -20,34 +21,29 @@ namespace Web_Api_CRUD.Repository
     public class PedidoRepository : IPedidoRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public PedidoRepository(ApplicationDbContext context)
+        public PedidoRepository(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Guid> CreateAsync(PedidoDTO pedidoDto)
         {
-            var pedido = new Pedido
-            {
-                ValorTotal = pedidoDto.ValorTotal,
-                Lista = pedidoDto.Lista
-            };
-
+            Pedido pedido = _mapper.Map<Pedido>(pedidoDto);
             _context.pedidos.Add(pedido);
             await _context.SaveChangesAsync();
-
             return pedido.Id;
         }
 
-        public async Task<List<PedidoDTO>> GetAllPageAsync(int index, int size)
+        public async Task<List<Pedido>> GetAllPageAsync(int index, int size)
         {
-            var pedidos = await Task.FromResult(_context.pedidos
+            List<Pedido> pedidos = await Task.FromResult(_context.pedidos
                 .Skip((index - 1) * size)
                 .Take(size)
                 .ToList());
-
-            return pedidos.Select(p => new PedidoDTO { ValorTotal = p.ValorTotal, Lista = p.Lista }).ToList();
+            return pedidos;
         }
 
         public async Task<Pedido> GetPedidoByIdAsync(Guid id)
@@ -64,17 +60,13 @@ namespace Web_Api_CRUD.Repository
             {
                 throw new Exception($"Pedido com o ID {id} não encontrado");
             }
-
-            pedido.ValorTotal = pedidoDto.ValorTotal;
-            pedido.Lista = pedidoDto.Lista;
-
+            pedido = _mapper.Map<Pedido>(pedidoDto);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid id)
         {
             var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
-
             if (pedido == null)
             {
                 throw new Exception($"Pedido com o ID {id} não encontrado");

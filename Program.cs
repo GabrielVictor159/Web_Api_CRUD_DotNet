@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddDbContext<ApplicationDbContext>().AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var key = Encoding.ASCII.GetBytes(Settings.Secret);
 builder.Services.AddAuthorization(options =>
 {
