@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Web_Api_CRUD.Infraestructure;
 using Web_Api_CRUD.Model;
+using Web_Api_CRUD.Model.Cryptography;
 using Web_Api_CRUD.Model.DTO;
 
 namespace Web_Api_CRUD.Repository
 {
     public interface IClienteRepository
     {
-        Task<Guid> CreateAsync(ClienteDTO clienteDto);
+        Task<Cliente> CreateAsync(ClienteDTO clienteDto);
+        Task<Cliente> Login(String Nome, String Senha);
         Task<List<ClienteDTO>> GetAllPageAsync(int index, int size);
         Task<Cliente> GetClienteByIdAsync(Guid id);
         Task UpdateAsync(Guid id, ClienteDTO clienteDto);
@@ -28,15 +30,19 @@ namespace Web_Api_CRUD.Repository
             _mapper = mapper;
         }
 
-        public async Task<Guid> CreateAsync(ClienteDTO clienteDto)
+        public async Task<Cliente> CreateAsync(ClienteDTO clienteDto)
         {
             Cliente cliente = _mapper.Map<Cliente>(clienteDto);
             _context.clientes.Add(cliente);
             await _context.SaveChangesAsync();
-
-            return cliente.Id;
+            return cliente;
         }
 
+        public async Task<Cliente> Login(String Nome, String Senha)
+        {
+            String senhaCriptografada = Cryptography.md5Hash(Senha);
+            return await Task.Run(() => _context.clientes.Where(b => b.Nome == Nome && b.Senha == senhaCriptografada).FirstOrDefault());
+        }
         public async Task<List<ClienteDTO>> GetAllPageAsync(int index, int size)
         {
             var clientes = await Task.FromResult(_context.clientes
@@ -44,7 +50,7 @@ namespace Web_Api_CRUD.Repository
                 .Take(size)
                 .ToList());
 
-            return clientes.Select(c => new ClienteDTO { Nome = c.Nome }).ToList();
+            return clientes.Select(c => new ClienteDTO { Nome = c.Nome, Role = c.Role }).ToList();
         }
 
         public async Task<Cliente> GetClienteByIdAsync(Guid id)

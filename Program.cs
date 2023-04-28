@@ -4,14 +4,21 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Web_Api_CRUD;
 using Web_Api_CRUD.Model.Enums;
+using Autofac.Extensions.DependencyInjection;
+using Web_Api_CRUD.Repository;
+using Autofac;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+var containerBuilder = new ContainerBuilder();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>().AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+containerBuilder.RegisterModule(new AutoFacRepositories());
+var container = containerBuilder.Build();
+var serviceProvider = new AutofacServiceProvider(container);
+builder.Services
+.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var key = Encoding.ASCII.GetBytes(Settings.Secret);
 builder.Services.AddAuthorization(options =>

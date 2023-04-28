@@ -1,7 +1,7 @@
 # Arquivos de compilação
 bin/
 obj/
-
+.vscode/
 # Arquivos gerados pelo Visual Studio
 .vs/
 *.user

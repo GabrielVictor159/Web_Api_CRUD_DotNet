@@ -9,9 +9,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 namespace Web_Api_CRUD.Services.Token
 {
-    public static class TokenService
+    public interface ITokenService
     {
-        public static string GenerateToken(Cliente cliente)
+        string GenerateToken(Cliente cliente);
+    }
+    public class TokenService
+    {
+        public string GenerateToken(Cliente cliente)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Settings.Secret);

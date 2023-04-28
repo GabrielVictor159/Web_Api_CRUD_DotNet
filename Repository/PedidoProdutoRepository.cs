@@ -50,7 +50,6 @@ namespace Web_Api_CRUD.Repository
                 ProdutoId = pp.idProduto
             }).ToList();
         }
-
         public async Task<PedidoProduto> GetPedidoProdutoByIdAsync(Guid id)
         {
             PedidoProduto pedidoProduto = await Task.FromResult(_context.pedidoProdutos.FirstOrDefault(pp => pp.Id == id));

@@ -7,7 +7,6 @@ namespace Web_Api_CRUD.Model.DTO
 {
     public class PedidoDTO
     {
-        public decimal ValorTotal { get; set; }
         public List<Guid> Lista { get; set; }
     }
 }
