@@ -10,12 +10,11 @@ namespace Web_Api_CRUD.Services
 {
     public interface IProdutoService
     {
-        Task<Guid> CriarProdutoAsync(ProdutoDTO produtoDto);
-        Task<List<Produto>> GetProdutosByIdsAsync(List<Guid> ids);
-        Task<List<Produto>> ObterProdutosPaginadosAsync(int indice, int tamanhoPagina);
+        Task<Produto> CriarProdutoAsync(ProdutoDTO produtoDto);
+        Task<List<Produto>> ObterProdutosPaginadosAsync(int? index = 1, int? size = 10, string? nome = null, decimal? valorMinimo = null, decimal? valorMaximo = null, string? id = null);
         Task<Produto> ObterProdutoPorIdAsync(Guid id);
-        Task AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto);
-        // Task ExcluirProdutoAsync(Guid id);
+        Task<Produto> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto);
+        Task ExcluirProdutoAsync(Guid id);
     }
     public class ProdutoService : IProdutoService
     {
@@ -25,17 +24,13 @@ namespace Web_Api_CRUD.Services
             _IProdutoRepository = iProdutoRepository;
         }
 
-        public async Task<Guid> CriarProdutoAsync(ProdutoDTO produtoDto)
+        public async Task<Produto> CriarProdutoAsync(ProdutoDTO produtoDto)
         {
             return await _IProdutoRepository.CreateAsync(produtoDto);
         }
-        public async Task<List<Produto>> GetProdutosByIdsAsync(List<Guid> ids)
+        public async Task<List<Produto>> ObterProdutosPaginadosAsync(int? index = 1, int? size = 10, string? nome = null, decimal? valorMinimo = null, decimal? valorMaximo = null, string? id = null)
         {
-            return await _IProdutoRepository.GetProdutosByIdsAsync(ids);
-        }
-        public async Task<List<Produto>> ObterProdutosPaginadosAsync(int indice, int tamanhoPagina)
-        {
-            return await _IProdutoRepository.GetAllPageAsync(indice, tamanhoPagina);
+            return await _IProdutoRepository.GetAllPageAsync(index, size, nome, valorMinimo, valorMaximo, id);
         }
 
         public async Task<Produto> ObterProdutoPorIdAsync(Guid id)
@@ -43,14 +38,14 @@ namespace Web_Api_CRUD.Services
             return await _IProdutoRepository.GetProdutoByIdAsync(id);
         }
 
-        public async Task AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto)
+        public async Task<Produto> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto)
         {
-            await _IProdutoRepository.UpdateAsync(id, produtoDto);
+            return await _IProdutoRepository.UpdateAsync(id, produtoDto);
         }
 
-        // public async Task ExcluirProdutoAsync(Guid id)
-        // {
-        //     await _IProdutoRepository.DeleteAsync(id);
-        // }
+        public async Task ExcluirProdutoAsync(Guid id)
+        {
+            await _IProdutoRepository.DeleteAsync(id);
+        }
     }
 }

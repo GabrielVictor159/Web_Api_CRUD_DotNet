@@ -10,11 +10,11 @@ namespace Web_Api_CRUD.Services
 {
     public interface IPedidoService
     {
-        // Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto);
-        Task<List<Pedido>> ObterPedidosPaginadosAsync(int indice, int tamanhoPagina);
-        Task<Pedido> ObterPedidoPorIdAsync(Guid id);
-        // Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto);
-        // Task ExcluirPedidoAsync(Guid id);
+        Task<Pedido> CriarPedidoAsync(Guid id, List<ProdutoQuantidadeDTO> pedidoDto);
+        Task<List<Pedido>> GetAllPage(PedidoConsultaDTO dto);
+        Task<Pedido> GetPedidoByIdAsync(Guid id);
+        Task<Pedido> UpdatePedidoAsync(PedidoUpdateDTO dto);
+        Task DeletePedidoAsync(Guid id);
     }
     public class PedidoService : IPedidoService
     {
@@ -23,31 +23,25 @@ namespace Web_Api_CRUD.Services
         {
             _IPedidoRepository = pedidoRepository;
         }
-        // public async Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto)
-        // {
-        //     return await _IPedidoRepository.CreateAsync(pedidoDto);
-        // }
-
-        public async Task<List<Pedido>> ObterPedidosPaginadosAsync(int indice, int tamanhoPagina)
+        public async Task<Pedido> CriarPedidoAsync(Guid id, List<ProdutoQuantidadeDTO> pedidoDto)
         {
-            return await _IPedidoRepository.GetAllPageAsync(indice, tamanhoPagina);
+            return await _IPedidoRepository.CreateAsync(id, pedidoDto);
         }
-
-        public async Task<Pedido> ObterPedidoPorIdAsync(Guid id)
+        public async Task<List<Pedido>> GetAllPage(PedidoConsultaDTO dto)
+        {
+            return await _IPedidoRepository.GetAllPageAsync(dto);
+        }
+        public async Task<Pedido> GetPedidoByIdAsync(Guid id)
         {
             return await _IPedidoRepository.GetPedidoByIdAsync(id);
         }
-
-        // public async Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto)
-        // {
-        //     await _IPedidoRepository.UpdateAsync(id, pedidoDto);
-        // }
-
-        // public async Task ExcluirPedidoAsync(Guid id)
-        // {
-        //     await _IPedidoRepository.DeleteAsync(id);
-        // }
-
-
+        public async Task<Pedido> UpdatePedidoAsync(PedidoUpdateDTO dto)
+        {
+            return await _IPedidoRepository.UpdatePedidoAsync(dto.Id, dto.Produtos);
+        }
+        public async Task DeletePedidoAsync(Guid id)
+        {
+            await _IPedidoRepository.DeletePedidoAsync(id);
+        }
     }
 }

@@ -8,6 +8,6 @@ namespace Web_Api_CRUD.Model.DTO
     public class ProdutoQuantidadeDTO
     {
         public Guid Produto { get; set; }
-        public int quantidade { get; set; }
+        public int Quantidade { get; set; }
     }
 }

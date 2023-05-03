@@ -20,6 +20,7 @@ namespace Web_Api_CRUD.Model
                 cfg.CreateMap<PedidoProdutoDTO, PedidoProduto>().ReverseMap();
                 cfg.CreateMap<ProdutoDTO, Produto>().ReverseMap();
                 cfg.CreateMap<ClienteUpdateDTO, ClienteDTO>().ReverseMap();
+                cfg.CreateMap<ProdutoAtualizarDTO, ProdutoDTO>().ReverseMap();
             })).AsSelf().SingleInstance();
 
             builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper(c.Resolve)).As<IMapper>().InstancePerLifetimeScope();

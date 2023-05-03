@@ -20,34 +20,29 @@ namespace Web_Api_CRUD.Infraestructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Cliente>()
-            .HasKey(e => e.Id);
-            modelBuilder.Entity<Pedido>()
-            .HasKey(e => e.Id);
-            modelBuilder.Entity<Produto>()
-            .HasKey(e => e.Id);
-            modelBuilder.Entity<PedidoProduto>()
-            .HasKey(e => new { e.idPedido, e.idProduto });
-            modelBuilder.Entity<Cliente>()
-            .HasMany(p => p.pedidos)
-            .WithOne(p => p.cliente)
-            .HasForeignKey(p => p.Id);
-            modelBuilder.Entity<Pedido>()
-            .HasMany(p => p.Lista)
-            .WithOne(p => p.pedido)
-            .HasForeignKey(p => p.idPedido);
-            modelBuilder.Entity<Produto>()
-            .HasMany(p => p.Lista)
-            .WithOne(p => p.produto)
-            .HasForeignKey(p => p.idProduto);
-            modelBuilder.Entity<PedidoProduto>()
-            .HasOne(pp => pp.pedido)
-            .WithMany(p => p.Lista)
-            .HasForeignKey(pp => pp.idPedido);
-            modelBuilder.Entity<PedidoProduto>()
-            .HasOne(pp => pp.produto)
-            .WithMany(p => p.Lista)
-            .HasForeignKey(pp => pp.idProduto);
+             .HasKey(e => e.Id);
 
+            modelBuilder.Entity<Pedido>()
+                .HasKey(e => e.Id);
+
+            modelBuilder.Entity<Produto>()
+                .HasKey(e => e.Id);
+
+            modelBuilder.Entity<PedidoProduto>()
+                .HasKey(e => new { e.IdPedido, e.IdProduto });
+
+            modelBuilder.Entity<Cliente>()
+            .HasMany(e => e.pedidos)
+            .WithOne(p => p.cliente)
+            .HasForeignKey(p => p.idCliente);
+            modelBuilder.Entity<Pedido>()
+            .HasMany(p => p.Lista)
+            .WithOne(p => p.Pedido)
+            .HasForeignKey(p => p.IdPedido);
+            modelBuilder.Entity<Produto>()
+            .HasMany(p => p.Lista)
+            .WithOne(p => p.Produto)
+            .HasForeignKey(p => p.IdProduto);
         }
     }
 }

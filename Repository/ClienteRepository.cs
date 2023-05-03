@@ -18,8 +18,8 @@ namespace Web_Api_CRUD.Repository
         Task<Cliente> CreateAsync(ClienteDTO clienteDto);
         Task<Cliente> Login(String Nome, String Senha);
         Task<List<ClienteResponseDTO>> GetAllPageAsync(int index = 1, int size = 10, string nome = null, string role = null, string id = null);
-        Task<Cliente> GetClienteByIdAsync(Guid id);
-        Task<ClienteDTO> UpdateAsync(Guid id, ClienteDTO clienteDto);
+        Task<ClienteResponseDTO> GetClienteByIdAsync(Guid id);
+        Task<ClienteResponseDTO> UpdateAsync(Guid id, ClienteDTO clienteDto);
         Task DeleteAsync(Guid id);
     }
     public class ClienteRepository : IClienteRepository
@@ -35,19 +35,6 @@ namespace Web_Api_CRUD.Repository
 
         public async Task<Cliente> CreateAsync(ClienteDTO clienteDto)
         {
-            if (clienteDto.Nome.Length < 8)
-            {
-                throw new ClienteRegisterException("Nome de usuario muito curto, por favor forneça um nome com pelo menos 8 digitos.");
-            }
-            if (clienteDto.Senha.Length < 8)
-            {
-                throw new ClienteRegisterException("Senha de usuario muito curta, por favor forneça uma senha com pelo menos 8 digitos.");
-            }
-            if (!Enum.IsDefined(typeof(Policies), clienteDto.Role))
-            {
-                throw new ClienteRegisterException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
-            }
-
             if (await _context.clientes.AnyAsync(c => c.Nome == clienteDto.Nome))
             {
                 throw new ClienteRegisterException("Já existe um cliente com o mesmo nome.");
@@ -86,31 +73,25 @@ namespace Web_Api_CRUD.Repository
                 .Skip((index - 1) * size)
                 .Take(size)
                 .ToListAsync();
-
-            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role }).ToList();
+            foreach (var cliente in clientes)
+            {
+                cliente.pedidos = await GetPedidoProdutos(cliente.Id);
+            }
+            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role, pedidos = c.pedidos }).ToList();
         }
 
 
-        public async Task<Cliente> GetClienteByIdAsync(Guid id)
+        public async Task<ClienteResponseDTO> GetClienteByIdAsync(Guid id)
         {
             var cliente = await Task.FromResult(_context.clientes.FirstOrDefault(c => c.Id == id));
-            return cliente;
+            cliente.pedidos = await GetPedidoProdutos(cliente.Id);
+            ClienteResponseDTO dto = _mapper.Map<ClienteResponseDTO>(cliente);
+            return dto;
         }
 
-        public async Task<ClienteDTO> UpdateAsync(Guid id, ClienteDTO clienteDto)
+        public async Task<ClienteResponseDTO> UpdateAsync(Guid id, ClienteDTO clienteDto)
         {
-            if (clienteDto.Nome.Length < 8)
-            {
-                throw new ClienteUpdateException("Nome de usuario muito curto, por favor forneça um nome com pelo menos 8 digitos.");
-            }
-            if (clienteDto.Senha.Length < 8)
-            {
-                throw new ClienteUpdateException("Senha de usuario muito curta, por favor forneça uma senha com pelo menos 8 digitos.");
-            }
-            if (!Enum.IsDefined(typeof(Policies), clienteDto.Role))
-            {
-                throw new ClienteUpdateException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
-            }
+
 
             if (await _context.clientes.AnyAsync(c => c.Nome == clienteDto.Nome))
             {
@@ -124,7 +105,8 @@ namespace Web_Api_CRUD.Repository
             }
             cliente = _mapper.Map<Cliente>(clienteDto);
             await _context.SaveChangesAsync();
-            ClienteDTO response = _mapper.Map<ClienteDTO>(cliente);
+            cliente.pedidos = await GetPedidoProdutos(cliente.Id);
+            ClienteResponseDTO response = _mapper.Map<ClienteResponseDTO>(cliente);
             return response;
         }
 
@@ -139,6 +121,15 @@ namespace Web_Api_CRUD.Repository
 
             _context.clientes.Remove(cliente);
             await _context.SaveChangesAsync();
+        }
+
+        private async Task<List<Pedido>> GetPedidoProdutos(Guid idUsuario)
+        {
+            List<Pedido> pedidosProdutos = await _context.pedidos
+                .Include(pp => pp.cliente)
+                .Where(pp => pp.idCliente == idUsuario)
+                .ToListAsync();
+            return pedidosProdutos;
         }
     }
 }

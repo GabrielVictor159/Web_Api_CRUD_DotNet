@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
 namespace Web_Api_CRUD.Model
 {
     public class Pedido
@@ -11,13 +13,12 @@ namespace Web_Api_CRUD.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        [Required]
+        [JsonIgnore]
         public Cliente cliente { get; set; }
         [Required]
         public Guid idCliente { get; set; }
         [Required]
         public decimal ValorTotal { get; set; }
-        [Required]
-        public List<PedidoProduto> Lista { get; set; }
+        public List<PedidoProduto> Lista { get; set; } = new();
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Web_Api_CRUD.Infraestructure;
@@ -11,9 +12,11 @@ using Web_Api_CRUD.Infraestructure;
 namespace Web_Api_CRUD.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230503190725_tirandoCirculo")]
+    partial class tirandoCirculo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,10 +62,15 @@ namespace Web_Api_CRUD.Migrations
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("numeric");
 
+                    b.Property<Guid>("clienteId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("idCliente")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("clienteId");
 
                     b.HasIndex("idCliente");
 
@@ -116,6 +124,12 @@ namespace Web_Api_CRUD.Migrations
                 {
                     b.HasOne("Web_Api_CRUD.Model.Cliente", "cliente")
                         .WithMany("pedidos")
+                        .HasForeignKey("clienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Web_Api_CRUD.Model.Cliente", null)
+                        .WithMany()
                         .HasForeignKey("idCliente")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

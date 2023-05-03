@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace Web_Api_CRUD.Model
 {
@@ -27,8 +28,8 @@ namespace Web_Api_CRUD.Model
         [Required]
         [StringLength(50)]
         public String Role { get; set; }
-        public List<Pedido> pedidos { get; set; }
 
+        public List<Pedido> pedidos { get; set; } = new();
 
     }
 }

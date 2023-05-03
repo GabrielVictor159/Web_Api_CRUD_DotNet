@@ -14,10 +14,10 @@ namespace Web_Api_CRUD.Repository
     public interface IPedidoRepository
     {
         Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos);
-        Task<List<Pedido>> GetAllPageAsync(int index, int size);
+        Task<List<Pedido>> GetAllPageAsync(PedidoConsultaDTO filtro);
         Task<Pedido> GetPedidoByIdAsync(Guid id);
-        // Task UpdateAsync(Guid id, PedidoDTO pedidoDto);
-        // Task DeleteAsync(Guid id);
+        Task<Pedido> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos);
+        Task DeletePedidoAsync(Guid id);
     }
 
     public class PedidoRepository : IPedidoRepository
@@ -47,109 +47,158 @@ namespace Web_Api_CRUD.Repository
                 }
             }
             List<Guid> listaProdutosIds = listaProdutos.Select(p => p.Produto).ToList();
-            List<Produto> produtosNaoEncontrados = await _context.produtos.Where(p => !listaProdutosIds.Contains(p.Id)).ToListAsync();
-            if (produtosNaoEncontrados.Any())
+            List<Produto> produtosQueEstaoNoBanco = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
+            List<Guid> produtosNaoEncontradosIds = listaProdutosIds.Except(produtosQueEstaoNoBanco.Select(p => p.Id)).ToList();
+            if (produtosNaoEncontradosIds.Any())
             {
-                throw new PedidoProdutoInvalidProducts($"Os seguintes produtos não foram encontrados no banco de dados: {string.Join(", ", produtosNaoEncontrados.Select(p => p.Id))}");
+                throw new PedidoProdutoInvalidProducts($"Os seguintes produtos não foram encontrados no banco de dados: {string.Join(", ", produtosNaoEncontradosIds)}");
             }
             List<Produto> listaProdutosFinal = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
             Pedido pedido = new Pedido();
+            pedido.Id = Guid.NewGuid();
             await _context.SaveChangesAsync();
             List<PedidoProduto> listPedidoProduto = new List<PedidoProduto>();
             decimal valorTotal = 0;
             foreach (Produto produto in listaProdutosFinal)
             {
-                int quantidade = listaProdutos.Where(p => p.Produto == produto.Id).First().quantidade;
+                int quantidade = listaProdutos.Where(p => p.Produto == produto.Id).First().Quantidade;
                 PedidoProduto pedidoProduto = new PedidoProduto();
-                pedidoProduto.pedido = pedido;
-                pedidoProduto.produto = produto;
+                pedidoProduto.Pedido = pedido;
+                pedidoProduto.Produto = produto;
                 pedidoProduto.Quantidade = quantidade;
                 pedidoProduto.ValorTotalLinha = produto.Valor * quantidade;
                 listPedidoProduto.Add(pedidoProduto);
                 valorTotal += pedidoProduto.ValorTotalLinha;
-            }
 
-            pedido.Lista = listPedidoProduto;
+            }
             pedido.ValorTotal = valorTotal;
+            pedido.idCliente = cliente.Id;
             pedido.cliente = cliente;
+            pedido.Lista = listPedidoProduto;
+            _context.pedidos.Add(pedido);
             await _context.SaveChangesAsync();
             return pedido;
         }
-
-
-
-        public async Task<List<Pedido>> GetAllPageAsync(int index, int size)
+        public async Task<List<Pedido>> GetAllPageAsync(PedidoConsultaDTO filtro)
         {
-            List<Pedido> pedidos = await Task.FromResult(_context.pedidos
-                .Skip((index - 1) * size)
-                .Take(size)
-                .ToList());
+            var pedidosQuery = _context.pedidos.AsQueryable();
+
+            if (filtro.Id.HasValue)
+            {
+                var idString = filtro.Id.ToString();
+                pedidosQuery = pedidosQuery.Where(p => p.Id.ToString().Contains(idString.ToLower()));
+            }
+
+            if (filtro.idCliente.HasValue)
+            {
+                var idClienteString = filtro.idCliente.ToString();
+                pedidosQuery = pedidosQuery.Where(p => p.idCliente.ToString().Contains(idClienteString.ToLower()));
+            }
+
+            if (filtro.valorMinimo.HasValue)
+            {
+                pedidosQuery = pedidosQuery.Where(p => p.ValorTotal >= filtro.valorMinimo);
+            }
+
+            if (filtro.valorMaximo.HasValue)
+            {
+                pedidosQuery = pedidosQuery.Where(p => p.ValorTotal <= filtro.valorMaximo);
+            }
+
+            if (filtro.listaProdutos != null)
+            {
+                foreach (var produto in filtro.listaProdutos)
+                {
+                    var produtoIdString = produto.Produto.ToString();
+                    pedidosQuery = pedidosQuery.Where(p =>
+                        p.Lista.Any(pp => pp.IdProduto.ToString().Contains(produtoIdString.ToLower())
+                        && pp.Quantidade >= produto.Quantidade));
+                }
+            }
+
+            var pedidos = await pedidosQuery
+                .Skip((int)((filtro.index - 1) * filtro.size))
+                .Take((int)filtro.size)
+                .ToListAsync();
+
+            foreach (var pedido in pedidos)
+            {
+                pedido.Lista = await GetPedidoProdutos(pedido.Id);
+            }
+
             return pedidos;
         }
-
         public async Task<Pedido> GetPedidoByIdAsync(Guid id)
         {
-            var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
+            var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(c => c.Id == id));
+            if (pedido == null)
+            {
+                throw new PedidoConsultaException($"O Pedido com o ID {id} não foi encontrado");
+            }
+            pedido.Lista = await GetPedidoProdutos(pedido.Id);
             return pedido;
         }
+        public async Task<Pedido> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos)
+        {
+            var produtoIds = new HashSet<Guid>();
+            foreach (var produto in listaProdutos)
+            {
+                if (!produtoIds.Add(produto.Produto))
+                {
+                    throw new PedidoProdutoInvalidProducts($"O produto com o ID {produto.Produto} esta duplicado na lista.");
+                }
+            }
+            List<Guid> listaProdutosIds = listaProdutos.Select(p => p.Produto).ToList();
+            List<Produto> produtosQueEstaoNoBanco = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
+            List<Guid> produtosNaoEncontradosIds = listaProdutosIds.Except(produtosQueEstaoNoBanco.Select(p => p.Id)).ToList();
+            if (produtosNaoEncontradosIds.Any())
+            {
+                throw new PedidoProdutoInvalidProducts($"Os seguintes produtos não foram encontrados no banco de dados: {string.Join(", ", produtosNaoEncontradosIds)}");
+            }
+            List<Produto> listaProdutosFinal = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
+            Pedido pedido = await GetPedidoByIdAsync(id);
+            _context.pedidoProdutos.RemoveRange(pedido.Lista);
+            await _context.SaveChangesAsync();
+            List<PedidoProduto> listPedidoProduto = new List<PedidoProduto>();
+            decimal valorTotal = 0;
+            foreach (Produto produto in listaProdutosFinal)
+            {
+                int quantidade = listaProdutos.Where(p => p.Produto == produto.Id).First().Quantidade;
+                PedidoProduto pedidoProduto = new PedidoProduto();
+                pedidoProduto.Pedido = pedido;
+                pedidoProduto.Produto = produto;
+                pedidoProduto.Quantidade = quantidade;
+                pedidoProduto.ValorTotalLinha = produto.Valor * quantidade;
+                listPedidoProduto.Add(pedidoProduto);
+                valorTotal += pedidoProduto.ValorTotalLinha;
 
-        // public async Task UpdateAsync(Guid id, PedidoDTO pedidoDto)
-        // {
-        //     var pedido = await _context.pedidos
-        //         .Include(p => p.pedidoProduto)
-        //         .FirstOrDefaultAsync(p => p.Id == id);
+            }
+            pedido.ValorTotal = valorTotal;
+            pedido.Lista = listPedidoProduto;
+            await _context.SaveChangesAsync();
+            return pedido;
+        }
+        public async Task DeletePedidoAsync(Guid id)
+        {
+            var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(c => c.Id == id));
 
-        //     if (pedido == null)
-        //     {
-        //         throw new Exception($"Pedido com o ID {id} não encontrado");
-        //     }
-        //     _context.pedidoProdutos.RemoveRange(pedido.pedidoProduto);
-        //     _mapper.Map(pedidoDto, pedido);
-        //     List<Produto> produtos = _context.produtos.Where(p => pedidoDto.Lista.Contains(p.Id)).ToList();
-        //     if (produtos.Count == 0)
-        //     {
-        //         throw new Exception($"Por favor, informe IDs válidos para a lista de produtos.");
-        //     }
-        //     decimal valorTotal = produtos.Sum(p => p.Valor);
-        //     pedido.ValorTotal = valorTotal;
-        //     var gruposDeProdutos = pedidoDto.Lista.GroupBy(id => id).Select(g => new { Id = g.Key, Quantidade = g.Count() });
-        //     foreach (var grupo in gruposDeProdutos)
-        //     {
-        //         var produto = produtos.FirstOrDefault(p => p.Id == grupo.Id);
-
-        //         if (produto == null)
-        //         {
-        //             throw new Exception($"Produto com o ID {grupo.Id} não encontrado");
-        //         }
-
-        //         PedidoProduto pedidoProduto = new PedidoProduto
-        //         {
-        //             Quantidade = grupo.Quantidade,
-        //             ValorTotalLinha = produto.Valor * grupo.Quantidade,
-        //             produto = produto,
-        //             pedido = pedido
-        //         };
-
-        //         _context.pedidoProdutos.Add(pedidoProduto);
-        //     }
-
-        //     await _context.SaveChangesAsync();
-        // }
+            if (pedido == null)
+            {
+                throw new PedidoConsultaException($"Pedido com o ID {id} não encontrado");
+            }
+            _context.pedidos.Remove(pedido);
+            await _context.SaveChangesAsync();
+        }
+        private async Task<List<PedidoProduto>> GetPedidoProdutos(Guid idPedido)
+        {
+            List<PedidoProduto> pedidoProdutos = await _context.pedidoProdutos
+                .Include(p => p.Produto)
+                .Where(p => p.IdPedido == idPedido)
+                .ToListAsync();
+            return pedidoProdutos;
+        }
 
 
-        // public async Task DeleteAsync(Guid id)
-        // {
-        //     var pedido = await _context.pedidos.Include(p => p.pedidoProduto)
-        //                                          .FirstOrDefaultAsync(p => p.Id == id);
-        //     if (pedido == null)
-        //     {
-        //         throw new Exception($"Pedido com o ID {id} não encontrado");
-        //     }
-
-        //     _context.pedidoProdutos.RemoveRange(pedido.pedidoProduto);
-        //     _context.pedidos.Remove(pedido);
-        //     await _context.SaveChangesAsync();
-        // }
 
     }
 }

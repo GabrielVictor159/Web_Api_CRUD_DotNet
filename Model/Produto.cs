@@ -4,8 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Web_Api_CRUD.Model
 {
+    [Index(nameof(Nome), IsUnique = true)]
     public class Produto
     {
         [Key]
@@ -16,6 +21,6 @@ namespace Web_Api_CRUD.Model
         public String Nome { get; set; }
         [Required]
         public decimal Valor { get; set; }
-        public List<PedidoProduto> Lista { get; set; }
+        public List<PedidoProduto> Lista { get; set; } = new();
     }
 }

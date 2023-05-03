@@ -63,7 +63,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
 
         }
@@ -86,7 +86,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
 
         }
@@ -102,7 +102,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest("Operação invalida");
+                return BadRequest(e);
             }
         }
         [HttpPost]
@@ -115,7 +115,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
         [HttpPut]
@@ -126,7 +126,7 @@ namespace Web_Api_CRUD.Controllers
             try
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                ClienteDTO cliente = await _clienteService.UpdateByUser(userId, dto);
+                ClienteResponseDTO cliente = await _clienteService.UpdateByUser(userId, dto);
                 return Ok(cliente);
             }
             catch (ClienteUpdateException e)
@@ -135,7 +135,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
         [HttpPut]
@@ -146,7 +146,7 @@ namespace Web_Api_CRUD.Controllers
             try
             {
                 ClienteDTO clienteDto = _mapper.Map<ClienteDTO>(dto);
-                ClienteDTO cliente = await _clienteService.Update(dto.Id, clienteDto);
+                ClienteResponseDTO cliente = await _clienteService.Update(dto.Id, clienteDto);
                 return Ok(cliente);
             }
             catch (ClienteUpdateException e)
@@ -155,7 +155,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
         [HttpDelete]
@@ -174,7 +174,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
         [HttpDelete]
