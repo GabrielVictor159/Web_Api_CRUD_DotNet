@@ -15,7 +15,7 @@ namespace Web_Api_CRUD.Services
         Task<List<Produto>> ObterProdutosPaginadosAsync(int indice, int tamanhoPagina);
         Task<Produto> ObterProdutoPorIdAsync(Guid id);
         Task AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto);
-        Task ExcluirProdutoAsync(Guid id);
+        // Task ExcluirProdutoAsync(Guid id);
     }
     public class ProdutoService : IProdutoService
     {
@@ -48,9 +48,9 @@ namespace Web_Api_CRUD.Services
             await _IProdutoRepository.UpdateAsync(id, produtoDto);
         }
 
-        public async Task ExcluirProdutoAsync(Guid id)
-        {
-            await _IProdutoRepository.DeleteAsync(id);
-        }
+        // public async Task ExcluirProdutoAsync(Guid id)
+        // {
+        //     await _IProdutoRepository.DeleteAsync(id);
+        // }
     }
 }

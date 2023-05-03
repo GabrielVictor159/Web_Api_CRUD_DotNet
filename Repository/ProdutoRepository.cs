@@ -17,7 +17,7 @@ namespace Web_Api_CRUD.Repository
         Task<Produto> GetProdutoByIdAsync(Guid id);
         Task<List<Produto>> GetProdutosByIdsAsync(List<Guid> ids);
         Task UpdateAsync(Guid id, ProdutoDTO produtoDto);
-        Task DeleteAsync(Guid id);
+        // Task DeleteAsync(Guid id);
     }
     public class ProdutoRepository : IProdutoRepository
     {
@@ -67,18 +67,18 @@ namespace Web_Api_CRUD.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid id)
-        {
-            var produto = await _context.produtos.Include(p => p.pedidoProduto)
-                                                 .FirstOrDefaultAsync(p => p.Id == id);
-            if (produto == null)
-            {
-                throw new Exception($"Produto com o ID {id} não encontrado");
-            }
+        // public async Task DeleteAsync(Guid id)
+        // {
+        //     var produto = await _context.produtos.Include(p => p.pedidoProduto)
+        //                                          .FirstOrDefaultAsync(p => p.Id == id);
+        //     if (produto == null)
+        //     {
+        //         throw new Exception($"Produto com o ID {id} não encontrado");
+        //     }
 
-            _context.pedidoProdutos.RemoveRange(produto.pedidoProduto);
-            _context.produtos.Remove(produto);
-            await _context.SaveChangesAsync();
-        }
+        //     _context.pedidoProdutos.RemoveRange(produto.pedidoProduto);
+        //     _context.produtos.Remove(produto);
+        //     await _context.SaveChangesAsync();
+        // }
     }
 }

@@ -10,11 +10,11 @@ namespace Web_Api_CRUD.Services
 {
     public interface IPedidoService
     {
-        Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto);
+        // Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto);
         Task<List<Pedido>> ObterPedidosPaginadosAsync(int indice, int tamanhoPagina);
         Task<Pedido> ObterPedidoPorIdAsync(Guid id);
-        Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto);
-        Task ExcluirPedidoAsync(Guid id);
+        // Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto);
+        // Task ExcluirPedidoAsync(Guid id);
     }
     public class PedidoService : IPedidoService
     {
@@ -23,10 +23,10 @@ namespace Web_Api_CRUD.Services
         {
             _IPedidoRepository = pedidoRepository;
         }
-        public async Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto)
-        {
-            return await _IPedidoRepository.CreateAsync(pedidoDto);
-        }
+        // public async Task<Pedido> CriarPedidoAsync(PedidoDTO pedidoDto)
+        // {
+        //     return await _IPedidoRepository.CreateAsync(pedidoDto);
+        // }
 
         public async Task<List<Pedido>> ObterPedidosPaginadosAsync(int indice, int tamanhoPagina)
         {
@@ -38,15 +38,15 @@ namespace Web_Api_CRUD.Services
             return await _IPedidoRepository.GetPedidoByIdAsync(id);
         }
 
-        public async Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto)
-        {
-            await _IPedidoRepository.UpdateAsync(id, pedidoDto);
-        }
+        // public async Task AtualizarPedidoAsync(Guid id, PedidoDTO pedidoDto)
+        // {
+        //     await _IPedidoRepository.UpdateAsync(id, pedidoDto);
+        // }
 
-        public async Task ExcluirPedidoAsync(Guid id)
-        {
-            await _IPedidoRepository.DeleteAsync(id);
-        }
+        // public async Task ExcluirPedidoAsync(Guid id)
+        // {
+        //     await _IPedidoRepository.DeleteAsync(id);
+        // }
 
 
     }

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Web_Api_CRUD.Model.DTO
 {
-    public class PedidoDTO
+    public class ClienteUpdateDTO : ClienteDTO
     {
-        public List<ProdutoQuantidadeDTO> listaProdutos { get; set; }
+        public Guid Id { get; set; }
     }
 }

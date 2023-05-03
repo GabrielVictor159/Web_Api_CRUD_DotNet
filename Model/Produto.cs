@@ -16,6 +16,6 @@ namespace Web_Api_CRUD.Model
         public String Nome { get; set; }
         [Required]
         public decimal Valor { get; set; }
-        public PedidoProduto pedidoProduto { get; set; }
+        public List<PedidoProduto> Lista { get; set; }
     }
 }

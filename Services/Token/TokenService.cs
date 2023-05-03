@@ -9,13 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 namespace Web_Api_CRUD.Services.Token
 {
-    public interface ITokenService
+    public static class TokenService
     {
-        string GenerateToken(Cliente cliente);
-    }
-    public class TokenService
-    {
-        public string GenerateToken(Cliente cliente)
+        public static string GenerateToken(Cliente cliente)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
@@ -30,7 +26,6 @@ namespace Web_Api_CRUD.Services.Token
                 Expires = DateTime.UtcNow.AddHours(8),
                 SigningCredentials = new SigningCredentials
                 (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);

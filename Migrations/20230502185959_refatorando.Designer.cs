@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Web_Api_CRUD.Infraestructure;
@@ -11,9 +12,11 @@ using Web_Api_CRUD.Infraestructure;
 namespace Web_Api_CRUD.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230502185959_refatorando")]
+    partial class refatorando
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +61,6 @@ namespace Web_Api_CRUD.Migrations
 
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("numeric");
-
-                    b.Property<Guid>("idCliente")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -107,17 +107,6 @@ namespace Web_Api_CRUD.Migrations
                     b.ToTable("produtos");
                 });
 
-            modelBuilder.Entity("Web_Api_CRUD.Model.Pedido", b =>
-                {
-                    b.HasOne("Web_Api_CRUD.Model.Cliente", "cliente")
-                        .WithMany("pedidos")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("cliente");
-                });
-
             modelBuilder.Entity("Web_Api_CRUD.Model.PedidoProduto", b =>
                 {
                     b.HasOne("Web_Api_CRUD.Model.Pedido", "pedido")
@@ -135,11 +124,6 @@ namespace Web_Api_CRUD.Migrations
                     b.Navigation("pedido");
 
                     b.Navigation("produto");
-                });
-
-            modelBuilder.Entity("Web_Api_CRUD.Model.Cliente", b =>
-                {
-                    b.Navigation("pedidos");
                 });
 
             modelBuilder.Entity("Web_Api_CRUD.Model.Pedido", b =>

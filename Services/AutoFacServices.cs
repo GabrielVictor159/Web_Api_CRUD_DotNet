@@ -11,11 +11,9 @@ namespace Web_Api_CRUD.Services
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<TokenService>().As<ITokenService>();
-            builder.RegisterType<ClienteService>().As<IClienteService>().InstancePerRequest();
-            builder.RegisterType<PedidoService>().As<IPedidoService>().InstancePerRequest();
-            builder.RegisterType<ProdutoService>().As<IProdutoService>().InstancePerRequest();
-            builder.RegisterType<PedidoProdutoService>().As<IPedidoProdutoService>().InstancePerRequest();
+            builder.RegisterType<ClienteService>().As<IClienteService>().InstancePerLifetimeScope();
+            builder.RegisterType<PedidoService>().As<IPedidoService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProdutoService>().As<IProdutoService>().InstancePerLifetimeScope();
         }
     }
 }

@@ -1,59 +1,128 @@
-using Web_Api_CRUD.Infraestructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Web_Api_CRUD;
-using Web_Api_CRUD.Model.Enums;
-using Autofac.Extensions.DependencyInjection;
-using Web_Api_CRUD.Repository;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Web_Api_CRUD.Infraestructure;
+using Web_Api_CRUD.Model;
+using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Repository;
+using Web_Api_CRUD.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-
-var containerBuilder = new ContainerBuilder();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-containerBuilder.RegisterModule(new AutoFacRepositories());
-var container = containerBuilder.Build();
-var serviceProvider = new AutofacServiceProvider(container);
-builder.Services
-.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-var key = Encoding.ASCII.GetBytes(Settings.Secret);
-builder.Services.AddAuthorization(options =>
+namespace Web_Api_CRUD
 {
-    options.AddPolicy("Cliente", policy => policy.RequireRole(Policies.User));
-});
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-}).AddJwtBearer(e =>
-{
-    e.RequireHttpsMetadata = false;
-    e.SaveToken = true;
-    e.TokenValidationParameters = new TokenValidationParameters()
+    public class Program
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-    };
-});
-var app = builder.Build();
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                })
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+    }
+
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterModule(new AutoFacModel());
+            builder.RegisterModule(new AutoFacInfra());
+            builder.RegisterModule(new AutoFacRepositories());
+            builder.RegisterModule(new AutoFacServices());
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            var key = Encoding.ASCII.GetBytes(Settings.Secret);
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Cliente", policy => policy.RequireRole(Policies.USER.ToString()));
+                options.AddPolicy("Admin", policy => policy.RequireRole(Policies.ADMIN.ToString()));
+            });
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(e =>
+            {
+                e.RequireHttpsMetadata = false;
+                e.SaveToken = true;
+                e.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                };
+            });
+
+            services.AddSwaggerGen();
+            services.AddCors();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                });
+            }
+            else
+            {
+                app.UseExceptionHandler("/error");
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-app.UseAuthentication();
-app.MapControllers();
-
-app.Run();

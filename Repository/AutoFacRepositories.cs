@@ -9,10 +9,9 @@ namespace Web_Api_CRUD.Repository
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<ClienteRepository>().As<IClienteRepository>().InstancePerRequest();
-            builder.RegisterType<PedidoRepository>().As<IPedidoRepository>().InstancePerRequest();
-            builder.RegisterType<ProdutoRepository>().As<IProdutoRepository>().InstancePerRequest();
-            builder.RegisterType<PedidoProdutoRepository>().As<IPedidoProdutoRepository>().InstancePerRequest();
+            builder.RegisterType<ClienteRepository>().As<IClienteRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<PedidoRepository>().As<IPedidoRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ProdutoRepository>().As<IProdutoRepository>().InstancePerLifetimeScope();
         }
     }
 }

@@ -12,9 +12,12 @@ namespace Web_Api_CRUD.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [Required]
+        public Cliente cliente { get; set; }
+        [Required]
+        public Guid idCliente { get; set; }
+        [Required]
         public decimal ValorTotal { get; set; }
         [Required]
-        public List<Guid> Lista { get; set; }
-        public PedidoProduto pedidoProduto { get; set; }
+        public List<PedidoProduto> Lista { get; set; }
     }
 }
