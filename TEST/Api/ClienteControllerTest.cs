@@ -15,38 +15,163 @@ using FluentAssertions;
 using System.Net;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Web_Api_CRUD.Infraestructure;
+using Xunit.Frameworks.Autofac;
+using Bogus;
+using Web_Api_CRUD.Model.Enums;
 
 namespace TEST.Api
 {
+    [UseAutofacTestFramework]
     public class ClienteControllerTest
     {
         private readonly IMapper _mapper;
-        public ClienteControllerTest()
+        private readonly IClienteService _IClienteService;
+        private readonly ApplicationDbContext _context;
+        public ClienteControllerTest(IClienteService iClienteService,ApplicationDbContextMock applicationDbContextMock,IMapper mapper)
         {
-         _mapper = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<ClienteDTO, Cliente>().ReverseMap();
-                cfg.CreateMap<LoginDTO, ClienteDTO>().ReverseMap();
-                cfg.CreateMap<PedidoDTO, Pedido>().ReverseMap();
-                cfg.CreateMap<PedidoProdutoDTO, PedidoProduto>().ReverseMap();
-                cfg.CreateMap<ProdutoDTO, Produto>().ReverseMap();
-                cfg.CreateMap<ClienteUpdateDTO, ClienteDTO>().ReverseMap();
-                cfg.CreateMap<ProdutoAtualizarDTO, ProdutoDTO>().ReverseMap();
-            }).CreateMapper();
+        _mapper = mapper;
+        _IClienteService = iClienteService;
+        _context = applicationDbContextMock;
         }
+
         [Fact]
-        public async void Login()
+        public async void LoginTest()
         {
-            string usuario = "jubileu";
-            string senha = "Testando";
-            Moq.Mock<IClienteRepository> mock = new Moq.Mock<IClienteRepository>();
-            mock.Setup(e => e.Login(usuario,senha)).ReturnsAsync(new Cliente() { Id = Guid.NewGuid(), Nome = usuario, Role = "Admin", Senha = senha });
-            ClienteService clienteService = new ClienteService(mock.Object);
-            ClienteController clienteController = new ClienteController(clienteService,_mapper);
+            var faker = new Faker("pt_BR");
+            string usuario = faker.Name.FullName();
+            string senha = faker.Random.String2(10);
+            Cliente cliente = new Cliente() { Id = Guid.NewGuid(), Nome = usuario, Role = Policies.ADMIN.ToString(), Senha = senha };
+            _context.clientes.Add(cliente);
+            _context.SaveChanges();
+            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha});
             result.Result.Should().BeOfType<OkObjectResult>();
             var result2 = await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha+"5"});
             result2.Result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async void AddClienteTest()
+        {
+            var faker = new Faker("pt_BR");
+            LoginDTO loginDTO = new LoginDTO()
+            {
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10)
+            };
+            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+            var result =  await clienteController.AddCliente(loginDTO);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            var result2 =  await clienteController.AddCliente(loginDTO);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void AddAdminTest()
+        {
+            var faker = new Faker("pt_BR");
+            LoginDTO loginDTO = new LoginDTO()
+            {
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10)
+            };
+            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+            var result =  await clienteController.AddAdmin(loginDTO);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            var result2 =  await clienteController.AddCliente(loginDTO);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void GetAllPageTest()
+        {
+            var faker = new Faker("pt_BR"); 
+            List<Cliente> listCliente = new ();
+            for(int i=0;i<20; i++)
+            {
+                listCliente.Add(new Cliente(){Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString()});
+            }
+            _context.clientes.AddRange(listCliente);
+            _context.SaveChanges();
+            ClientePaginationDTO itensRequest = new ClientePaginationDTO();
+            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+            var result =  await clienteController.getAllPage(itensRequest);
+            result.Result.Should().BeOfType<OkObjectResult>();
+        }
+
+        [Fact]
+        public async void GetOneTest()
+        {
+            var faker = new Faker("pt_BR"); 
+            Cliente cliente = new Cliente()
+             {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+             _context.clientes.Add(cliente);
+             _context.SaveChanges();
+            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+            var result =  await clienteController.getOne(cliente.Id);
+             result.Result.Should().BeOfType<OkObjectResult>();
+             var result2 =  await clienteController.getOne(Guid.NewGuid());
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void UpdateByAdminTeste()
+        {
+           var faker = new Faker("pt_BR"); 
+            List<Cliente> clientes = new ();
+             for(int i=0; i<2; i++)
+             {
+              clientes.Add(  
+                new Cliente()
+                {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+                }
+              );
+             }
+             _context.clientes.AddRange(clientes);
+             _context.SaveChanges();
+              ClienteUpdateDTO dto = new ClienteUpdateDTO()
+              {
+                Id = clientes[0].Id,
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.USER.ToString()
+              };
+              ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+               var result =  await clienteController.updateByAdmin(dto);
+                result.Result.Should().BeOfType<OkObjectResult>();
+                dto.Nome = faker.Random.String2(5);
+                 var result2 =  await clienteController.updateByAdmin(dto);
+                result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void DeleteByUserTeste()
+        {
+            var faker = new Faker("pt_BR"); 
+            Cliente cliente = new Cliente()
+             {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+             _context.clientes.Add(cliente);
+             _context.SaveChanges();
+             ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
+              var result =  await clienteController.deleteByUser(cliente.Id);
+                result.Result.Should().BeOfType<OkObjectResult>();
+                 var result2 =  await clienteController.deleteByUser(Guid.NewGuid());
+                result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
     }
 }

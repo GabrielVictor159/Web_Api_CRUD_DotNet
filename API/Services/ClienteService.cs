@@ -49,8 +49,6 @@ namespace Web_Api_CRUD.Services
             {
                 throw new ClienteRegisterException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
             }
-
-
             return await _IClienteRepository.CreateAsync(clienteDTO);
         }
 

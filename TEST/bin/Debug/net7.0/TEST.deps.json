@@ -16,6 +16,7 @@
           "Web_Api_CRUD": "1.0.0",
           "coverlet.collector": "3.1.2",
           "xunit": "2.4.2",
+          "xunit.frameworks.autofac": "0.5.4",
           "xunit.runner.visualstudio": "2.4.5"
         },
         "runtime": {
@@ -96,6 +97,14 @@
           "lib/net6.0/FluentAssertions.dll": {
             "assemblyVersion": "6.11.0.0",
             "fileVersion": "6.11.0.0"
+          }
+        }
+      },
+      "JetBrains.Annotations/2021.3.0": {
+        "runtime": {
+          "lib/netstandard2.0/JetBrains.Annotations.dll": {
+            "assemblyVersion": "2021.3.0.0",
+            "fileVersion": "2021.3.0.0"
           }
         }
       },
@@ -1579,6 +1588,19 @@
           }
         }
       },
+      "xunit.frameworks.autofac/0.5.4": {
+        "dependencies": {
+          "Autofac": "7.0.1",
+          "JetBrains.Annotations": "2021.3.0",
+          "xunit.extensibility.execution": "2.4.2"
+        },
+        "runtime": {
+          "lib/net6.0/xunit.frameworks.autofac.dll": {
+            "assemblyVersion": "0.5.4.0",
+            "fileVersion": "0.5.4.0"
+          }
+        }
+      },
       "xunit.runner.visualstudio/2.4.5": {},
       "Web_Api_CRUD/1.0.0": {
         "dependencies": {
@@ -1663,6 +1685,13 @@
       "sha512": "sha512-aBaagwdNtVKkug1F3imGXUlmoBd8ZUZX8oQ5niThaJhF79SpESe1Gzq7OFuZkQdKD5Pa4Mone+jrbas873AT4g==",
       "path": "fluentassertions/6.11.0",
       "hashPath": "fluentassertions.6.11.0.nupkg.sha512"
+    },
+    "JetBrains.Annotations/2021.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ddxjs5RRjf+c8m9m++WvhW1lz1bqNhsTjWvCLbQN9bvKbkJeR9MhtfNwKgBRRdG2yLHcXFr5Lf7fsvvkiPaDRg==",
+      "path": "jetbrains.annotations/2021.3.0",
+      "hashPath": "jetbrains.annotations.2021.3.0.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication/2.2.0": {
       "type": "package",
@@ -2727,6 +2756,13 @@
       "sha512": "sha512-CZmgcKkwpyo8FlupZdWpJCryrAOWLh1FBPG6gmVZuPQkGQsim/oL4PcP4nfrC2hHgXUFtluvaJ0Sp9PQKUMNpg==",
       "path": "xunit.extensibility.execution/2.4.2",
       "hashPath": "xunit.extensibility.execution.2.4.2.nupkg.sha512"
+    },
+    "xunit.frameworks.autofac/0.5.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-oMenAWrbg93708tN1Xehpc5nDHZ58ZJ+eWtXeQ85YntpLRQgYuL5p78/ih2cCpwvSfh2f1g+63rLACxi8VkZ/Q==",
+      "path": "xunit.frameworks.autofac/0.5.4",
+      "hashPath": "xunit.frameworks.autofac.0.5.4.nupkg.sha512"
     },
     "xunit.runner.visualstudio/2.4.5": {
       "type": "package",

@@ -14,36 +14,22 @@ using Bogus;
 using Web_Api_CRUD.Infraestructure;
 using Microsoft.EntityFrameworkCore.InMemory;
 using AutoMapper;
+using Xunit.Frameworks.Autofac;
+using Web_Api_CRUD.Exceptions;
 
 namespace TEST.Service
 {
-
+    [UseAutofacTestFramework]
     public class ClienteServiceTest
     {
+        private readonly IClienteService _service;
         private readonly ApplicationDbContextMock _context;
-          private readonly IMapper _mapper;
-         public ClienteServiceTest()
+         public ClienteServiceTest(IClienteService service, ApplicationDbContextMock context)
          {
-             _mapper = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<ClienteDTO, Cliente>().ReverseMap();
-                cfg.CreateMap<LoginDTO, ClienteDTO>().ReverseMap();
-                cfg.CreateMap<PedidoDTO, Pedido>().ReverseMap();
-                cfg.CreateMap<PedidoProdutoDTO, PedidoProduto>().ReverseMap();
-                cfg.CreateMap<ProdutoDTO, Produto>().ReverseMap();
-                cfg.CreateMap<ClienteUpdateDTO, ClienteDTO>().ReverseMap();
-                cfg.CreateMap<ProdutoAtualizarDTO, ProdutoDTO>().ReverseMap();
-            }).CreateMapper();
-             var faker = new Faker("pt_BR"); 
-            List<Cliente> listCliente = new ();
-            for(int i=0;i<20; i++)
-            {
-                listCliente.Add(new Cliente(){Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString()});
-            }
-        _context = new ApplicationDbContextMock();
-        _context.clientes.AddRange(listCliente);
-        _context.SaveChanges();
+          _service = service;
+          _context = context;
          }
+
         [Fact]
         public async void LoginTest()
         {
@@ -57,24 +43,97 @@ namespace TEST.Service
         [Fact]
         public async void CreateTest()
         {
-            Moq.Mock<IClienteRepository> mock = new Moq.Mock<IClienteRepository>();
-            mock.Setup(e => e.CreateAsync(It.IsAny<ClienteDTO>())).ReturnsAsync(new Cliente());
-            ClienteService clienteService = new ClienteService(mock.Object);
-            Cliente cliente = await clienteService.Create(new ClienteDTO(){Nome = "testando", Senha = "testando", Role = Policies.ADMIN.ToString()});
-            cliente.Should().BeOfType<Cliente>();
-        }
-
-        [Fact]
-        public async void getAllPageTest()
-        {
-            ClienteRepository clienteRepository = new ClienteRepository(_context,_mapper);
-            ClienteService clienteService = new ClienteService(clienteRepository);
-            List<ClienteResponseDTO> result1 = await clienteService.getAllPage();
-            result1.Should().HaveCount(10);
-
+            var faker = new Faker("pt_BR");
+            ClienteDTO clienteDto = new ClienteDTO()
+            {
+               Nome= faker.Name.FullName(),
+               Senha = faker.Random.String2(10),
+               Role = Policies.ADMIN.ToString()
+            };
+            Func<Task> result = async ()=>{ await _service.Create(clienteDto);};
+            result.Should().NotBeNull();
+            clienteDto.Nome = faker.Random.String2(5);
+            Func<Task> result2 = async ()=>{ await _service.Create(clienteDto);};
+            await result2.Should().ThrowAsync<ClienteRegisterException>();
+            clienteDto.Nome = faker.Random.String2(10);
+            clienteDto.Senha = faker.Random.String2(5);
+            Func<Task> result3 = async ()=>{ await _service.Create(clienteDto);};
+            await result3.Should().ThrowAsync<ClienteRegisterException>();
+             clienteDto.Senha = faker.Random.String2(10);
+             clienteDto.Role = faker.Random.String2(10);
+            Func<Task> result4 = async ()=>{ await _service.Create(clienteDto);};
+            await result4.Should().ThrowAsync<ClienteRegisterException>();
         }
         
+        [Fact]
+        public async void Update()
+        {
+           var faker = new Faker("pt_BR"); 
+             Cliente cliente = new Cliente()
+             {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+            _context.clientes.Add(cliente);
+             _context.SaveChanges();
 
+             ClienteDTO newAtributes = new ClienteDTO()
+             {
+                Nome = faker.Name.FindName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.USER.ToString()
+             };
+             var Result1 = await _service.Update(cliente.Id,newAtributes);
+             Result1.Nome.Should().BeSameAs(newAtributes.Nome);
+             newAtributes.Nome = faker.Random.String2(5);
+             Func<Task> result2 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
+             await result2.Should().ThrowAsync<ClienteUpdateException>();
+            newAtributes.Nome = faker.Random.String2(10);
+            newAtributes.Senha = faker.Random.String2(6);
+             Func<Task> result3 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
+             await result3.Should().ThrowAsync<ClienteUpdateException>();
+             newAtributes.Senha = faker.Random.String2(10);
+             newAtributes.Role = faker.Random.String2(8);
+             Func<Task> result4 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
+             await result4.Should().ThrowAsync<ClienteUpdateException>();
+        }
+
+         [Fact]
+        public async void UpdateByUser()
+        {
+           var faker = new Faker("pt_BR"); 
+             Cliente cliente = new Cliente()
+             {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+            _context.clientes.Add(cliente);
+             _context.SaveChanges();
+
+             ClienteDTO newAtributes = new ClienteDTO()
+             {
+                Nome = faker.Name.FindName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+             var Result1 = await _service.UpdateByUser(cliente.Id,newAtributes);
+             Result1.Nome.Should().BeSameAs(newAtributes.Nome);
+             newAtributes.Nome = faker.Random.String2(5);
+             Func<Task> result2 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
+             await result2.Should().ThrowAsync<ClienteUpdateException>();
+            newAtributes.Nome = faker.Random.String2(10);
+            newAtributes.Senha = faker.Random.String2(6);
+             Func<Task> result3 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
+             await result3.Should().ThrowAsync<ClienteUpdateException>();
+             newAtributes.Senha = faker.Random.String2(10);
+             newAtributes.Role = faker.Random.String2(8);
+             Func<Task> result4 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
+             await result4.Should().ThrowAsync<ClienteUpdateException>();
+        }
         
     }
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "G8E/LJTxu84WWVEsA4frnCvm/QJzPcrAlLzgtK82j+vmLgDSit/Uethdl3n5ByEGs1dtGPBAfnF+tyW7Q6OPrQ==",
+  "dgSpecHash": "ARcRNtDqnSOIokGd7b9AxB2Da5N4rwQHNTKGTQgHOgX803SJ+xzSnqkDH/EV5uBZC5C7j0y++/VCZ38Pyglllw==",
   "success": true,
   "projectFilePath": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
   "expectedPackageFiles": [
@@ -12,6 +12,7 @@
     "/home/vscode/.nuget/packages/castle.core/5.1.1/castle.core.5.1.1.nupkg.sha512",
     "/home/vscode/.nuget/packages/coverlet.collector/3.1.2/coverlet.collector.3.1.2.nupkg.sha512",
     "/home/vscode/.nuget/packages/fluentassertions/6.11.0/fluentassertions.6.11.0.nupkg.sha512",
+    "/home/vscode/.nuget/packages/jetbrains.annotations/2021.3.0/jetbrains.annotations.2021.3.0.nupkg.sha512",
     "/home/vscode/.nuget/packages/microsoft.aspnetcore.authentication/2.2.0/microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
     "/home/vscode/.nuget/packages/microsoft.aspnetcore.authentication.abstractions/2.2.0/microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",
     "/home/vscode/.nuget/packages/microsoft.aspnetcore.authentication.core/2.2.0/microsoft.aspnetcore.authentication.core.2.2.0.nupkg.sha512",
@@ -164,6 +165,7 @@
     "/home/vscode/.nuget/packages/xunit.core/2.4.2/xunit.core.2.4.2.nupkg.sha512",
     "/home/vscode/.nuget/packages/xunit.extensibility.core/2.4.2/xunit.extensibility.core.2.4.2.nupkg.sha512",
     "/home/vscode/.nuget/packages/xunit.extensibility.execution/2.4.2/xunit.extensibility.execution.2.4.2.nupkg.sha512",
+    "/home/vscode/.nuget/packages/xunit.frameworks.autofac/0.5.4/xunit.frameworks.autofac.0.5.4.nupkg.sha512",
     "/home/vscode/.nuget/packages/xunit.runner.visualstudio/2.4.5/xunit.runner.visualstudio.2.4.5.nupkg.sha512"
   ],
   "logs": []

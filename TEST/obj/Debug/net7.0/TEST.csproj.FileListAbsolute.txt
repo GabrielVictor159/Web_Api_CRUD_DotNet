@@ -139,3 +139,5 @@
 /workspaces/Web_Api_CRUD/TEST/obj/Debug/net7.0/ref/TEST.dll
 /workspaces/Web_Api_CRUD/TEST/bin/Debug/net7.0/Bogus.dll
 /workspaces/Web_Api_CRUD/TEST/bin/Debug/net7.0/Microsoft.EntityFrameworkCore.InMemory.dll
+/workspaces/Web_Api_CRUD/TEST/bin/Debug/net7.0/xunit.frameworks.autofac.dll
+/workspaces/Web_Api_CRUD/TEST/bin/Debug/net7.0/JetBrains.Annotations.dll

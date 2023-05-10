@@ -194,6 +194,10 @@
               "target": "Package",
               "version": "[2.4.2, )"
             },
+            "xunit.frameworks.autofac": {
+              "target": "Package",
+              "version": "[0.5.4, )"
+            },
             "xunit.runner.visualstudio": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",

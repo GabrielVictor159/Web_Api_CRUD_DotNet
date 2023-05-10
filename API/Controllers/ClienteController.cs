@@ -94,7 +94,7 @@ namespace Web_Api_CRUD.Controllers
         [HttpPost]
         [Route("GetAllPage")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> getAllPage([FromBody] ClientePaginationDTO dto)
+        public async Task<ActionResult<List<Cliente>>> getAllPage([FromBody] ClientePaginationDTO dto)
         {
             try
             {
@@ -102,12 +102,12 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest();
             }
         }
         [HttpPost]
         [Route("GetOne")]
-        public async Task<ActionResult<dynamic>> getOne([FromBody] Guid id)
+        public async Task<ActionResult<Cliente>> getOne([FromBody] Guid id)
         {
             try
             {
@@ -115,12 +115,12 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
+                return BadRequest( "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult<dynamic>> updateByUser([FromBody] ClienteDTO dto)
+        public async Task<ActionResult<Cliente>> updateByUser([FromBody] ClienteDTO dto)
         {
 
             try
@@ -141,7 +141,7 @@ namespace Web_Api_CRUD.Controllers
         [HttpPut]
         [Route("UpdateByAdmin")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> updateByAdmin([FromBody] ClienteUpdateDTO dto)
+        public async Task<ActionResult<Cliente>> updateByAdmin([FromBody] ClienteUpdateDTO dto)
         {
             try
             {
@@ -160,12 +160,12 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpDelete]
         [Authorize]
-        public async Task<ActionResult<dynamic>> deleteByUser()
+        public async Task<ActionResult<String>> deleteByUser()
         {
             try
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                _clienteService.Delete(userId);
+                await _clienteService.Delete(userId);
                 return Ok("Usuario deletado");
             }
             catch (ClienteDeleteException e)
@@ -180,11 +180,11 @@ namespace Web_Api_CRUD.Controllers
         [HttpDelete]
         [Route("DeleteByAdmin")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> deleteByUser([FromBody] Guid id)
+        public async Task<ActionResult<String>> deleteByUser([FromBody] Guid id)
         {
             try
             {
-                _clienteService.Delete(id);
+                await _clienteService.Delete(id);
                 return Ok("Usuario deletado");
             }
             catch (ClienteDeleteException e)

@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using AutoMapper;
+using Web_Api_CRUD.Model;
 using Web_Api_CRUD.Model.DTO;
 
-namespace Web_Api_CRUD.Model
+namespace TEST.Model
 {
-    public class AutoFacModel : Module
+    public class ImapperAutofac : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
