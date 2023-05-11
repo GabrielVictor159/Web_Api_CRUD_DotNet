@@ -156,7 +156,11 @@ namespace Web_Api_CRUD.Repository
                 throw new PedidoProdutoInvalidProducts($"Os seguintes produtos não foram encontrados no banco de dados: {string.Join(", ", produtosNaoEncontradosIds)}");
             }
             List<Produto> listaProdutosFinal = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
-            Pedido pedido = await GetPedidoByIdAsync(id);
+            var pedido = await GetPedidoByIdAsync(id);
+            if(pedido==null)
+            {
+                throw new PedidoConsultaException($"O pedido com o ID {id} não foi encontrado");
+            }
             _context.pedidoProdutos.RemoveRange(pedido.Lista);
             await _context.SaveChangesAsync();
             List<PedidoProduto> listPedidoProduto = new List<PedidoProduto>();

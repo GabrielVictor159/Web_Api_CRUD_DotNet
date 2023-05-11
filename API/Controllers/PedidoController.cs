@@ -28,7 +28,7 @@ namespace Web_Api_CRUD.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<dynamic>> AddPedido([FromBody] List<ProdutoQuantidadeDTO> produtosDto)
+        public async Task<ActionResult<Pedido>> AddPedido([FromBody] List<ProdutoQuantidadeDTO> produtosDto)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace Web_Api_CRUD.Controllers
         [HttpPost]
         [Route("GetAllPage")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> GetAllPage([FromBody] PedidoConsultaDTO dto)
+        public async Task<ActionResult<Pedido>> GetAllPage([FromBody] PedidoConsultaDTO dto)
         {
             try
             {
@@ -69,14 +69,14 @@ namespace Web_Api_CRUD.Controllers
         [HttpPost]
         [Route("GetOne")]
         [Authorize]
-        public async Task<ActionResult<dynamic>> GetOne([FromBody] Guid id)
+        public async Task<ActionResult<Pedido>> GetOne([FromBody] Guid id)
         {
             try
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
                 String Role = HttpContext.User.FindFirstValue("Role");
                 Pedido pedido = await _IPedidoService.GetPedidoByIdAsync(id);
-                if (userId != pedido.idCliente && !Role.Equals(Policies.ADMIN.ToString()))
+                if (userId != pedido.idCliente && Role != Policies.ADMIN.ToString())
                 {
                     return Unauthorized("Você não tem autorização para buscar esse Pedido.");
                 }
@@ -95,7 +95,7 @@ namespace Web_Api_CRUD.Controllers
 
         [HttpPut]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> UpdateAsync([FromBody] PedidoUpdateDTO dto)
+        public async Task<ActionResult<Pedido>> Update([FromBody] PedidoUpdateDTO dto)
         {
             try
             {
@@ -106,6 +106,10 @@ namespace Web_Api_CRUD.Controllers
             {
                 return BadRequest(e.Message);
             }
+             catch (PedidoConsultaException e)
+            {
+                return BadRequest(e.Message);
+            }
             catch (Exception e)
             {
                 return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
@@ -113,14 +117,14 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpDelete]
         [Authorize]
-        public async Task<ActionResult<dynamic>> Delete([FromBody] Guid id)
+        public async Task<ActionResult<String>> Delete([FromBody] Guid id)
         {
             try
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
                 String Role = HttpContext.User.FindFirstValue("Role");
                 Pedido pedido = await _IPedidoService.GetPedidoByIdAsync(id);
-                if (userId != pedido.idCliente && !Role.Equals(Policies.ADMIN.ToString()))
+                if (userId != pedido.idCliente && Role != Policies.ADMIN.ToString())
                 {
                     return Unauthorized("Você não tem autorização para buscar esse Pedido.");
                 }
