@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
+using Web_Api_CRUD.Infraestructure;
 
 namespace TEST.Infraestructure
 {
@@ -10,7 +11,7 @@ namespace TEST.Infraestructure
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<ApplicationDbContextMock>().AsSelf().InstancePerLifetimeScope();
+          builder.RegisterType<ApplicationDbContextMock>().As<ApplicationDbContext>().InstancePerLifetimeScope();
         }
     
         

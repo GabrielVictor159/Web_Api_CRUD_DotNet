@@ -11,9 +11,9 @@ namespace TEST.Repository.Mock
 {
 	protected override void Load(ContainerBuilder builder)
 	{
-		builder.RegisterType<ClienteRepositoryMock>().As<IClienteRepository>().InstancePerLifetimeScope();
-        builder.RegisterType<PedidoRepositoryMock>().As<IPedidoRepository>().InstancePerLifetimeScope();
-        builder.RegisterType<ProdutoRepositoryMock>().As<IProdutoRepository>().InstancePerLifetimeScope();
+		builder.RegisterType<ClienteRepository>().As<IClienteRepository>().InstancePerLifetimeScope();
+        builder.RegisterType<PedidoRepository>().As<IPedidoRepository>().InstancePerLifetimeScope();
+        builder.RegisterType<ProdutoRepository>().As<IProdutoRepository>().InstancePerLifetimeScope();
     }
         
     }

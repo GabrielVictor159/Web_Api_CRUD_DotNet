@@ -19,20 +19,20 @@ using Web_Api_CRUD.Infraestructure;
 using Xunit.Frameworks.Autofac;
 using Bogus;
 using Web_Api_CRUD.Model.Enums;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace TEST.Api
 {
     [UseAutofacTestFramework]
     public class ClienteControllerTest
     {
-        private readonly IMapper _mapper;
-        private readonly IClienteService _IClienteService;
         private readonly ApplicationDbContext _context;
-        public ClienteControllerTest(IClienteService iClienteService,ApplicationDbContextMock applicationDbContextMock,IMapper mapper)
+        private readonly ClienteController clienteController;
+        public ClienteControllerTest(ClienteController controller,ApplicationDbContext applicationDbContext)
         {
-        _mapper = mapper;
-        _IClienteService = iClienteService;
-        _context = applicationDbContextMock;
+        clienteController = controller;
+        _context = applicationDbContext;
         }
 
         [Fact]
@@ -44,7 +44,6 @@ namespace TEST.Api
             Cliente cliente = new Cliente() { Id = Guid.NewGuid(), Nome = usuario, Role = Policies.ADMIN.ToString(), Senha = senha };
             _context.clientes.Add(cliente);
             _context.SaveChanges();
-            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha});
             result.Result.Should().BeOfType<OkObjectResult>();
             var result2 = await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha+"5"});
@@ -60,7 +59,6 @@ namespace TEST.Api
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10)
             };
-            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.AddCliente(loginDTO);
             result.Result.Should().BeOfType<OkObjectResult>();
             var result2 =  await clienteController.AddCliente(loginDTO);
@@ -76,7 +74,6 @@ namespace TEST.Api
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10)
             };
-            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.AddAdmin(loginDTO);
             result.Result.Should().BeOfType<OkObjectResult>();
             var result2 =  await clienteController.AddCliente(loginDTO);
@@ -91,11 +88,10 @@ namespace TEST.Api
             for(int i=0;i<20; i++)
             {
                 listCliente.Add(new Cliente(){Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString()});
-            }
+            };
             _context.clientes.AddRange(listCliente);
             _context.SaveChanges();
             ClientePaginationDTO itensRequest = new ClientePaginationDTO();
-            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.getAllPage(itensRequest);
             result.Result.Should().BeOfType<OkObjectResult>();
         }
@@ -113,7 +109,6 @@ namespace TEST.Api
              };
              _context.clientes.Add(cliente);
              _context.SaveChanges();
-            ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
             var result =  await clienteController.getOne(cliente.Id);
              result.Result.Should().BeOfType<OkObjectResult>();
              var result2 =  await clienteController.getOne(Guid.NewGuid());
@@ -146,7 +141,6 @@ namespace TEST.Api
                 Senha = faker.Random.String2(10),
                 Role = Policies.USER.ToString()
               };
-              ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
                var result =  await clienteController.updateByAdmin(dto);
                 result.Result.Should().BeOfType<OkObjectResult>();
                 dto.Nome = faker.Random.String2(5);
@@ -156,6 +150,37 @@ namespace TEST.Api
 
         [Fact]
         public async void DeleteByUserTeste()
+        {
+          var faker = new Faker("pt_BR"); 
+            Cliente cliente = new Cliente()
+             {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+             };
+             _context.clientes.Add(cliente);
+             _context.SaveChanges();
+            var claims = new[]
+            {
+                new Claim("Id", cliente.Id.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var principal = new ClaimsPrincipal(identity);
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = principal
+            };
+            clienteController.ControllerContext.HttpContext = httpContext;
+            var result = await clienteController.deleteByUser();
+            result.Result.Should().BeOfType<OkObjectResult>();
+
+        }
+
+        [Fact]
+        public async void DeleteByUserAdminTeste()
         {
             var faker = new Faker("pt_BR"); 
             Cliente cliente = new Cliente()
@@ -167,7 +192,6 @@ namespace TEST.Api
              };
              _context.clientes.Add(cliente);
              _context.SaveChanges();
-             ClienteController clienteController = new ClienteController(_IClienteService,_mapper);
               var result =  await clienteController.deleteByUser(cliente.Id);
                 result.Result.Should().BeOfType<OkObjectResult>();
                  var result2 =  await clienteController.deleteByUser(Guid.NewGuid());

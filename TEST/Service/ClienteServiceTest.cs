@@ -23,8 +23,8 @@ namespace TEST.Service
     public class ClienteServiceTest
     {
         private readonly IClienteService _service;
-        private readonly ApplicationDbContextMock _context;
-         public ClienteServiceTest(IClienteService service, ApplicationDbContextMock context)
+        private readonly ApplicationDbContext _context;
+         public ClienteServiceTest(IClienteService service, ApplicationDbContext context)
          {
           _service = service;
           _context = context;

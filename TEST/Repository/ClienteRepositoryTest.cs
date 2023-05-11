@@ -11,6 +11,7 @@ using Xunit.Frameworks.Autofac;
 using FluentAssertions;
 using Web_Api_CRUD.Exceptions;
 using Web_Api_CRUD.Model;
+using Web_Api_CRUD.Infraestructure;
 
 namespace TEST.Repository
 {
@@ -18,8 +19,8 @@ namespace TEST.Repository
     public class ClienteRepositoryTest
     {
          private readonly IClienteRepository _service;
-        private readonly ApplicationDbContextMock _context;
-         public ClienteRepositoryTest(IClienteRepository service, ApplicationDbContextMock context)
+        private readonly ApplicationDbContext _context;
+         public ClienteRepositoryTest(IClienteRepository service, ApplicationDbContext context)
          {
           _service = service;
           _context = context;

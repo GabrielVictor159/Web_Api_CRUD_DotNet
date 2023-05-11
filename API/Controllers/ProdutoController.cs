@@ -26,7 +26,7 @@ namespace Web_Api_CRUD.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> CadastrarProduto([FromBody] ProdutoDTO dto)
+        public async Task<ActionResult<Produto>> CadastrarProduto([FromBody] ProdutoDTO dto)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpPost]
         [Route("GetAllPage")]
-        public async Task<ActionResult<dynamic>> getAllPage([FromBody] ProdutoConsultaDTO dto)
+        public async Task<ActionResult<List<Produto>>> getAllPage([FromBody] ProdutoConsultaDTO dto)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpPost]
         [Route("GetOne")]
-        public async Task<ActionResult<dynamic>> getOne([FromBody] Guid id)
+        public async Task<ActionResult<Produto>> getOne([FromBody] Guid id)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpPut]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> alterarProduto([FromBody] ProdutoAtualizarDTO dto)
+        public async Task<ActionResult<Produto>> alterarProduto([FromBody] ProdutoAtualizarDTO dto)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace Web_Api_CRUD.Controllers
 
         [HttpDelete]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<dynamic>> deletarProduto([FromBody] Guid id)
+        public async Task<ActionResult<String>> deletarProduto([FromBody] Guid id)
         {
             try
             {
