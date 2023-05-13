@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
-namespace Web_Api_CRUD.Model.Cryptography
+namespace Web_Api_CRUD.Domain.Cryptography
 {
     public interface Cryptography
     {

@@ -6,8 +6,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Web_Api_CRUD.Exceptions;
 using Web_Api_CRUD.Infraestructure;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
 
 namespace Web_Api_CRUD.Repository
 {

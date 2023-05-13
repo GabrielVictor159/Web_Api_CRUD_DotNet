@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
-namespace Web_Api_CRUD.Model
+namespace Web_Api_CRUD.Domain
 {
     [Index(nameof(Nome), IsUnique = true)]
     public class Cliente

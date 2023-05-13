@@ -6,8 +6,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web_Api_CRUD.Exceptions;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Services;
 
 namespace Web_Api_CRUD.Controllers

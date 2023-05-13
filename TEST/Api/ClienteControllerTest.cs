@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Web_Api_CRUD.Controllers;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Repository;
 using Web_Api_CRUD.Services;
 using Xunit;
@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Web_Api_CRUD.Infraestructure;
 using Xunit.Frameworks.Autofac;
 using Bogus;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain.Enums;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
@@ -29,143 +29,198 @@ namespace TEST.Api
     {
         private readonly ApplicationDbContext _context;
         private readonly ClienteController clienteController;
-        public ClienteControllerTest(ClienteController controller,ApplicationDbContext applicationDbContext)
+        private Faker faker = new Faker("pt_BR");
+        public ClienteControllerTest(ClienteController controller, ApplicationDbContext applicationDbContext)
         {
-        clienteController = controller;
-        _context = applicationDbContext;
+            clienteController = controller;
+            _context = applicationDbContext;
         }
 
         [Fact]
         public async void LoginTest()
         {
-            var faker = new Faker("pt_BR");
-            string usuario = faker.Name.FullName();
             string senha = faker.Random.String2(10);
-            Cliente cliente = new Cliente() { Id = Guid.NewGuid(), Nome = usuario, Role = Policies.ADMIN.ToString(), Senha = senha };
+            Cliente cliente = new Cliente() { Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Role = Policies.ADMIN.ToString(), Senha = senha };
             _context.clientes.Add(cliente);
             _context.SaveChanges();
-            var result =  await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha});
+            var result = await clienteController.Login(new LoginDTO() { Nome = cliente.Nome, Senha = senha });
             result.Result.Should().BeOfType<OkObjectResult>();
-            var result2 = await clienteController.Login(new LoginDTO() { Nome=usuario, Senha=senha+"5"});
-            result2.Result.Should().BeOfType<NotFoundResult>();
+            var result2 = await clienteController.Login(new LoginDTO() { Nome = cliente.Nome, Senha = senha + "5" });
+            result2.Result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
         public async void AddClienteTest()
         {
-            var faker = new Faker("pt_BR");
             LoginDTO loginDTO = new LoginDTO()
             {
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10)
             };
-            var result =  await clienteController.AddCliente(loginDTO);
+            var result = await clienteController.AddCliente(loginDTO);
             result.Result.Should().BeOfType<OkObjectResult>();
-            var result2 =  await clienteController.AddCliente(loginDTO);
+            var result2 = await clienteController.AddCliente(loginDTO);
             result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void AddAdminTest()
         {
-            var faker = new Faker("pt_BR");
             LoginDTO loginDTO = new LoginDTO()
             {
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10)
             };
-            var result =  await clienteController.AddAdmin(loginDTO);
+            var result = await clienteController.AddAdmin(loginDTO);
             result.Result.Should().BeOfType<OkObjectResult>();
-            var result2 =  await clienteController.AddCliente(loginDTO);
+            var result2 = await clienteController.AddCliente(loginDTO);
             result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void GetAllPageTest()
         {
-            var faker = new Faker("pt_BR"); 
-            List<Cliente> listCliente = new ();
-            for(int i=0;i<20; i++)
+            List<Cliente> listCliente = new();
+            for (int i = 0; i < 20; i++)
             {
-                listCliente.Add(new Cliente(){Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString()});
+                listCliente.Add(new Cliente() { Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString() });
             };
             _context.clientes.AddRange(listCliente);
             _context.SaveChanges();
             ClientePaginationDTO itensRequest = new ClientePaginationDTO();
-            var result =  await clienteController.getAllPage(itensRequest);
+            var result = await clienteController.getAllPage(itensRequest);
             result.Result.Should().BeOfType<OkObjectResult>();
+            itensRequest.Index = -1;
+            var result2 = await clienteController.getAllPage(itensRequest);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void GetOneTest()
         {
-            var faker = new Faker("pt_BR"); 
             Cliente cliente = new Cliente()
-             {
+            {
                 Id = Guid.NewGuid(),
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.ADMIN.ToString()
-             };
-             _context.clientes.Add(cliente);
-             _context.SaveChanges();
-            var result =  await clienteController.getOne(cliente.Id);
-             result.Result.Should().BeOfType<OkObjectResult>();
-             var result2 =  await clienteController.getOne(Guid.NewGuid());
+            };
+            _context.clientes.Add(cliente);
+            _context.SaveChanges();
+            var result = await clienteController.getOne(cliente.Id);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            var result2 = await clienteController.getOne(Guid.NewGuid());
             result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void UpdateByAdminTeste()
         {
-           var faker = new Faker("pt_BR"); 
-            List<Cliente> clientes = new ();
-             for(int i=0; i<2; i++)
-             {
-              clientes.Add(  
-                new Cliente()
-                {
-                Id = Guid.NewGuid(),
-                Nome = faker.Name.FullName(),
-                Senha = faker.Random.String2(10),
-                Role = Policies.ADMIN.ToString()
-                }
-              );
-             }
-             _context.clientes.AddRange(clientes);
-             _context.SaveChanges();
-              ClienteUpdateDTO dto = new ClienteUpdateDTO()
-              {
+            List<Cliente> clientes = new();
+            for (int i = 0; i < 2; i++)
+            {
+                clientes.Add(
+                  new Cliente()
+                  {
+                      Id = Guid.NewGuid(),
+                      Nome = faker.Name.FullName(),
+                      Senha = faker.Random.String2(10),
+                      Role = Policies.ADMIN.ToString()
+                  }
+                );
+            }
+            _context.clientes.AddRange(clientes);
+            _context.SaveChanges();
+            ClienteUpdateDTO dto = new ClienteUpdateDTO()
+            {
                 Id = clientes[0].Id,
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.USER.ToString()
-              };
-               var result =  await clienteController.updateByAdmin(dto);
-                result.Result.Should().BeOfType<OkObjectResult>();
-                dto.Nome = faker.Random.String2(5);
-                 var result2 =  await clienteController.updateByAdmin(dto);
-                result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            };
+            var result = await clienteController.updateByAdmin(dto);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            dto.Nome = faker.Random.String2(5);
+            var result2 = await clienteController.updateByAdmin(dto);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+         [Fact]
+        public async void UpdateByUserTeste()
+        {
+            Cliente cliente = new Cliente()
+            {
+                      Id = Guid.NewGuid(),
+                      Nome = faker.Name.FullName(),
+                      Senha = faker.Random.String2(10),
+                      Role = Policies.ADMIN.ToString()
+            };
+            _context.clientes.Add(cliente);
+            await _context.SaveChangesAsync();
+            ClienteDTO dto = new ClienteDTO()
+            {
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+            };
+            SetHttpContextWithClaims(cliente.Id.ToString());
+            var result = await clienteController.updateByUser(dto);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            dto.Nome = faker.Random.String2(5);
+            var result2 = await clienteController.updateByUser(dto);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            dto.Nome = faker.Random.String2(10);
+            dto.Role = Policies.USER.ToString();
+            var result3 = await clienteController.updateByUser(dto);
+            result3.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void DeleteByUserTeste()
         {
-          var faker = new Faker("pt_BR"); 
             Cliente cliente = new Cliente()
-             {
+            {
                 Id = Guid.NewGuid(),
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.ADMIN.ToString()
-             };
-             _context.clientes.Add(cliente);
-             _context.SaveChanges();
+            };
+            _context.clientes.Add(cliente);
+            await _context.SaveChangesAsync();
+            SetHttpContextWithClaims(cliente.Id.ToString());
+            var result = await clienteController.deleteByUser();
+            result.Result.Should().BeOfType<OkObjectResult>();
+            SetHttpContextWithClaims(Guid.NewGuid().ToString());
+            var result2 = await clienteController.deleteByUser();
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void DeleteByUserAdminTeste()
+        {
+            Cliente cliente = new Cliente()
+            {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+            };
+            _context.clientes.Add(cliente);
+            _context.SaveChanges();
+            var result = await clienteController.deleteByUserAdmin(cliente.Id);
+            result.Result.Should().BeOfType<OkObjectResult>();
+            var result2 = await clienteController.deleteByUserAdmin(Guid.NewGuid());
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+
+         private void SetHttpContextWithClaims(string id, Boolean admin = true)
+        {
             var claims = new[]
             {
-                new Claim("Id", cliente.Id.ToString())
-            };
-
+            new Claim("Id", id),
+            new Claim(ClaimTypes.Role, admin?Policies.ADMIN.ToString():Policies.USER.ToString())
+        };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
             var principal = new ClaimsPrincipal(identity);
 
@@ -173,29 +228,8 @@ namespace TEST.Api
             {
                 User = principal
             };
+
             clienteController.ControllerContext.HttpContext = httpContext;
-            var result = await clienteController.deleteByUser();
-            result.Result.Should().BeOfType<OkObjectResult>();
-
-        }
-
-        [Fact]
-        public async void DeleteByUserAdminTeste()
-        {
-            var faker = new Faker("pt_BR"); 
-            Cliente cliente = new Cliente()
-             {
-                Id = Guid.NewGuid(),
-                Nome = faker.Name.FullName(),
-                Senha = faker.Random.String2(10),
-                Role = Policies.ADMIN.ToString()
-             };
-             _context.clientes.Add(cliente);
-             _context.SaveChanges();
-              var result =  await clienteController.deleteByUser(cliente.Id);
-                result.Result.Should().BeOfType<OkObjectResult>();
-                 var result2 =  await clienteController.deleteByUser(Guid.NewGuid());
-                result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
     }
 }

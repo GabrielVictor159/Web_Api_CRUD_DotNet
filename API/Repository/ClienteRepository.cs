@@ -6,21 +6,23 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Web_Api_CRUD.Exceptions;
 using Web_Api_CRUD.Infraestructure;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.Cryptography;
-using Web_Api_CRUD.Model.DTO;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.Cryptography;
+using Web_Api_CRUD.Domain.DTO;
+using Web_Api_CRUD.Domain.Enums;
 
 namespace Web_Api_CRUD.Repository
 {
     public interface IClienteRepository
     {
-        Task<Cliente> CreateAsync(ClienteDTO clienteDto);
+        Task<Cliente> CreateAsync(Cliente cliente);
+        Task<List<Cliente>> GetAllByNameAsync(String Name);
         Task<Cliente> Login(String Nome, String Senha);
         Task<List<ClienteResponseDTO>> GetAllPageAsync(int index = 1, int size = 10, string nome = null, string role = null, string id = null);
         Task<ClienteResponseDTO> GetClienteByIdAsync(Guid id);
         Task<ClienteResponseDTO> UpdateAsync(Guid id, ClienteDTO clienteDto);
-        Task DeleteAsync(Guid id);
+        Task<List<Pedido>> GetPedidos(Guid idUsuario);
+        Task<Boolean> DeleteAsync(Guid id);
     }
     public class ClienteRepository : IClienteRepository
     {
@@ -33,28 +35,27 @@ namespace Web_Api_CRUD.Repository
             _mapper = mapper;
         }
 
-        public async Task<Cliente> CreateAsync(ClienteDTO clienteDto)
+        public async Task<Cliente> CreateAsync(Cliente cliente)
         {
-            if (await _context.clientes.AnyAsync(c => c.Nome == clienteDto.Nome))
-            {
-                throw new ClienteRegisterException("Já existe um cliente com o mesmo nome.");
-            }
-            Cliente cliente = _mapper.Map<Cliente>(clienteDto);
             _context.clientes.Add(cliente);
             await _context.SaveChangesAsync();
             return cliente;
         }
-
-        public async Task<Cliente> Login(String Nome, String Senha)
+        public async Task<List<Cliente>> GetAllByNameAsync(String Name)
         {
-            String senhaCriptografada = Cryptography.md5Hash(Senha);
-            return await Task.Run(() => _context.clientes.Where(b => b.Nome == Nome && b.Senha == senhaCriptografada).FirstOrDefault());
+            return await _context.clientes.Where(a => a.Nome == Name).ToListAsync();
+        }
+
+        public async Task<Cliente?> Login(String Nome, String Senha)
+        {
+            var user = await Task.FromResult(_context.clientes.Where(b => b.Nome == Nome && b.Senha == Senha).FirstOrDefault());
+            return user;
         }
         public async Task<List<ClienteResponseDTO>> GetAllPageAsync(int index = 1, int size = 10, string nome = null, string role = null, string id = null)
         {
             var query = _context.clientes.AsQueryable();
 
-            if (!string.IsNullOrEmpty(id))
+              if (!string.IsNullOrEmpty(id))
             {
                 query = query.Where(c => c.Id.ToString().ToLower().Contains(id.ToLower()));
             }
@@ -70,66 +71,63 @@ namespace Web_Api_CRUD.Repository
             }
 
             var clientes = await query
-                .Skip((index - 1) * size)
+                .Skip(((index - 1) * size))
                 .Take(size)
                 .ToListAsync();
-            foreach (var cliente in clientes)
-            {
-                cliente.pedidos = await GetPedidoProdutos(cliente.Id);
-            }
-            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role, pedidos = c.pedidos }).ToList();
+
+            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role}).ToList();
         }
 
 
-        public async Task<ClienteResponseDTO> GetClienteByIdAsync(Guid id)
+        public async Task<ClienteResponseDTO?> GetClienteByIdAsync(Guid id)
         {
             var cliente = await Task.FromResult(_context.clientes.FirstOrDefault(c => c.Id == id));
-            cliente.pedidos = await GetPedidoProdutos(cliente.Id);
+            if (cliente == null)
+            {
+                return null;
+            }
             ClienteResponseDTO dto = _mapper.Map<ClienteResponseDTO>(cliente);
             return dto;
         }
 
-        public async Task<ClienteResponseDTO> UpdateAsync(Guid id, ClienteDTO clienteDto)
+        public async Task<ClienteResponseDTO?> UpdateAsync(Guid id, ClienteDTO clienteDto)
         {
-
-
-            if (await _context.clientes.AnyAsync(c => c.Nome == clienteDto.Nome))
-            {
-                throw new ClienteUpdateException("Já existe um cliente com o mesmo nome.");
-            }
             var cliente = await Task.FromResult(_context.clientes.FirstOrDefault(c => c.Id == id));
-
-            if (cliente == null)
+            if(cliente !=null)
             {
-                throw new ClienteUpdateException($"Cliente com o ID {id} não encontrado");
-            }
             cliente = _mapper.Map<Cliente>(clienteDto);
+            cliente.Id = id;
             await _context.SaveChangesAsync();
-            cliente.pedidos = await GetPedidoProdutos(cliente.Id);
+            cliente.pedidos = await GetPedidos(cliente.Id);
             ClienteResponseDTO response = _mapper.Map<ClienteResponseDTO>(cliente);
             return response;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Boolean> DeleteAsync(Guid id)
         {
             var cliente = await Task.FromResult(_context.clientes.FirstOrDefault(c => c.Id == id));
-
             if (cliente == null)
             {
-                throw new ClienteDeleteException($"Cliente com o ID {id} não encontrado");
+                return false;
             }
-
             _context.clientes.Remove(cliente);
             await _context.SaveChangesAsync();
+            return true;
+
         }
 
-        private async Task<List<Pedido>> GetPedidoProdutos(Guid idUsuario)
+        public async Task<List<Pedido>> GetPedidos(Guid idUsuario)
         {
-            List<Pedido> pedidosProdutos = await _context.pedidos
+            List<Pedido> pedidos = await _context.pedidos
                 .Include(pp => pp.cliente)
                 .Where(pp => pp.idCliente == idUsuario)
                 .ToListAsync();
-            return pedidosProdutos;
+            return pedidos;
         }
     }
 }

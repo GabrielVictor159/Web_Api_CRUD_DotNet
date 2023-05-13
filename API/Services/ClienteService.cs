@@ -3,123 +3,124 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web_Api_CRUD.Exceptions;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
+using Web_Api_CRUD.Domain.Enums;
 using Web_Api_CRUD.Repository;
 using Web_Api_CRUD.Services.Token;
+using Web_Api_CRUD.Domain.Cryptography;
+using API.Domain.DTO;
+using AutoMapper;
 
 namespace Web_Api_CRUD.Services
 {
     public interface IClienteService
     {
-        Task<Cliente> Login(String Nome, String Senha);
-        Task<Cliente> Create(ClienteDTO clienteDTO);
+
+        Task<String?> Login(String Nome, String Senha);
+        Task<Object> Create(ClienteDTO clienteDTO);
         Task<List<ClienteResponseDTO>> getAllPage(int? index = 1, int? size = 10, string? nome = null, string? role = null, string Id = null);
-        Task<ClienteResponseDTO> getById(Guid id);
-        Task<ClienteResponseDTO> Update(Guid id, ClienteDTO clienteDTO);
-        Task<ClienteResponseDTO> UpdateByUser(Guid id, ClienteDTO clienteDTO);
-        Task Delete(Guid id);
+        Task<Object> getById(Guid id);
+        Task<Object> Update(Guid id, ClienteDTO clienteDTO);
+        Task<Object> UpdateByUser(Guid id, ClienteDTO clienteDTO);
+        Task<Boolean> Delete(Guid id);
     }
     public class ClienteService : IClienteService
     {
         private readonly IClienteRepository _IClienteRepository;
-        public ClienteService(IClienteRepository clienteRepository)
+        private readonly IMapper _mapper;
+        public ClienteService(IClienteRepository clienteRepository, IMapper mapper)
         {
             _IClienteRepository = clienteRepository;
+            _mapper = mapper;
         }
 
-        public async Task<Cliente> Login(String Nome, String Senha)
+        public async Task<String?> Login(String Nome, String Senha)
         {
-            return await _IClienteRepository.Login(Nome, Senha);
-
-        }
-
-        public async Task<Cliente> Create(ClienteDTO clienteDTO)
-        {
-            if (clienteDTO.Nome.Length < 8)
+            String senhaCriptografada = Cryptography.md5Hash(Senha);
+            var login = await _IClienteRepository.Login(Nome, senhaCriptografada);
+            if (login != null)
             {
-                throw new ClienteRegisterException("Nome de usuario muito curto, por favor forneça um nome com pelo menos 8 digitos.");
+                return TokenService.GenerateToken(login);
             }
-            if (clienteDTO.Senha.Length < 8)
-            {
-                throw new ClienteRegisterException("Senha de usuario muito curta, por favor forneça uma senha com pelo menos 8 digitos.");
-            }
-            if (!Enum.IsDefined(typeof(Policies), clienteDTO.Role))
-            {
-                throw new ClienteRegisterException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
-            }
-            return await _IClienteRepository.CreateAsync(clienteDTO);
-        }
-
-        public async Task<List<ClienteResponseDTO>> getAllPage(int? index = 1, int? size = 10, string? nome = null, string? role = null, string? Id = null)
-        {
-            return await _IClienteRepository.GetAllPageAsync((int)index, (int)size, nome, role, Id);
-        }
-
-        public async Task<ClienteResponseDTO> getById(Guid id)
-        {
-            return await _IClienteRepository.GetClienteByIdAsync(id);
-        }
-
-        public async Task<ClienteResponseDTO> Update(Guid id, ClienteDTO clienteDTO)
-        {
-            if (clienteDTO.Nome.Length < 8)
-            {
-                throw new ClienteUpdateException("Nome de usuario muito curto, por favor forneça um nome com pelo menos 8 digitos.");
-            }
-            if (clienteDTO.Senha.Length < 8)
-            {
-                throw new ClienteUpdateException("Senha de usuario muito curta, por favor forneça uma senha com pelo menos 8 digitos.");
-            }
-            if (!Enum.IsDefined(typeof(Policies), clienteDTO.Role))
-            {
-                throw new ClienteUpdateException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
-            }
-
-            try
-            {
-                return await _IClienteRepository.UpdateAsync(id, clienteDTO);
-
-            }
-            catch (Exception e)
+            else
             {
                 return null;
             }
         }
-        public async Task<ClienteResponseDTO> UpdateByUser(Guid id, ClienteDTO clienteDTO)
+
+        public async Task<Object> Create(ClienteDTO clienteDTO)
         {
-            if (clienteDTO.Nome.Length < 8)
+            var dtoValidation = new ClienteDTOValidation().Validate(clienteDTO);
+            if (dtoValidation.IsValid)
             {
-                throw new ClienteUpdateException("Nome de usuario muito curto, por favor forneça um nome com pelo menos 8 digitos.");
+                List<Cliente> clientes = await _IClienteRepository.GetAllByNameAsync(clienteDTO.Nome);
+                if (clientes.Count > 0)
+                {
+                    return "Existem usuarios com o mesmo nome";
+                }
+                Cliente cliente = _mapper.Map<Cliente>(clienteDTO);
+                return await _IClienteRepository.CreateAsync(cliente);
             }
-            if (clienteDTO.Senha.Length < 8)
+            return dtoValidation.ToString();
+        }
+
+        public async Task<List<ClienteResponseDTO>> getAllPage(int? index = 1, int? size = 10, string? nome = "", string? role = "", string? Id = "")
+        {
+            List<ClienteResponseDTO> clientes = await _IClienteRepository.GetAllPageAsync((int)index, (int)size, nome, role, Id);
+            foreach (ClienteResponseDTO cliente in clientes)
             {
-                throw new ClienteUpdateException("Senha de usuario muito curta, por favor forneça uma senha com pelo menos 8 digitos.");
+                  cliente.pedidos = await _IClienteRepository.GetPedidos(cliente.Id);   
             }
-            if (!Enum.IsDefined(typeof(Policies), clienteDTO.Role))
+            return clientes;
+        }
+
+        public async Task<Object> getById(Guid id)
+        {
+            var cliente = await _IClienteRepository.GetClienteByIdAsync(id);
+            if (cliente == null)
             {
-                throw new ClienteUpdateException("Role inválida, por favor verifique as Politicas de usuarios e adicione uma valida.");
+                return "Usuario não encontrado";
             }
-            ClienteResponseDTO cliente = await _IClienteRepository.GetClienteByIdAsync(id);
+            cliente.pedidos = await _IClienteRepository.GetPedidos(cliente.Id);
+            return cliente;
+        }
+        public async Task<Object> Update(Guid id, ClienteDTO clienteDTO)
+        {
+            var dtoValidate = new ClienteDTOValidation().Validate(clienteDTO);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            var cliente = await _IClienteRepository.GetClienteByIdAsync(id);
+            if (cliente == null)
+            {
+                return "Usuario não encontrado";
+            }
+            return await _IClienteRepository.UpdateAsync(id, clienteDTO);
+        }
+        public async Task<Object> UpdateByUser(Guid id, ClienteDTO clienteDTO)
+        {
+            var dtoValidate = new ClienteDTOValidation().Validate(clienteDTO);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            var cliente = await _IClienteRepository.GetClienteByIdAsync(id);
+            if (cliente == null)
+            {
+                return "Usuario não encontrado";
+            }
             if (clienteDTO.Role != cliente.Role)
             {
-                throw new ClienteUpdateException("Operação Invalida você não pode alterar o seu nivel de usuario.");
+                return "Operação Invalida você não pode alterar o seu nivel de usuario.";
             }
-            try
-            {
-                return await _IClienteRepository.UpdateAsync(id, clienteDTO);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
+            return await _IClienteRepository.UpdateAsync(id, clienteDTO);
         }
 
-        public async Task Delete(Guid id)
+        public async Task<Boolean> Delete(Guid id)
         {
-
-            await _IClienteRepository.DeleteAsync(id);
+            return await _IClienteRepository.DeleteAsync(id);
         }
 
 

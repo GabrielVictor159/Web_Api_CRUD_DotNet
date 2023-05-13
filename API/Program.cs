@@ -16,8 +16,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Web_Api_CRUD.Infraestructure;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.Enums;
 using Web_Api_CRUD.Repository;
 using Web_Api_CRUD.Services;
 

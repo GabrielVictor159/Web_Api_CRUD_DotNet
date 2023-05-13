@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Repository;
 
 namespace Web_Api_CRUD.Services

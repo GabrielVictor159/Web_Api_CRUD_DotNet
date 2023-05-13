@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Web_Api_CRUD.Infraestructure;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
 using Microsoft.EntityFrameworkCore;
 using Web_Api_CRUD.Exceptions;
 
@@ -157,7 +157,7 @@ namespace Web_Api_CRUD.Repository
             }
             List<Produto> listaProdutosFinal = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
             var pedido = await GetPedidoByIdAsync(id);
-            if(pedido==null)
+            if (pedido == null)
             {
                 throw new PedidoConsultaException($"O pedido com o ID {id} não foi encontrado");
             }

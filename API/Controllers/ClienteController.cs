@@ -7,11 +7,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web_Api_CRUD.Exceptions;
-using Web_Api_CRUD.Model;
-using Web_Api_CRUD.Model.DTO;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain;
+using Web_Api_CRUD.Domain.DTO;
+using Web_Api_CRUD.Domain.Enums;
 using Web_Api_CRUD.Services;
 using Web_Api_CRUD.Services.Token;
+using API.Domain.DTO;
 
 namespace Web_Api_CRUD.Controllers
 {
@@ -19,6 +20,7 @@ namespace Web_Api_CRUD.Controllers
     [Route("Clientes")]
     public class ClienteController : ControllerBase
     {
+
         private readonly IClienteService _clienteService;
         private readonly IMapper _mapper;
         public ClienteController(IClienteService iClienteService, IMapper mapper)
@@ -28,23 +30,16 @@ namespace Web_Api_CRUD.Controllers
         }
         [HttpPost]
         [Route("Login")]
-        public async Task<ActionResult<Cliente>> Login([FromBody] LoginDTO dto)
+        public async Task<ActionResult<String>> Login([FromBody] LoginDTO dto)
         {
-            Cliente cliente = await _clienteService.Login(dto.Nome, dto.Senha);
-            if (cliente == null)
+            var token = await _clienteService.Login(dto.Nome, dto.Senha);
+            if (token == null)
             {
-                return NotFound();
+                return NotFound("Não foi possivel encontrar o usuario.");
             }
             else
             {
-                var Token = TokenService.GenerateToken(cliente);
-                return Ok(
-                    new
-                    {
-                        User = cliente,
-                        Token = Token
-                    }
-                );
+                return Ok(token);
             }
         }
         [HttpPost]
@@ -54,12 +49,12 @@ namespace Web_Api_CRUD.Controllers
             {
                 ClienteDTO clienteDto = _mapper.Map<ClienteDTO>(DTO);
                 clienteDto.Role = Policies.USER.ToString();
-                Cliente cadastro = await _clienteService.Create(clienteDto);
+                Object cadastro = await _clienteService.Create(clienteDto);
+                if (cadastro is string)
+                {
+                    return BadRequest(cadastro);
+                }
                 return Ok(cadastro);
-            }
-            catch (ClienteRegisterException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -77,12 +72,12 @@ namespace Web_Api_CRUD.Controllers
             {
                 ClienteDTO clienteDto = _mapper.Map<ClienteDTO>(DTO);
                 clienteDto.Role = Policies.ADMIN.ToString();
-                Cliente cadastro = await _clienteService.Create(clienteDto);
+                Object cadastro = await _clienteService.Create(clienteDto);
+                if (cadastro is string)
+                {
+                    return BadRequest(cadastro);
+                }
                 return Ok(cadastro);
-            }
-            catch (ClienteRegisterException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -94,50 +89,63 @@ namespace Web_Api_CRUD.Controllers
         [HttpPost]
         [Route("GetAllPage")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<List<Cliente>>> getAllPage([FromBody] ClientePaginationDTO dto)
+        public async Task<ActionResult<List<ClienteResponseDTO>>> getAllPage([FromBody] ClientePaginationDTO dto)
         {
             try
             {
+                var dtoValidation = new ClientePaginationDTOValidation().Validate(dto);
+                if (!dtoValidation.IsValid)
+                {
+                    return BadRequest(dtoValidation.ToString());
+                }
                 return Ok(await _clienteService.getAllPage(dto.Index, dto.Size, dto.Nome, dto.Role, dto.Id));
-            }
-            catch (Exception e)
-            {
-                return BadRequest();
-            }
-        }
-        [HttpPost]
-        [Route("GetOne")]
-        public async Task<ActionResult<Cliente>> getOne([FromBody] Guid id)
-        {
-            try
-            {
-                return Ok(await _clienteService.getById(id));
-            }
-            catch (Exception e)
-            {
-                return BadRequest( "Ocorreu um erro interno no servidor: " + e.Message);
-            }
-        }
-        [HttpPut]
-        [Authorize]
-        public async Task<ActionResult<Cliente>> updateByUser([FromBody] ClienteDTO dto)
-        {
-
-            try
-            {
-                Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                ClienteResponseDTO cliente = await _clienteService.UpdateByUser(userId, dto);
-                return Ok(cliente);
-            }
-            catch (ClienteUpdateException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
                 return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
+
+        [HttpPost]
+        [Route("GetOne")]
+        public async Task<ActionResult<ClienteResponseDTO>> getOne([FromBody] Guid id)
+        {
+            try
+            {
+                Object cliente = await _clienteService.getById(id);
+                if (cliente is string)
+                {
+                    return BadRequest(cliente);
+                }
+
+                return Ok(cliente);
+            }
+            catch (Exception e)
+            {
+                 return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
+            }
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<ActionResult<Cliente>> updateByUser([FromBody] ClienteDTO dto)
+        {
+            try
+            {
+                Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
+                Object cliente = await _clienteService.UpdateByUser(userId, dto);
+                if (cliente is string)
+                {
+                    return BadRequest(cliente);
+                }
+                return Ok(cliente);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
+            }
+        }
+
         [HttpPut]
         [Route("UpdateByAdmin")]
         [Authorize(Policy = "Admin")]
@@ -146,12 +154,13 @@ namespace Web_Api_CRUD.Controllers
             try
             {
                 ClienteDTO clienteDto = _mapper.Map<ClienteDTO>(dto);
-                ClienteResponseDTO cliente = await _clienteService.Update(dto.Id, clienteDto);
+                Object cliente = await _clienteService.Update(dto.Id, clienteDto);
+                Console.WriteLine(cliente);
+                if (cliente is string)
+                {
+                    return BadRequest(cliente);
+                }
                 return Ok(cliente);
-            }
-            catch (ClienteUpdateException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -165,12 +174,12 @@ namespace Web_Api_CRUD.Controllers
             try
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                await _clienteService.Delete(userId);
+                Boolean result = await _clienteService.Delete(userId);
+                if(result)
+                {
                 return Ok("Usuario deletado");
-            }
-            catch (ClienteDeleteException e)
-            {
-                return BadRequest(e.Message);
+                }
+                return BadRequest("Id invalido");
             }
             catch (Exception e)
             {
@@ -180,16 +189,16 @@ namespace Web_Api_CRUD.Controllers
         [HttpDelete]
         [Route("DeleteByAdmin")]
         [Authorize(Policy = "Admin")]
-        public async Task<ActionResult<String>> deleteByUser([FromBody] Guid id)
+        public async Task<ActionResult<String>> deleteByUserAdmin([FromBody] Guid id)
         {
             try
             {
-                await _clienteService.Delete(id);
-                return Ok("Usuario deletado");
-            }
-            catch (ClienteDeleteException e)
-            {
-                return BadRequest(e.Message);
+                Boolean delete = await _clienteService.Delete(id);
+                if (delete)
+                {
+                    return Ok("Usuario deletado");
+                }
+                return BadRequest("Id invalido");
             }
             catch (Exception e)
             {

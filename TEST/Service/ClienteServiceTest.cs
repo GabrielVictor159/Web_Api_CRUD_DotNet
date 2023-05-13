@@ -6,16 +6,17 @@ using Xunit;
 using Web_Api_CRUD.Services;
 using Web_Api_CRUD.Repository;
 using Moq;
-using Web_Api_CRUD.Model;
+using Web_Api_CRUD.Domain;
 using FluentAssertions;
-using Web_Api_CRUD.Model.DTO;
-using Web_Api_CRUD.Model.Enums;
+using Web_Api_CRUD.Domain.DTO;
+using Web_Api_CRUD.Domain.Enums;
 using Bogus;
 using Web_Api_CRUD.Infraestructure;
 using Microsoft.EntityFrameworkCore.InMemory;
 using AutoMapper;
 using Xunit.Frameworks.Autofac;
 using Web_Api_CRUD.Exceptions;
+using Web_Api_CRUD.Domain.Cryptography;
 
 namespace TEST.Service
 {
@@ -24,116 +25,155 @@ namespace TEST.Service
     {
         private readonly IClienteService _service;
         private readonly ApplicationDbContext _context;
-         public ClienteServiceTest(IClienteService service, ApplicationDbContext context)
-         {
-          _service = service;
-          _context = context;
-         }
+        private Faker faker = new Faker("pt_BR");
+        public ClienteServiceTest(IClienteService service, ApplicationDbContext context)
+        {
+            _service = service;
+            _context = context;
+        }
 
         [Fact]
         public async void LoginTest()
         {
-            Moq.Mock<IClienteRepository> mock = new Moq.Mock<IClienteRepository>();
-            mock.Setup(e => e.Login(It.IsAny<string>(),It.IsAny<string>())).ReturnsAsync(new Cliente() { Id = Guid.NewGuid(), Nome = "jubileu", Role="Admin", Senha="Testando"});
-            ClienteService clienteService = new ClienteService(mock.Object);
-            Cliente cliente = await clienteService.Login("jubileu","Testando");
-            cliente.Should().NotBeNull();
+            String senha = faker.Random.String2(10);
+            Cliente cliente = new Cliente()
+            {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = senha,
+                Role = Policies.ADMIN.ToString()
+            };
+            _context.clientes.Add(cliente);
+            await _context.SaveChangesAsync();
+            var token = await _service.Login(cliente.Nome, senha);
+            token.Should().NotBeNull();
+            var token2 = await _service.Login(cliente.Nome + "a", senha);
+            token2.Should().BeNull();
         }
 
         [Fact]
         public async void CreateTest()
         {
-            var faker = new Faker("pt_BR");
             ClienteDTO clienteDto = new ClienteDTO()
             {
-               Nome= faker.Name.FullName(),
-               Senha = faker.Random.String2(10),
-               Role = Policies.ADMIN.ToString()
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
             };
-            Func<Task> result = async ()=>{ await _service.Create(clienteDto);};
-            result.Should().NotBeNull();
-            clienteDto.Nome = faker.Random.String2(5);
-            Func<Task> result2 = async ()=>{ await _service.Create(clienteDto);};
-            await result2.Should().ThrowAsync<ClienteRegisterException>();
-            clienteDto.Nome = faker.Random.String2(10);
-            clienteDto.Senha = faker.Random.String2(5);
-            Func<Task> result3 = async ()=>{ await _service.Create(clienteDto);};
-            await result3.Should().ThrowAsync<ClienteRegisterException>();
-             clienteDto.Senha = faker.Random.String2(10);
-             clienteDto.Role = faker.Random.String2(10);
-            Func<Task> result4 = async ()=>{ await _service.Create(clienteDto);};
-            await result4.Should().ThrowAsync<ClienteRegisterException>();
+            var result = await _service.Create(clienteDto);
+            result.Should().BeOfType<Cliente>();
+            var result2 = await _service.Create(clienteDto);
+            result2.Should().BeOfType<string>();
         }
         
-        [Fact]
-        public async void Update()
+         [Fact]
+        public async void getAllPageTest()
         {
-           var faker = new Faker("pt_BR"); 
-             Cliente cliente = new Cliente()
-             {
+            List<Cliente> listCliente = new();
+            for (int i = 0; i < 20; i++)
+            {
+                listCliente.Add(new Cliente() { Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString() });
+            }
+           
+            _context.clientes.AddRange(listCliente);
+            await _context.SaveChangesAsync();
+            List<ClienteResponseDTO> result = await _service.getAllPage();
+            result.Should().HaveCountGreaterThan(9);
+        }
+
+        [Fact]
+        public async void getByIdTest()
+        {
+            Cliente cliente = new Cliente()
+            {
+                Id = Guid.NewGuid(), Nome = faker.Name.FullName(), Senha = faker.Random.String2(10), Role = Policies.ADMIN.ToString() 
+            
+            };
+            _context.clientes.Add(cliente);
+            await _context.SaveChangesAsync();
+            var result = await _service.getById(cliente.Id);
+            result.Should().BeOfType<ClienteResponseDTO>();
+            var result2 = await _service.getById(Guid.NewGuid());
+            result2.Should().BeOfType<string>();
+        }
+
+        [Fact]
+        public async void UpdateTest()
+        {
+            Cliente cliente = new Cliente()
+            {
                 Id = Guid.NewGuid(),
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.ADMIN.ToString()
-             };
+            };
             _context.clientes.Add(cliente);
-             _context.SaveChanges();
+            _context.SaveChanges();
 
-             ClienteDTO newAtributes = new ClienteDTO()
-             {
+            ClienteDTO newAtributes = new ClienteDTO()
+            {
                 Nome = faker.Name.FindName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.USER.ToString()
-             };
-             var Result1 = await _service.Update(cliente.Id,newAtributes);
-             Result1.Nome.Should().BeSameAs(newAtributes.Nome);
-             newAtributes.Nome = faker.Random.String2(5);
-             Func<Task> result2 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
-             await result2.Should().ThrowAsync<ClienteUpdateException>();
-            newAtributes.Nome = faker.Random.String2(10);
-            newAtributes.Senha = faker.Random.String2(6);
-             Func<Task> result3 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
-             await result3.Should().ThrowAsync<ClienteUpdateException>();
-             newAtributes.Senha = faker.Random.String2(10);
-             newAtributes.Role = faker.Random.String2(8);
-             Func<Task> result4 = async ()=>{ await _service.Update(cliente.Id,newAtributes);};
-             await result4.Should().ThrowAsync<ClienteUpdateException>();
+            };
+            Object Result1 = await _service.Update(cliente.Id, newAtributes);
+            Result1.Should().BeOfType<ClienteResponseDTO>();
+            if(Result1 is ClienteResponseDTO dto)
+            {
+                dto.Nome.Should().Be(newAtributes.Nome);
+            }
+            Object Result2 = await _service.Update(Guid.NewGuid(), newAtributes);
+            Result2.Should().BeOfType<string>();
         }
 
          [Fact]
-        public async void UpdateByUser()
+        public async void UpdateByUserTest()
         {
-           var faker = new Faker("pt_BR"); 
-             Cliente cliente = new Cliente()
-             {
+            Cliente cliente = new Cliente()
+            {
                 Id = Guid.NewGuid(),
                 Nome = faker.Name.FullName(),
                 Senha = faker.Random.String2(10),
                 Role = Policies.ADMIN.ToString()
-             };
+            };
             _context.clientes.Add(cliente);
-             _context.SaveChanges();
+            _context.SaveChanges();
 
-             ClienteDTO newAtributes = new ClienteDTO()
-             {
+            ClienteDTO newAtributes = new ClienteDTO()
+            {
                 Nome = faker.Name.FindName(),
                 Senha = faker.Random.String2(10),
-                Role = Policies.ADMIN.ToString()
-             };
-             var Result1 = await _service.UpdateByUser(cliente.Id,newAtributes);
-             Result1.Nome.Should().BeSameAs(newAtributes.Nome);
-             newAtributes.Nome = faker.Random.String2(5);
-             Func<Task> result2 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
-             await result2.Should().ThrowAsync<ClienteUpdateException>();
-            newAtributes.Nome = faker.Random.String2(10);
-            newAtributes.Senha = faker.Random.String2(6);
-             Func<Task> result3 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
-             await result3.Should().ThrowAsync<ClienteUpdateException>();
-             newAtributes.Senha = faker.Random.String2(10);
-             newAtributes.Role = faker.Random.String2(8);
-             Func<Task> result4 = async ()=>{ await _service.UpdateByUser(cliente.Id,newAtributes);};
-             await result4.Should().ThrowAsync<ClienteUpdateException>();
+                Role = Policies.USER.ToString()
+            };
+            Object Result1 = await _service.UpdateByUser(cliente.Id, newAtributes);
+            Result1.Should().BeOfType<string>();
+            newAtributes.Role = Policies.ADMIN.ToString();
+            Object Result2 = await _service.UpdateByUser(cliente.Id, newAtributes);
+            Result2.Should().BeOfType<ClienteResponseDTO>();
+            if(Result2 is ClienteResponseDTO dto)
+            {
+                dto.Nome.Should().Be(newAtributes.Nome);
+            }
         }
-        
+
+        [Fact]
+        public async void DeleteTest()
+        {
+            Cliente cliente = new Cliente()
+            {
+                Id = Guid.NewGuid(),
+                Nome = faker.Name.FullName(),
+                Senha = faker.Random.String2(10),
+                Role = Policies.ADMIN.ToString()
+            };
+            _context.clientes.Add(cliente);
+            _context.SaveChanges();
+            Boolean Result1 = await _service.Delete(cliente.Id);
+            Result1.Should().Be(true);
+            Boolean Result2 = await _service.Delete(Guid.NewGuid());
+            Result2.Should().Be(false);
+        }
+      
+
     }
 }

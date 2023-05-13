@@ -4,21 +4,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Web_Api_CRUD.Model
+namespace Web_Api_CRUD.Domain
 {
-    public class Pedido
+    [Index(nameof(Nome), IsUnique = true)]
+    public class Produto
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        [JsonIgnore]
-        public Cliente cliente { get; set; }
         [Required]
-        public Guid idCliente { get; set; }
+        [StringLength(50)]
+        public String Nome { get; set; }
         [Required]
-        public decimal ValorTotal { get; set; }
+        public decimal Valor { get; set; }
         public List<PedidoProduto> Lista { get; set; } = new();
     }
 }

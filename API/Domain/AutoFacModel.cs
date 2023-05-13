@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using AutoMapper;
-using Web_Api_CRUD.Model.DTO;
+using Web_Api_CRUD.Domain.DTO;
 
-namespace Web_Api_CRUD.Model
+namespace Web_Api_CRUD.Domain
 {
     public class AutoFacModel : Module
     {
