@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Domain.DTO;
 using Web_Api_CRUD.Domain;
 using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Repository;
@@ -10,38 +11,114 @@ namespace Web_Api_CRUD.Services
 {
     public interface IPedidoService
     {
-        Task<Pedido> CriarPedidoAsync(Guid id, List<ProdutoQuantidadeDTO> pedidoDto);
-        Task<List<Pedido>> GetAllPage(PedidoConsultaDTO dto);
-        Task<Pedido> GetPedidoByIdAsync(Guid id);
-        Task<Pedido> UpdatePedidoAsync(PedidoUpdateDTO dto);
-        Task DeletePedidoAsync(Guid id);
+        Task<Object> CreateAsync(Guid idCliente, PedidoDTO pedidoDto);
+        Task<Object> GetAllPage(PedidoConsultaDTO dto);
+        Task<Object> GetPedidoByIdAsync(Guid id);
+        Task<Object> UpdatePedidoAsync(PedidoUpdateDTO dto);
+        Task<Object> DeletePedidoAsync(Guid id);
     }
     public class PedidoService : IPedidoService
     {
-        private readonly IPedidoRepository _IPedidoRepository;
-        public PedidoService(IPedidoRepository pedidoRepository)
+        private readonly IPedidoRepository _pedidoRepository;
+        private readonly IProdutoRepository _produtoRepository;
+        private readonly IClienteRepository _clienteRepository;
+        public PedidoService(IPedidoRepository pedidoRepository,
+         IProdutoRepository produtoRepository,
+         IClienteRepository clienteRepository)
         {
-            _IPedidoRepository = pedidoRepository;
+            _pedidoRepository = pedidoRepository;
+            _produtoRepository = produtoRepository;
+            _clienteRepository = clienteRepository;
         }
-        public async Task<Pedido> CriarPedidoAsync(Guid id, List<ProdutoQuantidadeDTO> pedidoDto)
+        public async Task<Object> CreateAsync(Guid idCliente, PedidoDTO pedidoDto)
         {
-            return await _IPedidoRepository.CreateAsync(id, pedidoDto);
+            var dtoValidate = new PedidoDTOValidation().Validate(pedidoDto);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            var cliente = await _clienteRepository.GetClienteByIdAsync(idCliente);
+            if (cliente == null)
+            {
+                return "O cliente não foi encontrado";
+            }
+            Pedido pedido = await _pedidoRepository.CreateAsync(idCliente);
+            List<Guid> listaProdutosIds = pedidoDto.listaProdutos.Select(p => p.Produto).ToList();
+            List<Produto> listaVerificacao = await _produtoRepository.GetProdutosToListIdsAsync(listaProdutosIds);
+            if (listaProdutosIds.Count != listaVerificacao.Count)
+            {
+                return "Existem produtos na lista que não existem.";
+            }
+            var pedidosProdutos = await _pedidoRepository.CreateListPedidoProdutoAsync(pedido.Id, pedidoDto.listaProdutos);
+            if (pedidosProdutos != null)
+            {
+                pedido.Lista = pedidosProdutos;
+                return pedido;
+            }
+            return "Houve um problema ao tentar adicionar o pedido.";
         }
-        public async Task<List<Pedido>> GetAllPage(PedidoConsultaDTO dto)
+        public async Task<Object> GetAllPage(PedidoConsultaDTO dto)
         {
-            return await _IPedidoRepository.GetAllPageAsync(dto);
+            var dtoValidate = new PedidoConsultaDTOValidation().Validate(dto);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            var pedidos = await _pedidoRepository.GetAllPageAsync(dto);
+            foreach (var pedido in pedidos)
+            {
+                if (pedido.Id != null)
+                {
+                    pedido.Lista = await _pedidoRepository.GetPedidoProdutos(pedido.Id);
+                }
+            }
+            return pedidos;
         }
-        public async Task<Pedido> GetPedidoByIdAsync(Guid id)
+        public async Task<Object> GetPedidoByIdAsync(Guid id)
         {
-            return await _IPedidoRepository.GetPedidoByIdAsync(id);
+            var pedido = await _pedidoRepository.GetPedidoByIdAsync(id);
+            if (pedido == null)
+            {
+                return "Pedido não foi encontrado.";
+            }
+            return pedido;
         }
-        public async Task<Pedido> UpdatePedidoAsync(PedidoUpdateDTO dto)
+        public async Task<Object> UpdatePedidoAsync(PedidoUpdateDTO dto)
         {
-            return await _IPedidoRepository.UpdatePedidoAsync(dto.Id, dto.Produtos);
+            var dtoValidate = new PedidoUpdateDTOValidation().Validate(dto);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            List<Guid> listaProdutosIds = dto.Produtos.Select(p => p.Produto).ToList();
+            List<Produto> listaVerificacao = await _produtoRepository.GetProdutosToListIdsAsync(listaProdutosIds);
+            if (listaProdutosIds.Count != listaVerificacao.Count)
+            {
+                return "Existem produtos na lista que não existem.";
+            }
+            var pedido = await _pedidoRepository.UpdatePedidoAsync(dto.Id, dto.Produtos);
+            if (pedido == null)
+            {
+                return "Não foi possivel buscar dados relacionados ao pedido.";
+            }
+            return pedido;
         }
-        public async Task DeletePedidoAsync(Guid id)
+        public async Task<Object> DeletePedidoAsync(Guid id)
         {
-            await _IPedidoRepository.DeletePedidoAsync(id);
+            var pedido = await _pedidoRepository.GetPedidoByIdAsync(id);
+            if (pedido == null)
+            {
+                return "Pedido não encontrado";
+            }
+            var delete = await _pedidoRepository.DeletePedidoAsync(id);
+            if (delete)
+            {
+                return true;
+            }
+            else
+            {
+                return "Não foi possivel deletar o pedido.";
+            }
         }
     }
 }

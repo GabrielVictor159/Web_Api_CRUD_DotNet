@@ -20,6 +20,7 @@ namespace Web_Api_CRUD.Repository
         Task<Produto?> UpdateAsync(Guid id, ProdutoDTO produtoDto);
         Task<Boolean> DeleteAsync(Guid id);
         Task<List<PedidoProduto>> GetPedidoProdutos(Guid idProduto);
+        Task<List<Produto>> GetProdutosToListIdsAsync(List<Guid> listIds);
     }
     public class ProdutoRepository : IProdutoRepository
     {
@@ -107,5 +108,11 @@ namespace Web_Api_CRUD.Repository
                 .ToListAsync();
             return pedidosProdutos;
         }
+        public async Task<List<Produto>> GetProdutosToListIdsAsync(List<Guid> listIds)
+        {
+            return await _context.produtos.Where(p => listIds.Contains(p.Id)).ToListAsync();
+        }
+
+
     }
 }

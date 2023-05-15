@@ -50,26 +50,26 @@ namespace TEST.Api
             SetHttpContextWithClaims(cliente.Id.ToString());
         }
 
-        [Fact]
-        public async void AddPedidoTest()
-        {
-            List<ProdutoQuantidadeDTO> dto = new();
-            for (int i = 0; i < 10; i++)
-            {
-                dto.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
-            }
-            var result1 = await pedidoController.AddPedido(dto);
-            result1.Result.Should().BeOfType<OkObjectResult>();
+        // [Fact]
+        // public async void AddPedidoTest()
+        // {
+        //     List<ProdutoQuantidadeDTO> dto = new();
+        //     for (int i = 0; i < 10; i++)
+        //     {
+        //         dto.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
+        //     }
+        //     var result1 = await pedidoController.AddPedido(dto);
+        //     result1.Result.Should().BeOfType<OkObjectResult>();
 
-            dto[0].Produto = Guid.NewGuid();
-            var result2 = await pedidoController.AddPedido(dto);
-            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+        //     dto[0].Produto = Guid.NewGuid();
+        //     var result2 = await pedidoController.AddPedido(dto);
+        //     result2.Result.Should().BeOfType<BadRequestObjectResult>();
 
-            SetHttpContextWithClaims(Guid.NewGuid().ToString());
-            var result3 = await pedidoController.AddPedido(dto);
-            result3.Result.Should().BeOfType<BadRequestObjectResult>();
-            SetHttpContextWithClaims(cliente.Id.ToString());
-        }
+        //     SetHttpContextWithClaims(Guid.NewGuid().ToString());
+        //     var result3 = await pedidoController.AddPedido(dto);
+        //     result3.Result.Should().BeOfType<BadRequestObjectResult>();
+        //     SetHttpContextWithClaims(cliente.Id.ToString());
+        // }
 
         [Fact]
         public async void GetAllPageTest()

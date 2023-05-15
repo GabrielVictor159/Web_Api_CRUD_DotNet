@@ -28,21 +28,22 @@ namespace Web_Api_CRUD.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Pedido>> AddPedido([FromBody] List<ProdutoQuantidadeDTO> produtosDto)
+        public async Task<ActionResult<Pedido>> AddPedido([FromBody] PedidoDTO pedidoDto)
         {
             try
             {
-                Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                Pedido pedido = await _IPedidoService.CriarPedidoAsync(userId, produtosDto);
-                return Ok(pedido);
-            }
-            catch (ClienteGetException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (PedidoProdutoInvalidProducts e)
-            {
-                return BadRequest(e.Message);
+                var claimId = HttpContext.User.FindFirstValue("Id");
+                if (claimId != null)
+                {
+                    Guid userId = Guid.Parse(claimId);
+                    Object pedido = await _IPedidoService.CreateAsync(userId, pedidoDto);
+                    if (pedido is string)
+                    {
+                        return BadRequest(pedido);
+                    }
+                    return Ok(pedido);
+                }
+                return BadRequest("O token de usuario é invalido.");
             }
             catch (Exception e)
             {
@@ -57,7 +58,11 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                List<Pedido> pedidos = await _IPedidoService.GetAllPage(dto);
+                Object pedidos = await _IPedidoService.GetAllPage(dto);
+                if (pedidos is string)
+                {
+                    return BadRequest(pedidos);
+                }
                 return Ok(pedidos);
             }
             catch (Exception e)
@@ -73,19 +78,31 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                String Role = HttpContext.User.FindFirstValue("Role");
-                Pedido pedido = await _IPedidoService.GetPedidoByIdAsync(id);
-                if (userId != pedido.idCliente && Role != Policies.ADMIN.ToString())
+                var claimUserId = HttpContext.User.FindFirstValue("Id");
+                if (claimUserId == null)
                 {
-                    return Unauthorized("Você não tem autorização para buscar esse Pedido.");
+                    return BadRequest("O token de usuario é invalido.");
+                }
+                Guid userId = Guid.Parse(claimUserId);
+                var claimRole = HttpContext.User.FindFirstValue("Role");
+                if (claimRole == null)
+                {
+                    return BadRequest("O token de usuario é invalido.");
+                }
+                Object pedido = await _IPedidoService.GetPedidoByIdAsync(id);
+                if (pedido is string)
+                {
+                    return BadRequest(pedido);
+                }
+                if (pedido is Pedido p)
+                {
+                    if (userId != p.idCliente && claimRole != Policies.ADMIN.ToString())
+                    {
+                        return Unauthorized("Você não tem autorização para buscar esse Pedido.");
+                    }
                 }
                 return Ok(pedido);
 
-            }
-            catch (PedidoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -99,16 +116,12 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                Pedido pedido = await _IPedidoService.UpdatePedidoAsync(dto);
+                Object pedido = await _IPedidoService.UpdatePedidoAsync(dto);
+                if (pedido is string)
+                {
+                    return BadRequest(pedido);
+                }
                 return Ok(pedido);
-            }
-            catch (PedidoProdutoInvalidProducts e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (PedidoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -121,20 +134,36 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
-                String Role = HttpContext.User.FindFirstValue("Role");
-                Pedido pedido = await _IPedidoService.GetPedidoByIdAsync(id);
-                if (userId != pedido.idCliente && Role != Policies.ADMIN.ToString())
+                var claimUserId = HttpContext.User.FindFirstValue("Id");
+                if (claimUserId == null)
                 {
-                    return Unauthorized("Você não tem autorização para buscar esse Pedido.");
+                    return BadRequest("O token de usuario é invalido.");
                 }
-                await _IPedidoService.DeletePedidoAsync(id);
+                Guid userId = Guid.Parse(claimUserId);
+                var claimRole = HttpContext.User.FindFirstValue("Role");
+                if (claimRole == null)
+                {
+                    return BadRequest("O token de usuario é invalido.");
+                }
+                Object pedido = await _IPedidoService.GetPedidoByIdAsync(id);
+                if (pedido is string)
+                {
+                    return BadRequest(pedido);
+                }
+                if (pedido is Pedido p)
+                {
+                    if (userId != p.idCliente && claimRole != Policies.ADMIN.ToString())
+                    {
+                        return Unauthorized("Você não tem autorização para buscar esse Pedido.");
+                    }
+                }
+                Object delete = await _IPedidoService.DeletePedidoAsync(id);
+                if (delete is string)
+                {
+                    return BadRequest(delete);
+                }
                 return Ok("Pedido Deletado");
 
-            }
-            catch (PedidoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

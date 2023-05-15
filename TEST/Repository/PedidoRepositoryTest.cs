@@ -12,20 +12,21 @@ using Web_Api_CRUD.Domain.Enums;
 using Web_Api_CRUD.Repository;
 using Xunit;
 using Xunit.Frameworks.Autofac;
+using Microsoft.EntityFrameworkCore;
 
 namespace TEST.Repository
 {
     [UseAutofacTestFramework]
     public class PedidoRepositoryTest
     {
-        private readonly IPedidoRepository _service;
+        private readonly IPedidoRepository _repository;
         private readonly ApplicationDbContext _context;
         private Faker faker;
         private Cliente cliente;
         private List<Produto> listProduto = new();
-        public PedidoRepositoryTest(IPedidoRepository service, ApplicationDbContext context)
+        public PedidoRepositoryTest(IPedidoRepository repository, ApplicationDbContext context)
         {
-            _service = service;
+            _repository = repository;
             _context = context;
             faker = new Faker("pt_BR");
             cliente = new Cliente()
@@ -48,29 +49,23 @@ namespace TEST.Repository
         [Fact]
         public async void CreateAsyncTest()
         {
-            List<ProdutoQuantidadeDTO> dto = new();
-            for (int i = 0; i < 10; i++)
-            {
-                dto.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
-            }
-            var result1 = await _service.CreateAsync(cliente.Id, dto);
-            result1.Should().NotBeNull();
-            Func<Task> result2 = async () => { await _service.CreateAsync(Guid.NewGuid(), dto); };
-            await result2.Should().ThrowAsync<ClienteGetException>();
-            dto[1].Produto = dto[0].Produto;
-            Func<Task> result3 = async () => { await _service.CreateAsync(cliente.Id, dto); };
-            await result3.Should().ThrowAsync<PedidoProdutoInvalidProducts>();
-            dto[1].Produto = Guid.NewGuid();
-            Func<Task> result4 = async () => { await _service.CreateAsync(cliente.Id, dto); };
-            await result4.Should().ThrowAsync<PedidoProdutoInvalidProducts>();
+            var pedido = await _repository.CreateAsync(cliente.Id);
+            pedido.Should().NotBeNull();
         }
 
         [Fact]
         public async void GetAllPageAsyncTest()
         {
+            Pedido pedido = new Pedido()
+            {
+                idCliente = cliente.Id,
+                ValorTotal = 0
+            };
+            _context.pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
             PedidoConsultaDTO dto = new PedidoConsultaDTO();
-            var result1 = await _service.GetAllPageAsync(dto);
-            result1.Should().NotBeNull();
+            var result1 = await _repository.GetAllPageAsync(dto);
+            result1.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
@@ -83,11 +78,11 @@ namespace TEST.Repository
                 ValorTotal = faker.Random.Decimal()
             };
             _context.pedidos.Add(pedido);
-            _context.SaveChanges();
-            var result1 = await _service.GetPedidoByIdAsync(pedido.Id);
+            await _context.SaveChangesAsync();
+            var result1 = await _repository.GetPedidoByIdAsync(pedido.Id);
             result1.Should().NotBeNull();
-            Func<Task> result2 = async () => { await _service.GetPedidoByIdAsync(Guid.NewGuid()); };
-            await result2.Should().ThrowAsync<PedidoConsultaException>();
+            var result2 = await _repository.GetPedidoByIdAsync(Guid.NewGuid());
+            result2.Should().BeNull();
         }
 
         [Fact]
@@ -100,26 +95,104 @@ namespace TEST.Repository
                 ValorTotal = faker.Random.Decimal()
             };
             _context.pedidos.Add(pedido);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             List<ProdutoQuantidadeDTO> dto = new();
             for (int i = 0; i < 10; i++)
             {
                 dto.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
             }
-            var result1 = await _service.UpdatePedidoAsync(pedido.Id, dto);
+            var result1 = await _repository.UpdatePedidoAsync(pedido.Id, dto);
             result1.Should().NotBeNull();
-            Func<Task> result2 = async () => { await _service.UpdatePedidoAsync(Guid.NewGuid(), dto); };
-            await result2.Should().ThrowAsync<PedidoConsultaException>();
-            dto[1].Produto = dto[0].Produto;
-            Func<Task> result3 = async () => { await _service.UpdatePedidoAsync(pedido.Id, dto); };
-            await result3.Should().ThrowAsync<PedidoProdutoInvalidProducts>();
-            dto[1].Produto = Guid.NewGuid();
-            Func<Task> result4 = async () => { await _service.UpdatePedidoAsync(pedido.Id, dto); };
-            await result4.Should().ThrowAsync<PedidoProdutoInvalidProducts>();
+            var result2 = await _repository.UpdatePedidoAsync(Guid.NewGuid(), dto);
+            result2.Should().BeNull();
         }
 
         [Fact]
         public async void DeletePedidoAsyncTest()
+        {
+            Guid id = Guid.NewGuid();
+            Pedido pedido = new Pedido()
+            {
+                Id = id,
+                idCliente = cliente.Id,
+                ValorTotal = faker.Random.Decimal()
+            };
+            _context.pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+            var result1 = await _repository.DeletePedidoAsync(Guid.NewGuid());
+            result1.Should().BeFalse();
+            var result2 = await _repository.DeletePedidoAsync(pedido.Id);
+            result2.Should().BeTrue();
+            var result3 = await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
+            result3.Should().BeNull();
+        }
+
+        [Fact]
+        public async void DeletePedidoProdutoByPedido()
+        {
+            Pedido pedido = new Pedido()
+            {
+                Id = Guid.NewGuid(),
+                idCliente = cliente.Id,
+                ValorTotal = faker.Random.Decimal(),
+            };
+            List<PedidoProduto> pedidoProdutos = new();
+            foreach (Produto produto in listProduto)
+            {
+                pedidoProdutos.Add
+                (
+                    new PedidoProduto()
+                    {
+                        Quantidade = faker.Random.Int(10),
+                        ValorTotalLinha = 0,
+                        IdPedido = pedido.Id,
+                        IdProduto = produto.Id
+                    }
+                );
+            }
+            pedido.Lista = pedidoProdutos;
+            _context.pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+            await _repository.DeletePedidoProdutoByPedido(pedido.Id);
+            List<PedidoProduto> pedidoProdutosDelete = await _context.pedidoProdutos
+                .Include(p => p.Produto)
+                .Where(p => p.IdPedido == pedido.Id)
+                .ToListAsync();
+            pedidoProdutosDelete.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async void GetPedidoProdutosTest()
+        {
+            Pedido pedido = new Pedido()
+            {
+                Id = Guid.NewGuid(),
+                idCliente = cliente.Id,
+                ValorTotal = faker.Random.Decimal(),
+            };
+            List<PedidoProduto> pedidoProdutos = new();
+            foreach (Produto produto in listProduto)
+            {
+                pedidoProdutos.Add
+                (
+                    new PedidoProduto()
+                    {
+                        Quantidade = faker.Random.Int(10),
+                        ValorTotalLinha = 0,
+                        IdPedido = pedido.Id,
+                        IdProduto = produto.Id
+                    }
+                );
+            }
+            pedido.Lista = pedidoProdutos;
+            _context.pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+            List<PedidoProduto> list = await _repository.GetPedidoProdutos(pedido.Id);
+            list.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public async void CreateListPedidoProdutoAsyncTest()
         {
             Pedido pedido = new Pedido()
             {
@@ -128,11 +201,22 @@ namespace TEST.Repository
                 ValorTotal = faker.Random.Decimal()
             };
             _context.pedidos.Add(pedido);
-            _context.SaveChanges();
-            Func<Task> result1 = async () => { await _service.DeletePedidoAsync(Guid.NewGuid()); };
-            await result1.Should().ThrowAsync<PedidoConsultaException>();
-            Func<Task> result2 = async () => { await _service.DeletePedidoAsync(pedido.Id); };
-            await result2.Should().NotThrowAsync();
+            await _context.SaveChangesAsync();
+            List<ProdutoQuantidadeDTO> produtoQuantidade = new();
+            foreach (Produto produto in listProduto)
+            {
+                produtoQuantidade.Add(
+                    new ProdutoQuantidadeDTO()
+                    {
+                        Produto = produto.Id,
+                        Quantidade = faker.Random.Int(10)
+                    }
+                );
+            }
+            var result1 = await _repository.CreateListPedidoProdutoAsync(pedido.Id, produtoQuantidade);
+            result1.Should().NotBeNull();
+            var result2 = await _repository.CreateListPedidoProdutoAsync(Guid.NewGuid(), produtoQuantidade);
+            result2.Should().BeNull();
         }
     }
 }

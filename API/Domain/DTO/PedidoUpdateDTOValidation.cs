@@ -15,11 +15,13 @@ namespace API.Domain.DTO
             .NotNull()
             .NotEmpty()
             .WithMessage("O Id não pode ser nulo ou vazio.");
-
             RuleFor(dto => dto.Produtos)
             .NotNull()
             .NotEmpty()
-            .WithMessage("A lista de produtos não pode ser nula ou vazia");
+            .WithMessage("A lista de produtos deve ter itens válidos.");
+
+            RuleForEach(dto => dto.Produtos)
+                .SetValidator(new ProdutoQuantidadeDTOValidation());
         }
     }
 }

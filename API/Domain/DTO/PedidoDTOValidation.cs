@@ -12,9 +12,12 @@ namespace API.Domain.DTO
         public PedidoDTOValidation()
         {
             RuleFor(dto => dto.listaProdutos)
-            .NotNull()
-            .NotEmpty()
-            .WithMessage("A lista de produtos deve ter itens validos");
+             .NotNull()
+             .NotEmpty()
+             .WithMessage("A lista de produtos deve ter itens válidos");
+
+            RuleForEach(dto => dto.listaProdutos)
+                .SetValidator(new ProdutoQuantidadeDTOValidation());
         }
     }
 }
