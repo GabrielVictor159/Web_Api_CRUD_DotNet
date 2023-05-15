@@ -128,15 +128,15 @@ namespace Web_Api_CRUD.Repository
 
             return pedidos;
         }
-        public async Task<Pedido> GetPedidoByIdAsync(Guid id)
+        public async Task<Pedido?> GetPedidoByIdAsync(Guid id)
         {
             var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(c => c.Id == id));
-            if (pedido == null)
+            if (pedido != null)
             {
-                throw new PedidoConsultaException($"O Pedido com o ID {id} não foi encontrado");
+                pedido.Lista = await GetPedidoProdutos(pedido.Id);
+                return pedido;
             }
-            pedido.Lista = await GetPedidoProdutos(pedido.Id);
-            return pedido;
+            return null;
         }
         public async Task<Pedido> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos)
         {

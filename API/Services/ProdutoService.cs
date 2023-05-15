@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Domain.DTO;
 using Web_Api_CRUD.Domain;
 using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Repository;
@@ -10,11 +11,11 @@ namespace Web_Api_CRUD.Services
 {
     public interface IProdutoService
     {
-        Task<Produto> CriarProdutoAsync(ProdutoDTO produtoDto);
+        Task<Object> CriarProdutoAsync(ProdutoDTO produtoDto);
         Task<List<Produto>> ObterProdutosPaginadosAsync(int? index = 1, int? size = 10, string? nome = null, decimal? valorMinimo = null, decimal? valorMaximo = null, string? id = null);
-        Task<Produto> ObterProdutoPorIdAsync(Guid id);
-        Task<Produto> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto);
-        Task ExcluirProdutoAsync(Guid id);
+        Task<Object> ObterProdutoPorIdAsync(Guid id);
+        Task<Object> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto);
+        Task<Object> ExcluirProdutoAsync(Guid id);
     }
     public class ProdutoService : IProdutoService
     {
@@ -24,28 +25,71 @@ namespace Web_Api_CRUD.Services
             _IProdutoRepository = iProdutoRepository;
         }
 
-        public async Task<Produto> CriarProdutoAsync(ProdutoDTO produtoDto)
+        public async Task<Object> CriarProdutoAsync(ProdutoDTO produtoDto)
         {
-            return await _IProdutoRepository.CreateAsync(produtoDto);
+            var dtoValidate = new ProdutoDTOValidation().Validate(produtoDto);
+            var produtoConsulta = await _IProdutoRepository.GetProdutoByNameAsync(produtoDto.Nome);
+            if (produtoConsulta != null)
+            {
+                return "Ja existe um produto com o mesmo nome. ";
+            }
+            if (dtoValidate.IsValid)
+            {
+                return await _IProdutoRepository.CreateAsync(produtoDto);
+            }
+            else
+            {
+                return dtoValidate.ToString();
+            }
         }
         public async Task<List<Produto>> ObterProdutosPaginadosAsync(int? index = 1, int? size = 10, string? nome = null, decimal? valorMinimo = null, decimal? valorMaximo = null, string? id = null)
         {
-            return await _IProdutoRepository.GetAllPageAsync(index, size, nome, valorMinimo, valorMaximo, id);
+            List<Produto> produtos = await _IProdutoRepository.GetAllPageAsync(index, size, nome, valorMinimo, valorMaximo, id);
+            foreach (Produto produto in produtos)
+            {
+                if (produto.Id != null)
+                {
+                    produto.Lista = await _IProdutoRepository.GetPedidoProdutos(produto.Id);
+                }
+            }
+            return produtos;
         }
 
-        public async Task<Produto> ObterProdutoPorIdAsync(Guid id)
+        public async Task<Object> ObterProdutoPorIdAsync(Guid id)
         {
-            return await _IProdutoRepository.GetProdutoByIdAsync(id);
+            var produto = await _IProdutoRepository.GetProdutoByIdAsync(id);
+            if (produto != null)
+            {
+                produto.Lista = await _IProdutoRepository.GetPedidoProdutos(id);
+                return produto;
+            }
+            return "Produto não encontrado.";
         }
 
-        public async Task<Produto> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto)
+        public async Task<Object> AtualizarProdutoAsync(Guid id, ProdutoDTO produtoDto)
         {
-            return await _IProdutoRepository.UpdateAsync(id, produtoDto);
+            var dtoValidate = new ProdutoDTOValidation().Validate(produtoDto);
+            if (!dtoValidate.IsValid)
+            {
+                return dtoValidate.ToString();
+            }
+            var produto = await _IProdutoRepository.UpdateAsync(id, produtoDto);
+            if (produto == null)
+            {
+                return "Produto não encontrado.";
+            }
+            produto.Lista = await _IProdutoRepository.GetPedidoProdutos(id);
+            return produto;
         }
 
-        public async Task ExcluirProdutoAsync(Guid id)
+        public async Task<Object> ExcluirProdutoAsync(Guid id)
         {
-            await _IProdutoRepository.DeleteAsync(id);
+            Boolean delete = await _IProdutoRepository.DeleteAsync(id);
+            if (delete)
+            {
+                return true;
+            }
+            return "Produto não encontrado.";
         }
     }
 }

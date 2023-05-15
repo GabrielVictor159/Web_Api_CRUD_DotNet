@@ -18,48 +18,49 @@ namespace TEST.Api
     public class ProdutoControllerTest
     {
         private readonly ApplicationDbContext _context;
-        private readonly ProdutoController produtoController;
+        private readonly ProdutoController _controller;
+        private Faker faker = new Faker("pt_BR");
         public ProdutoControllerTest(ProdutoController controller, ApplicationDbContext applicationDbContext)
         {
-            produtoController = controller;
+            _controller = controller;
             _context = applicationDbContext;
         }
 
         [Fact]
         public async void CadastrarProdutoTest()
         {
-            var faker = new Faker("pt_BR");
             ProdutoDTO dto = new ProdutoDTO()
             {
                 Nome = faker.Commerce.ProductName(),
                 Valor = faker.Random.Decimal()
             };
-            var result1 = await produtoController.CadastrarProduto(dto);
+            var result1 = await _controller.CadastrarProduto(dto);
             result1.Result.Should().BeOfType<OkObjectResult>();
-            var result2 = await produtoController.CadastrarProduto(dto);
+            var result2 = await _controller.CadastrarProduto(dto);
             result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void GetAllPageTest()
         {
-            var faker = new Faker("pt_BR");
             List<Produto> listProduto = new();
             for (int i = 0; i < 20; i++)
             {
                 listProduto.Add(new Produto() { Id = Guid.NewGuid(), Nome = faker.Commerce.ProductName(), Valor = faker.Random.Decimal() });
             }
             _context.produtos.AddRange(listProduto);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             ProdutoConsultaDTO dto = new ProdutoConsultaDTO();
-            var result1 = await produtoController.getAllPage(dto);
+            var result1 = await _controller.getAllPage(dto);
             result1.Result.Should().BeOfType<OkObjectResult>();
+            dto.index = 0;
+            var result2 = await _controller.getAllPage(dto);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void GetOneTest()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -67,17 +68,16 @@ namespace TEST.Api
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
-            var result1 = await produtoController.getOne(produto.Id);
+            await _context.SaveChangesAsync();
+            var result1 = await _controller.getOne(produto.Id);
             result1.Result.Should().BeOfType<OkObjectResult>();
-            var result2 = await produtoController.getOne(Guid.NewGuid());
-            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            var result2 = await _controller.getOne(Guid.NewGuid());
+            result2.Result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
         public async void AlterarProdutoTest()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -85,24 +85,27 @@ namespace TEST.Api
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             ProdutoAtualizarDTO dto = new ProdutoAtualizarDTO()
             {
                 Id = produto.Id,
                 Nome = faker.Commerce.ProductName(),
                 Valor = faker.Random.Decimal()
             };
-            var result1 = await produtoController.alterarProduto(dto);
+            var result1 = await _controller.alterarProduto(dto);
             result1.Result.Should().BeOfType<OkObjectResult>();
             dto.Id = Guid.NewGuid();
-            var result2 = await produtoController.alterarProduto(dto);
-            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            var result2 = await _controller.alterarProduto(dto);
+            result2.Result.Should().BeOfType<NotFoundObjectResult>();
+            dto.Id = produto.Id;
+            dto.Nome = "";
+            var result3 = await _controller.alterarProduto(dto);
+            result3.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void DeletarProduto()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -110,11 +113,11 @@ namespace TEST.Api
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
-            var result1 = await produtoController.deletarProduto(produto.Id);
+            await _context.SaveChangesAsync();
+            var result1 = await _controller.deletarProduto(produto.Id);
             result1.Result.Should().BeOfType<OkObjectResult>();
-            var result2 = await produtoController.deletarProduto(Guid.NewGuid());
-            result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            var result2 = await _controller.deletarProduto(Guid.NewGuid());
+            result2.Result.Should().BeOfType<NotFoundObjectResult>();
         }
     }
 }

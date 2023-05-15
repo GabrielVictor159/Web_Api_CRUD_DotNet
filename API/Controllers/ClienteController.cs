@@ -122,7 +122,7 @@ namespace Web_Api_CRUD.Controllers
             }
             catch (Exception e)
             {
-                 return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
+                return StatusCode(500, "Ocorreu um erro interno no servidor: " + e.Message);
             }
         }
 
@@ -175,9 +175,9 @@ namespace Web_Api_CRUD.Controllers
             {
                 Guid userId = Guid.Parse(HttpContext.User.FindFirstValue("Id"));
                 Boolean result = await _clienteService.Delete(userId);
-                if(result)
+                if (result)
                 {
-                return Ok("Usuario deletado");
+                    return Ok("Usuario deletado");
                 }
                 return BadRequest("Id invalido");
             }

@@ -9,6 +9,7 @@ using Web_Api_CRUD.Exceptions;
 using Web_Api_CRUD.Domain;
 using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Services;
+using API.Domain.DTO;
 
 namespace Web_Api_CRUD.Controllers
 {
@@ -30,12 +31,12 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                Produto produto = await _produtoService.CriarProdutoAsync(dto);
+                Object produto = await _produtoService.CriarProdutoAsync(dto);
+                if (produto is string)
+                {
+                    return BadRequest(produto);
+                }
                 return Ok(produto);
-            }
-            catch (ProdutoRegisterException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -48,12 +49,13 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
+                var dtoValidate = new ProdutoConsultaDTOValidation().Validate(dto);
+                if (!dtoValidate.IsValid)
+                {
+                    return BadRequest(dtoValidate.ToString());
+                }
                 List<Produto> produtos = await _produtoService.ObterProdutosPaginadosAsync(dto.index, dto.size, dto.nome, dto.valorMinimo, dto.valorMaximo, dto.id);
                 return Ok(produtos);
-            }
-            catch (ProdutoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -66,12 +68,12 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                Produto produto = await _produtoService.ObterProdutoPorIdAsync(id);
+                Object produto = await _produtoService.ObterProdutoPorIdAsync(id);
+                if (produto is string)
+                {
+                    return NotFound(produto);
+                }
                 return Ok(produto);
-            }
-            catch (ProdutoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -84,13 +86,18 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
+                var dtoValidate = new ProdutoAtualizarDTOValidation().Validate(dto);
+                if (!dtoValidate.IsValid)
+                {
+                    return BadRequest(dtoValidate.ToString());
+                }
                 ProdutoDTO produtoDTO = _mapper.Map<ProdutoDTO>(dto);
-                Produto produto = await _produtoService.AtualizarProdutoAsync(dto.Id, produtoDTO);
+                Object produto = await _produtoService.AtualizarProdutoAsync(dto.Id, produtoDTO);
+                if (produto is string)
+                {
+                    return NotFound(produto);
+                }
                 return Ok(produto);
-            }
-            catch (ProdutoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -104,12 +111,12 @@ namespace Web_Api_CRUD.Controllers
         {
             try
             {
-                await _produtoService.ExcluirProdutoAsync(id);
+                Object delete = await _produtoService.ExcluirProdutoAsync(id);
+                if (delete is string)
+                {
+                    return NotFound(delete);
+                }
                 return Ok("Produto Exlcuido");
-            }
-            catch (ProdutoConsultaException e)
-            {
-                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

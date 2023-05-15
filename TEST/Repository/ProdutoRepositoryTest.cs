@@ -17,53 +17,66 @@ namespace TEST.Repository
     [UseAutofacTestFramework]
     public class ProdutoRepositoryTest
     {
-        private readonly IProdutoRepository _service;
+        private readonly IProdutoRepository _repository;
         private readonly ApplicationDbContext _context;
-        public ProdutoRepositoryTest(IProdutoRepository service, ApplicationDbContext context)
+        private Faker faker = new Faker("pt_BR");
+        public ProdutoRepositoryTest(IProdutoRepository repository, ApplicationDbContext context)
         {
-            _service = service;
+            _repository = repository;
             _context = context;
         }
 
 
         [Fact]
-        public async void CreateTest()
+        public async void CreateAsyncTest()
         {
-            var faker = new Faker("pt_BR");
             ProdutoDTO dto = new ProdutoDTO()
             {
                 Nome = faker.Commerce.ProductName(),
                 Valor = faker.Random.Decimal()
             };
-            var result1 = await _service.CreateAsync(dto);
+            var result1 = await _repository.CreateAsync(dto);
             result1.Should().NotBeNull();
-            Func<Task> result2 = async () => { await _service.CreateAsync(dto); };
-            await result2.Should().ThrowAsync<ProdutoRegisterException>();
         }
 
         [Fact]
-        public async void GetAllPageTest()
+        public async void GetProdutoByNameAsyncTest()
         {
-            var faker = new Faker("pt_BR");
+            Produto produto = new Produto()
+            {
+                Id = Guid.NewGuid(),
+                Nome = faker.Commerce.ProductName(),
+                Valor = faker.Random.Decimal()
+            };
+            _context.produtos.Add(produto);
+            await _context.SaveChangesAsync();
+            var result1 = await _repository.GetProdutoByNameAsync(produto.Nome);
+            result1.Should().NotBeNull();
+            var result2 = await _repository.GetProdutoByNameAsync(faker.Commerce.ProductName());
+            result2.Should().BeNull();
+        }
+
+        [Fact]
+        public async void GetAllPageAsyncTest()
+        {
             List<Produto> listProduto = new();
             for (int i = 0; i < 20; i++)
             {
                 listProduto.Add(new Produto() { Id = Guid.NewGuid(), Nome = faker.Commerce.ProductName(), Valor = faker.Random.Decimal() });
             }
             _context.produtos.AddRange(listProduto);
-            _context.SaveChanges();
-            List<Produto> result1 = await _service.GetAllPageAsync();
+            await _context.SaveChangesAsync();
+            List<Produto> result1 = await _repository.GetAllPageAsync();
             result1.Should().HaveCountGreaterThan(9);
-            List<Produto> result2 = await _service.GetAllPageAsync(1, 15);
+            List<Produto> result2 = await _repository.GetAllPageAsync(1, 15);
             result2.Should().HaveCountGreaterThan(14);
-            List<Produto> result3 = await _service.GetAllPageAsync(1, 10, listProduto[0].Nome);
+            List<Produto> result3 = await _repository.GetAllPageAsync(1, 10, listProduto[0].Nome);
             result3.Should().HaveCountGreaterThan(0);
         }
 
         [Fact]
-        public async void GetClienteByIdTest()
+        public async void GetClienteByIdAyncTest()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -71,17 +84,16 @@ namespace TEST.Repository
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
-            Produto result = await _service.GetProdutoByIdAsync(produto.Id);
-            result.Should().NotBeNull();
-            Func<Task> result2 = async () => { await _service.GetProdutoByIdAsync(Guid.NewGuid()); };
-            await result2.Should().ThrowAsync<ProdutoConsultaException>();
+            await _context.SaveChangesAsync();
+            var result1 = await _repository.GetProdutoByIdAsync(produto.Id);
+            result1.Should().NotBeNull();
+            var result2 = await _repository.GetProdutoByIdAsync(Guid.NewGuid());
+            result2.Should().BeNull();
         }
 
         [Fact]
-        public async void UpdateTest()
+        public async void UpdateAsyncTest()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -89,22 +101,25 @@ namespace TEST.Repository
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             ProdutoDTO dto = new ProdutoDTO()
             {
                 Nome = faker.Commerce.ProductName(),
                 Valor = faker.Random.Decimal()
             };
-            var result = await _service.UpdateAsync(produto.Id, dto);
-            result.Nome.Should().Be(dto.Nome);
-            Func<Task> result2 = async () => { await _service.UpdateAsync(Guid.NewGuid(), dto); };
-            await result2.Should().ThrowAsync<ProdutoConsultaException>();
+            var result1 = await _repository.UpdateAsync(produto.Id, dto);
+            result1.Should().NotBeNull();
+            if (result1 != null)
+            {
+                result1.Nome.Should().Be(dto.Nome);
+            }
+            var result2 = await _repository.UpdateAsync(Guid.NewGuid(), dto);
+            result2.Should().BeNull();
         }
 
         [Fact]
-        public async void DeleteTest()
+        public async void DeleteAsyncTest()
         {
-            var faker = new Faker("pt_BR");
             Produto produto = new Produto()
             {
                 Id = Guid.NewGuid(),
@@ -112,11 +127,11 @@ namespace TEST.Repository
                 Valor = faker.Random.Decimal()
             };
             _context.produtos.Add(produto);
-            _context.SaveChanges();
-            Func<Task> result1 = async () => { await _service.DeleteAsync(produto.Id); };
-            await result1.Should().NotThrowAsync();
-            Func<Task> result2 = async () => { await _service.DeleteAsync(Guid.NewGuid()); };
-            await result2.Should().ThrowAsync<ProdutoConsultaException>();
+            await _context.SaveChangesAsync();
+            var result1 = await _repository.DeleteAsync(produto.Id);
+            result1.Should().BeTrue();
+            var result2 = await _repository.DeleteAsync(Guid.NewGuid());
+            result2.Should().BeFalse();
         }
     }
 

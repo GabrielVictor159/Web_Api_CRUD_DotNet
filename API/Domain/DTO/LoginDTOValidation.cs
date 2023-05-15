@@ -11,8 +11,14 @@ namespace API.Domain.DTO
     {
         public LoginDTOValidation()
         {
-            RuleFor(loginDTO => loginDTO.Nome).NotNull().MinimumLength(8).WithMessage("A propriedade Nome deve ter pelo menos 8 digitos");
-            RuleFor(loginDTO => loginDTO.Senha).NotNull().MinimumLength(8).WithMessage("A propriedade Senha deve ter pelo menos 8 digitos");
+            RuleFor(loginDTO => loginDTO.Nome)
+            .NotNull()
+            .MinimumLength(8)
+            .WithMessage("A propriedade Nome deve ter pelo menos 8 digitos");
+            RuleFor(loginDTO => loginDTO.Senha)
+            .NotNull()
+            .MinimumLength(8)
+            .WithMessage("A propriedade Senha deve ter pelo menos 8 digitos");
         }
     }
 }
