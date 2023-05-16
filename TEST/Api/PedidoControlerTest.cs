@@ -50,26 +50,30 @@ namespace TEST.Api
             SetHttpContextWithClaims(cliente.Id.ToString());
         }
 
-        // [Fact]
-        // public async void AddPedidoTest()
-        // {
-        //     List<ProdutoQuantidadeDTO> dto = new();
-        //     for (int i = 0; i < 10; i++)
-        //     {
-        //         dto.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
-        //     }
-        //     var result1 = await pedidoController.AddPedido(dto);
-        //     result1.Result.Should().BeOfType<OkObjectResult>();
+        [Fact]
+        public async void AddPedidoTest()
+        {
+            List<ProdutoQuantidadeDTO> list = new();
+            for (int i = 0; i < 10; i++)
+            {
+                list.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int(10) });
+            }
+            PedidoDTO pedidoDTO = new PedidoDTO()
+            {
+                listaProdutos = list
+            };
+            var result1 = await pedidoController.AddPedido(pedidoDTO);
+            result1.Result.Should().BeOfType<OkObjectResult>();
 
-        //     dto[0].Produto = Guid.NewGuid();
-        //     var result2 = await pedidoController.AddPedido(dto);
-        //     result2.Result.Should().BeOfType<BadRequestObjectResult>();
+            pedidoDTO.listaProdutos[0].Produto = Guid.NewGuid();
+            var result2 = await pedidoController.AddPedido(pedidoDTO);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
 
-        //     SetHttpContextWithClaims(Guid.NewGuid().ToString());
-        //     var result3 = await pedidoController.AddPedido(dto);
-        //     result3.Result.Should().BeOfType<BadRequestObjectResult>();
-        //     SetHttpContextWithClaims(cliente.Id.ToString());
-        // }
+            SetHttpContextWithClaims(Guid.NewGuid().ToString());
+            var result3 = await pedidoController.AddPedido(pedidoDTO);
+            result3.Result.Should().BeOfType<BadRequestObjectResult>();
+            SetHttpContextWithClaims(cliente.Id.ToString());
+        }
 
         [Fact]
         public async void GetAllPageTest()
@@ -77,11 +81,19 @@ namespace TEST.Api
             PedidoConsultaDTO dto = new PedidoConsultaDTO();
             var result1 = await pedidoController.GetAllPage(dto);
             result1.Result.Should().BeOfType<OkObjectResult>();
+            dto.index = -1;
+            var result2 = await pedidoController.GetAllPage(dto);
+            result2.Result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
         public async void GetOneTest()
         {
+            List<PedidoProduto> pedidoProdutos = new ();
+            foreach(Produto produto in listProduto)
+            {
+                pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
+            }
             Cliente cliente2 = new Cliente()
             {
                 Id = Guid.NewGuid(),
@@ -91,12 +103,7 @@ namespace TEST.Api
             };
             _context.clientes.Add(cliente2);
             _context.SaveChanges();
-            Pedido pedido = new Pedido()
-            {
-                Id = Guid.NewGuid(),
-                idCliente = cliente.Id,
-                ValorTotal = faker.Random.Decimal()
-            };
+            Pedido pedido = new Pedido(cliente.Id,pedidoProdutos);
             _context.pedidos.Add(pedido);
             _context.SaveChanges();
             var result1 = await pedidoController.GetOne(Guid.NewGuid());
@@ -112,18 +119,18 @@ namespace TEST.Api
         [Fact]
         public async void UpdateTest()
         {
-            Pedido pedido = new Pedido()
+            List<PedidoProduto> pedidoProdutos = new ();
+            foreach(Produto produto in listProduto)
             {
-                Id = Guid.NewGuid(),
-                idCliente = cliente.Id,
-                ValorTotal = faker.Random.Decimal()
-            };
+                pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
+            }
+            Pedido pedido = new Pedido(cliente.Id, pedidoProdutos);
             _context.pedidos.Add(pedido);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             List<ProdutoQuantidadeDTO> produtoQuantidadeDTOs = new();
             for (int i = 0; i < 10; i++)
             {
-                produtoQuantidadeDTOs.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int() });
+                produtoQuantidadeDTOs.Add(new ProdutoQuantidadeDTO() { Produto = listProduto[i].Id, Quantidade = faker.Random.Int(10) });
             };
             PedidoUpdateDTO pedidoUpdateDTO = new PedidoUpdateDTO()
             {
@@ -152,15 +159,15 @@ namespace TEST.Api
                 Role = Policies.USER.ToString()
             };
             _context.clientes.Add(cliente2);
-            _context.SaveChanges();
-            Pedido pedido = new Pedido()
+            await _context.SaveChangesAsync();
+             List<PedidoProduto> pedidoProdutos = new ();
+            foreach(Produto produto in listProduto)
             {
-                Id = Guid.NewGuid(),
-                idCliente = cliente.Id,
-                ValorTotal = faker.Random.Decimal()
-            };
+                pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
+            }
+            Pedido pedido = new Pedido(cliente.Id, pedidoProdutos);
             _context.pedidos.Add(pedido);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             SetHttpContextWithClaims(cliente2.Id.ToString(), false);
             var result1 = await pedidoController.Delete(pedido.Id);
             result1.Result.Should().BeOfType<UnauthorizedObjectResult>();

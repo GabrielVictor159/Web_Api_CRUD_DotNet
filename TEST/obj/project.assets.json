@@ -7366,11 +7366,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
+      "projectUniqueName": "/workspaces/Web_Api_CRUD_DotNet/TEST/TEST.csproj",
       "projectName": "TEST",
-      "projectPath": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
+      "projectPath": "/workspaces/Web_Api_CRUD_DotNet/TEST/TEST.csproj",
       "packagesPath": "/home/vscode/.nuget/packages/",
-      "outputPath": "/workspaces/Web_Api_CRUD/TEST/obj/",
+      "outputPath": "/workspaces/Web_Api_CRUD_DotNet/TEST/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/vscode/.nuget/NuGet/NuGet.Config"
@@ -7385,8 +7385,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj": {
-              "projectPath": "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj"
+            "/workspaces/Web_Api_CRUD_DotNet/API/Web_Api_CRUD.csproj": {
+              "projectPath": "/workspaces/Web_Api_CRUD_DotNet/API/Web_Api_CRUD.csproj"
             }
           }
         }

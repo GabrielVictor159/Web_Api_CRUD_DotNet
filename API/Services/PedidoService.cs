@@ -42,20 +42,14 @@ namespace Web_Api_CRUD.Services
             {
                 return "O cliente não foi encontrado";
             }
-            Pedido pedido = await _pedidoRepository.CreateAsync(idCliente);
             List<Guid> listaProdutosIds = pedidoDto.listaProdutos.Select(p => p.Produto).ToList();
             List<Produto> listaVerificacao = await _produtoRepository.GetProdutosToListIdsAsync(listaProdutosIds);
             if (listaProdutosIds.Count != listaVerificacao.Count)
             {
                 return "Existem produtos na lista que não existem.";
             }
-            var pedidosProdutos = await _pedidoRepository.CreateListPedidoProdutoAsync(pedido.Id, pedidoDto.listaProdutos);
-            if (pedidosProdutos != null)
-            {
-                pedido.Lista = pedidosProdutos;
-                return pedido;
-            }
-            return "Houve um problema ao tentar adicionar o pedido.";
+            Pedido pedido = await _pedidoRepository.CreateAsync(idCliente, pedidoDto.listaProdutos);
+            return pedido;
         }
         public async Task<Object> GetAllPage(PedidoConsultaDTO dto)
         {

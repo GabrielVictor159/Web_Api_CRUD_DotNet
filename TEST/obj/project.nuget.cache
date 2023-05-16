@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XRkLsHniSj7oOa1ux0kU8hlK/JoYTTHoAYjpd8NY+OQoyjHx4uzAqBWGorI4ITUh1oFttiVVbayYx4YLssGMFg==",
+  "dgSpecHash": "U2hWaIyUKlzoJ5qnSLj0xKXdq/w822oHncaQ5e4QujWjwugcARqw0AiQADjL2CZuqqEehBGB40B1MOqdnXgZNQ==",
   "success": true,
-  "projectFilePath": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
+  "projectFilePath": "/workspaces/Web_Api_CRUD_DotNet/TEST/TEST.csproj",
   "expectedPackageFiles": [
     "/home/vscode/.nuget/packages/autofac/7.0.1/autofac.7.0.1.nupkg.sha512",
     "/home/vscode/.nuget/packages/autofac.extensions.dependencyinjection/8.0.0/autofac.extensions.dependencyinjection.8.0.0.nupkg.sha512",

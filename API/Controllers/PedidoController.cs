@@ -84,11 +84,11 @@ namespace Web_Api_CRUD.Controllers
                     return BadRequest("O token de usuario é invalido.");
                 }
                 Guid userId = Guid.Parse(claimUserId);
-                var claimRole = HttpContext.User.FindFirstValue("Role");
-                if (claimRole == null)
-                {
-                    return BadRequest("O token de usuario é invalido.");
-                }
+                var claimRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (string.IsNullOrEmpty(claimRole))
+                 {
+                     return BadRequest("O token de usuario é invalido.");
+                 }
                 Object pedido = await _IPedidoService.GetPedidoByIdAsync(id);
                 if (pedido is string)
                 {
@@ -140,11 +140,11 @@ namespace Web_Api_CRUD.Controllers
                     return BadRequest("O token de usuario é invalido.");
                 }
                 Guid userId = Guid.Parse(claimUserId);
-                var claimRole = HttpContext.User.FindFirstValue("Role");
-                if (claimRole == null)
-                {
-                    return BadRequest("O token de usuario é invalido.");
-                }
+                var claimRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (string.IsNullOrEmpty(claimRole))
+                 {
+                     return BadRequest("O token de usuario é invalido.");
+                 }
                 Object pedido = await _IPedidoService.GetPedidoByIdAsync(id);
                 if (pedido is string)
                 {

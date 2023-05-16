@@ -13,14 +13,14 @@ namespace Web_Api_CRUD.Repository
 {
     public interface IPedidoRepository
     {
-        Task<Pedido> CreateAsync(Guid idCliente);
+        Task<Pedido> CreateAsync(Guid idCliente,  List<ProdutoQuantidadeDTO> listaProdutos);
         Task<List<Pedido>> GetAllPageAsync(PedidoConsultaDTO filtro);
         Task<Pedido?> GetPedidoByIdAsync(Guid id);
         Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos);
         Task<Boolean> DeletePedidoAsync(Guid id);
         Task DeletePedidoProdutoByPedido(Guid id);
         Task<List<PedidoProduto>> GetPedidoProdutos(Guid idPedido);
-        Task<List<PedidoProduto>?> CreateListPedidoProdutoAsync(Guid idPedido, List<ProdutoQuantidadeDTO> listaProdutos);
+        Task<List<PedidoProduto>> CreateListPedidoProdutoAsync( List<ProdutoQuantidadeDTO> listaProdutos);
     }
 
     public class PedidoRepository : IPedidoRepository
@@ -34,13 +34,10 @@ namespace Web_Api_CRUD.Repository
             _mapper = mapper;
         }
 
-        public async Task<Pedido> CreateAsync(Guid idCliente)
+        public async Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos)
         {
-            Pedido pedido = new Pedido()
-            {
-                idCliente = idCliente,
-                ValorTotal = 0
-            };
+            var pedidoProdutos = await CreateListPedidoProdutoAsync(listaProdutos);
+            Pedido pedido = new Pedido(idCliente, pedidoProdutos);
             _context.pedidos.Add(pedido);
             await _context.SaveChangesAsync();
             return pedido;
@@ -105,8 +102,9 @@ namespace Web_Api_CRUD.Repository
                    .Where(p => p.IdPedido == id)
                    .ToListAsync();
             _context.pedidoProdutos.RemoveRange(pedidoProdutos);
+            var listPedidoProdutos = await CreateListPedidoProdutoAsync(listaProdutos);
+            pedido.AtualizarLista(listPedidoProdutos);
             await _context.SaveChangesAsync();
-            var listPedidoProdutos = await CreateListPedidoProdutoAsync(id, listaProdutos);
             return pedido;
         }
         public async Task<Boolean> DeletePedidoAsync(Guid id)
@@ -135,32 +133,17 @@ namespace Web_Api_CRUD.Repository
                 .ToListAsync();
             return pedidoProdutos;
         }
-        public async Task<List<PedidoProduto>?> CreateListPedidoProdutoAsync(Guid idPedido, List<ProdutoQuantidadeDTO> listaProdutos)
+        public async Task<List<PedidoProduto>> CreateListPedidoProdutoAsync( List<ProdutoQuantidadeDTO> listaProdutos)
         {
-            var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(c => c.Id == idPedido));
-            if (pedido == null)
-            {
-                return null;
-            }
             List<Guid> listaProdutosIds = listaProdutos.Select(p => p.Produto).ToList();
             List<Produto> produtos = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();
             List<PedidoProduto> listPedidoProduto = new List<PedidoProduto>();
-            decimal valorTotal = 0;
             foreach (Produto produto in produtos)
             {
                 int quantidade = listaProdutos.Where(p => p.Produto == produto.Id).First().Quantidade;
-                PedidoProduto pedidoProduto = new PedidoProduto();
-                pedidoProduto.Produto = produto;
-                pedidoProduto.IdPedido = pedido.Id;
-                pedidoProduto.Quantidade = quantidade;
-                pedidoProduto.ValorTotalLinha = produto.Valor * quantidade;
+                PedidoProduto pedidoProduto = new PedidoProduto(quantidade, produto);
                 listPedidoProduto.Add(pedidoProduto);
-                valorTotal += pedidoProduto.ValorTotalLinha;
             }
-            _context.pedidoProdutos.AddRange(listPedidoProduto);
-            pedido.ValorTotal = valorTotal;
-            pedido.Lista = listPedidoProduto;
-            await _context.SaveChangesAsync();
             return listPedidoProduto;
         }
 

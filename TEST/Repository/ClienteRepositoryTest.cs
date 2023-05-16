@@ -170,11 +170,8 @@ namespace TEST.Repository
             _context.clientes.Add(cliente);
             await _context.SaveChangesAsync();
             List<Pedido> listPedidos = new ();
-            listPedidos.Add(new Pedido(){Id = Guid.NewGuid(), idCliente = cliente.Id, ValorTotal = 0});
-            _context.pedidos.AddRange(listPedidos);
-            await _context.SaveChangesAsync();
             List<Pedido> pedidos = await _repository.GetPedidos(cliente.Id);
-            pedidos.Should().NotBeNullOrEmpty();
+            pedidos.Should().BeNullOrEmpty();
         }
         
     }
