@@ -29,12 +29,6 @@ namespace API.Domain.DTO
             .GreaterThan(0)
             .WithMessage("A quantidade deve ser maior que 0.");
 
-            RuleFor(dto => dto.ValorTotalLinha)
-            .NotNull()
-            .NotEmpty()
-            .WithMessage("O valor da linha não pode ser nula.")
-            .GreaterThan(0)
-            .WithMessage("O valor da linha deve ser maior que 0.");
         }
     }
 }
