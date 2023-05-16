@@ -7,6 +7,7 @@ namespace Web_Api_CRUD.Domain.DTO
 {
     public class PedidoDTO
     {
-        public List<ProdutoQuantidadeDTO> listaProdutos { get; set; }
+        public List<ProdutoQuantidadeDTO> listaProdutos { get; set; } = new();
+        public string? Cupom { get; set; } = null;
     }
 }

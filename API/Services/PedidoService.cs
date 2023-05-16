@@ -48,7 +48,7 @@ namespace Web_Api_CRUD.Services
             {
                 return "Existem produtos na lista que não existem.";
             }
-            Pedido pedido = await _pedidoRepository.CreateAsync(idCliente, pedidoDto.listaProdutos);
+            Pedido pedido = await _pedidoRepository.CreateAsync(idCliente, pedidoDto.listaProdutos, pedidoDto.Cupom);
             return pedido;
         }
         public async Task<Object> GetAllPage(PedidoConsultaDTO dto)
@@ -84,13 +84,13 @@ namespace Web_Api_CRUD.Services
             {
                 return dtoValidate.ToString();
             }
-            List<Guid> listaProdutosIds = dto.Produtos.Select(p => p.Produto).ToList();
+            List<Guid> listaProdutosIds = dto.listaProdutos.Select(p => p.Produto).ToList();
             List<Produto> listaVerificacao = await _produtoRepository.GetProdutosToListIdsAsync(listaProdutosIds);
             if (listaProdutosIds.Count != listaVerificacao.Count)
             {
                 return "Existem produtos na lista que não existem.";
             }
-            var pedido = await _pedidoRepository.UpdatePedidoAsync(dto.Id, dto.Produtos);
+            var pedido = await _pedidoRepository.UpdatePedidoAsync(dto.Id, dto.listaProdutos, dto.Cupom);
             if (pedido == null)
             {
                 return "Não foi possivel buscar dados relacionados ao pedido.";

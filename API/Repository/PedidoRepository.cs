@@ -13,14 +13,14 @@ namespace Web_Api_CRUD.Repository
 {
     public interface IPedidoRepository
     {
-        Task<Pedido> CreateAsync(Guid idCliente,  List<ProdutoQuantidadeDTO> listaProdutos);
+        Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null);
         Task<List<Pedido>> GetAllPageAsync(PedidoConsultaDTO filtro);
         Task<Pedido?> GetPedidoByIdAsync(Guid id);
-        Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos);
+        Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null);
         Task<Boolean> DeletePedidoAsync(Guid id);
         Task DeletePedidoProdutoByPedido(Guid id);
         Task<List<PedidoProduto>> GetPedidoProdutos(Guid idPedido);
-        Task<List<PedidoProduto>> CreateListPedidoProdutoAsync( List<ProdutoQuantidadeDTO> listaProdutos);
+        Task<List<PedidoProduto>> CreateListPedidoProdutoAsync(List<ProdutoQuantidadeDTO> listaProdutos);
     }
 
     public class PedidoRepository : IPedidoRepository
@@ -34,10 +34,10 @@ namespace Web_Api_CRUD.Repository
             _mapper = mapper;
         }
 
-        public async Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos)
+        public async Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null)
         {
             var pedidoProdutos = await CreateListPedidoProdutoAsync(listaProdutos);
-            Pedido pedido = new Pedido(idCliente, pedidoProdutos);
+            Pedido pedido = new Pedido(idCliente, pedidoProdutos, cupom);
             _context.pedidos.Add(pedido);
             await _context.SaveChangesAsync();
             return pedido;
@@ -90,7 +90,7 @@ namespace Web_Api_CRUD.Repository
         {
             return await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
         }
-        public async Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos)
+        public async Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null)
         {
             var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
             if (pedido == null)
@@ -103,6 +103,10 @@ namespace Web_Api_CRUD.Repository
                    .ToListAsync();
             _context.pedidoProdutos.RemoveRange(pedidoProdutos);
             var listPedidoProdutos = await CreateListPedidoProdutoAsync(listaProdutos);
+            if (cupom != null)
+            {
+                pedido.AtualizarCupom(cupom);
+            }
             pedido.AtualizarLista(listPedidoProdutos);
             await _context.SaveChangesAsync();
             return pedido;
@@ -133,7 +137,7 @@ namespace Web_Api_CRUD.Repository
                 .ToListAsync();
             return pedidoProdutos;
         }
-        public async Task<List<PedidoProduto>> CreateListPedidoProdutoAsync( List<ProdutoQuantidadeDTO> listaProdutos)
+        public async Task<List<PedidoProduto>> CreateListPedidoProdutoAsync(List<ProdutoQuantidadeDTO> listaProdutos)
         {
             List<Guid> listaProdutosIds = listaProdutos.Select(p => p.Produto).ToList();
             List<Produto> produtos = await _context.produtos.Where(p => listaProdutosIds.Contains(p.Id)).ToListAsync();

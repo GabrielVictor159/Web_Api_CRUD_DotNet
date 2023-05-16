@@ -89,8 +89,8 @@ namespace TEST.Api
         [Fact]
         public async void GetOneTest()
         {
-            List<PedidoProduto> pedidoProdutos = new ();
-            foreach(Produto produto in listProduto)
+            List<PedidoProduto> pedidoProdutos = new();
+            foreach (Produto produto in listProduto)
             {
                 pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
             }
@@ -103,7 +103,7 @@ namespace TEST.Api
             };
             _context.clientes.Add(cliente2);
             _context.SaveChanges();
-            Pedido pedido = new Pedido(cliente.Id,pedidoProdutos);
+            Pedido pedido = new Pedido(cliente.Id, pedidoProdutos);
             _context.pedidos.Add(pedido);
             _context.SaveChanges();
             var result1 = await pedidoController.GetOne(Guid.NewGuid());
@@ -119,8 +119,8 @@ namespace TEST.Api
         [Fact]
         public async void UpdateTest()
         {
-            List<PedidoProduto> pedidoProdutos = new ();
-            foreach(Produto produto in listProduto)
+            List<PedidoProduto> pedidoProdutos = new();
+            foreach (Produto produto in listProduto)
             {
                 pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
             }
@@ -135,7 +135,7 @@ namespace TEST.Api
             PedidoUpdateDTO pedidoUpdateDTO = new PedidoUpdateDTO()
             {
                 Id = pedido.Id,
-                Produtos = produtoQuantidadeDTOs
+                listaProdutos = produtoQuantidadeDTOs
             };
             var result1 = await pedidoController.Update(pedidoUpdateDTO);
             result1.Result.Should().BeOfType<OkObjectResult>();
@@ -143,7 +143,7 @@ namespace TEST.Api
             var result2 = await pedidoController.Update(pedidoUpdateDTO);
             result2.Result.Should().BeOfType<BadRequestObjectResult>();
             pedidoUpdateDTO.Id = pedido.Id;
-            pedidoUpdateDTO.Produtos[0].Produto = Guid.NewGuid();
+            pedidoUpdateDTO.listaProdutos[0].Produto = Guid.NewGuid();
             var result3 = await pedidoController.Update(pedidoUpdateDTO);
             result3.Result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -160,8 +160,8 @@ namespace TEST.Api
             };
             _context.clientes.Add(cliente2);
             await _context.SaveChangesAsync();
-             List<PedidoProduto> pedidoProdutos = new ();
-            foreach(Produto produto in listProduto)
+            List<PedidoProduto> pedidoProdutos = new();
+            foreach (Produto produto in listProduto)
             {
                 pedidoProdutos.Add(new PedidoProduto(faker.Random.Int(10), produto));
             }
