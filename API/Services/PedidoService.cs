@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Domain.DTO;
+using API.Infraestructure;
 using Web_Api_CRUD.Domain;
 using Web_Api_CRUD.Domain.DTO;
 using Web_Api_CRUD.Repository;
+using Newtonsoft.Json;
+using AutoMapper;
 
 namespace Web_Api_CRUD.Services
 {
@@ -22,13 +25,19 @@ namespace Web_Api_CRUD.Services
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IClienteRepository _clienteRepository;
+        private readonly IMessagingQeue _messagingQeue;
+        private readonly IMapper _mapper;
         public PedidoService(IPedidoRepository pedidoRepository,
          IProdutoRepository produtoRepository,
-         IClienteRepository clienteRepository)
+         IClienteRepository clienteRepository,
+         IMessagingQeue messagingQeue,
+         IMapper mapper)
         {
             _pedidoRepository = pedidoRepository;
             _produtoRepository = produtoRepository;
             _clienteRepository = clienteRepository;
+            _messagingQeue = messagingQeue;
+            _mapper = mapper;
         }
         public async Task<Object> CreateAsync(Guid idCliente, PedidoDTO pedidoDto)
         {
@@ -49,6 +58,9 @@ namespace Web_Api_CRUD.Services
                 return "Existem produtos na lista que não existem.";
             }
             Pedido pedido = await _pedidoRepository.CreateAsync(idCliente, pedidoDto.listaProdutos, pedidoDto.Cupom);
+            PedidoMessagingDTO pedidoMessaging = _mapper.Map<PedidoMessagingDTO>(pedido);
+            var json = JsonConvert.SerializeObject(pedidoMessaging);
+            _messagingQeue.SendFanoutExchange("Pedido", json);
             return pedido;
         }
         public async Task<Object> GetAllPage(PedidoConsultaDTO dto)

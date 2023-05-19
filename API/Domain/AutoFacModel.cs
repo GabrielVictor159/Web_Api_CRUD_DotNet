@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Domain.DTO;
 using Autofac;
 using AutoMapper;
 using Web_Api_CRUD.Domain.DTO;
@@ -22,6 +23,7 @@ namespace Web_Api_CRUD.Domain
                 cfg.CreateMap<ClienteUpdateDTO, ClienteDTO>().ReverseMap();
                 cfg.CreateMap<ProdutoAtualizarDTO, ProdutoDTO>().ReverseMap();
                 cfg.CreateMap<ClienteResponseDTO, Cliente>().ReverseMap();
+                cfg.CreateMap<PedidoMessagingDTO, Pedido>().ReverseMap();
             })).AsSelf().SingleInstance();
 
             builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper(c.Resolve)).As<IMapper>().InstancePerLifetimeScope();

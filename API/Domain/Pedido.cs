@@ -46,6 +46,7 @@ namespace Web_Api_CRUD.Domain
         [Required]
         public decimal ValorTotal { get; private set; }
         public String cupons { get; private set; } = "";
+        public Boolean PagamentoConfirmado { get; set; } = false;
         public List<PedidoProduto> Lista { get; set; } = new();
 
         public void AtualizarLista(List<PedidoProduto> list)

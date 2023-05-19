@@ -286,3 +286,4 @@
 /workspaces/Web_Api_CRUD/TEST/obj/Debug/net7.0/TEST.pdb
 /workspaces/Web_Api_CRUD/TEST/obj/Debug/net7.0/TEST.genruntimeconfig.cache
 /workspaces/Web_Api_CRUD/TEST/obj/Debug/net7.0/ref/TEST.dll
+/workspaces/Web_Api_CRUD/TEST/bin/Debug/net7.0/RabbitMQ.Client.dll
