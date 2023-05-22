@@ -55,7 +55,7 @@ namespace Web_Api_CRUD.Repository
         {
             var query = _context.clientes.AsQueryable();
 
-              if (!string.IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id))
             {
                 query = query.Where(c => c.Id.ToString().ToLower().Contains(id.ToLower()));
             }
@@ -75,7 +75,7 @@ namespace Web_Api_CRUD.Repository
                 .Take(size)
                 .ToListAsync();
 
-            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role}).ToList();
+            return clientes.Select(c => new ClienteResponseDTO { Id = c.Id, Nome = c.Nome, Role = c.Role }).ToList();
         }
 
 
@@ -93,14 +93,14 @@ namespace Web_Api_CRUD.Repository
         public async Task<ClienteResponseDTO?> UpdateAsync(Guid id, ClienteDTO clienteDto)
         {
             var cliente = await Task.FromResult(_context.clientes.FirstOrDefault(c => c.Id == id));
-            if(cliente !=null)
+            if (cliente != null)
             {
-            cliente = _mapper.Map<Cliente>(clienteDto);
-            cliente.Id = id;
-            await _context.SaveChangesAsync();
-            cliente.pedidos = await GetPedidos(cliente.Id);
-            ClienteResponseDTO response = _mapper.Map<ClienteResponseDTO>(cliente);
-            return response;
+                cliente = _mapper.Map<Cliente>(clienteDto);
+                cliente.Id = id;
+                await _context.SaveChangesAsync();
+                cliente.pedidos = await GetPedidos(cliente.Id);
+                ClienteResponseDTO response = _mapper.Map<ClienteResponseDTO>(cliente);
+                return response;
             }
             else
             {

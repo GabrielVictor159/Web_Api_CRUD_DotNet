@@ -12,7 +12,7 @@ namespace API.Infraestructure
     {
         private readonly string _rabbitMqConnectionString = "";
         private readonly int _timeRequest = 10;
-
+        public delegate Task HandleMessage(string e, IModel? channel, Object? model, BasicDeliverEventArgs? args);
         public MessagingQeue(IConfiguration configuration)
         {
             var stringConection = configuration.GetValue<string>("MessagingQeueConnectionString");
@@ -107,7 +107,7 @@ namespace API.Infraestructure
             }
         }
 
-        public async Task<string?> ReceiveDirectExchange(string exchangeName, string queueName, string routingKey, Action<string> handleMessage)
+        public async Task<string?> ReceiveDirectExchange(string exchangeName, string queueName, string routingKey, HandleMessage handleMessage)
         {
             if (string.IsNullOrEmpty(_rabbitMqConnectionString))
             {
@@ -123,11 +123,10 @@ namespace API.Infraestructure
                     channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
                     channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
                     var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, args) =>
+                    consumer.Received += async (model, args) =>
                     {
                         var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                        handleMessage.Invoke(message);
-                        channel.BasicAck(args.DeliveryTag, multiple: false);
+                        await handleMessage.Invoke(message, channel, model, args);
                         cancellationTokenSource.Cancel();
                     };
 
@@ -139,7 +138,7 @@ namespace API.Infraestructure
         }
 
 
-        public async Task<string?> ReceiveTopicExchange(string exchangeName, string queueName, string routingKeyPattern, Action<string> handleMessage)
+        public async Task<string?> ReceiveTopicExchange(string exchangeName, string queueName, string routingKeyPattern, HandleMessage handleMessage)
         {
             if (string.IsNullOrEmpty(_rabbitMqConnectionString))
             {
@@ -155,12 +154,10 @@ namespace API.Infraestructure
                     channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
                     channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKeyPattern);
                     var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, args) =>
+                    consumer.Received += async (model, args) =>
                     {
                         var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                        handleMessage.Invoke(message);
-
-                        channel.BasicAck(args.DeliveryTag, multiple: false);
+                        await handleMessage.Invoke(message, channel, model, args);
                         cancellationTokenSource.Cancel();
                     };
 
@@ -171,7 +168,7 @@ namespace API.Infraestructure
             }
         }
 
-        public async Task<string?> ReceiveFanoutExchange(string exchangeName, string queueName, Action<string> handleMessage)
+        public async Task<string?> ReceiveFanoutExchange(string exchangeName, string queueName, HandleMessage handleMessage)
         {
             if (string.IsNullOrEmpty(_rabbitMqConnectionString))
             {
@@ -187,11 +184,10 @@ namespace API.Infraestructure
                     channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
                     channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: "");
                     var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, args) =>
+                    consumer.Received += async (model, args) =>
                     {
                         var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                        handleMessage.Invoke(message);
-                        channel.BasicAck(args.DeliveryTag, multiple: false);
+                        await handleMessage.Invoke(message, channel, model, args);
                         cancellationTokenSource.Cancel();
                     };
                     channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
@@ -201,7 +197,7 @@ namespace API.Infraestructure
             }
         }
 
-        public async Task<string?> ReceiveDefaultQueue(string queueName, Action<string> handleMessage)
+        public async Task<string?> ReceiveDefaultQueue(string queueName, HandleMessage handleMessage)
         {
             if (string.IsNullOrEmpty(_rabbitMqConnectionString))
             {
@@ -215,11 +211,10 @@ namespace API.Infraestructure
                 {
                     channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
                     var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, args) =>
+                    consumer.Received += async (model, args) =>
                     {
                         var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                        handleMessage.Invoke(message);
-                        channel.BasicAck(args.DeliveryTag, multiple: false);
+                        await handleMessage.Invoke(message, channel, model, args);
                         cancellationTokenSource.Cancel();
                     };
 

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Infraestructure;
-
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 namespace API.Application
 {
     public class ApiBackgroundService : BackgroundService
@@ -23,14 +24,9 @@ namespace API.Application
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var message = await _messagingQeue.ReceiveFanoutExchange("Pagamentos", "ApiPedidos", HandlePayment);
+                var message = await _messagingQeue.ReceiveFanoutExchange("Pagamentos", "ApiPedidos", (message, channel, model, args) => { return Task.CompletedTask; });
                 await Task.Delay(TimeSpan.FromSeconds(_timeDelay), stoppingToken);
             }
-        }
-
-        private void HandlePayment(string message)
-        {
-            Console.WriteLine(message);
         }
     }
 }
