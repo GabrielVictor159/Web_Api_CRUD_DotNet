@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "172.30.96.1:5001:5001"
+      - "5001:5001"
     volumes:
       - ../..:/workspaces:cached
 
