@@ -20,6 +20,7 @@ using Web_Api_CRUD.Domain;
 using Web_Api_CRUD.Domain.Enums;
 using Web_Api_CRUD.Repository;
 using Web_Api_CRUD.Services;
+using API.Application;
 
 namespace Web_Api_CRUD
 {
@@ -60,7 +61,7 @@ namespace Web_Api_CRUD
         {
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+            services.AddHostedService<ApiBackgroundService>();
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
             services.AddAuthorization(options =>
             {

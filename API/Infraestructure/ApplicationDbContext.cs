@@ -16,7 +16,7 @@ namespace Web_Api_CRUD.Infraestructure
         public DbSet<PedidoProduto> pedidoProdutos => Set<PedidoProduto>();
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(@"Server=db; Port=5432; Database=postgres; Uid=postgres; Pwd=postgres;");
+            optionsBuilder.UseNpgsql(@"Server=db_pedido; Port=5432; Database=postgres; Uid=postgres; Pwd=postgres;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

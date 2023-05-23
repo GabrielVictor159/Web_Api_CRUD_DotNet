@@ -16,7 +16,7 @@ namespace Web_Api_CRUD.Repository
         Task<Pedido> CreateAsync(Guid idCliente, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null);
         Task<List<Pedido>> GetAllPageAsync(PedidoConsultaDTO filtro);
         Task<Pedido?> GetPedidoByIdAsync(Guid id);
-        Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null);
+        Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null, Guid? idPayment = null);
         Task<Boolean> DeletePedidoAsync(Guid id);
         Task DeletePedidoProdutoByPedido(Guid id);
         Task<List<PedidoProduto>> GetPedidoProdutos(Guid idPedido);
@@ -90,7 +90,7 @@ namespace Web_Api_CRUD.Repository
         {
             return await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
         }
-        public async Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null)
+        public async Task<Pedido?> UpdatePedidoAsync(Guid id, List<ProdutoQuantidadeDTO> listaProdutos, string? cupom = null, Guid? idPayment = null)
         {
             var pedido = await Task.FromResult(_context.pedidos.FirstOrDefault(p => p.Id == id));
             if (pedido == null)
@@ -108,6 +108,10 @@ namespace Web_Api_CRUD.Repository
                 pedido.AtualizarCupom(cupom);
             }
             pedido.AtualizarLista(listPedidoProdutos);
+            if (idPayment != null)
+            {
+                pedido.IdPagamento = (Guid)idPayment;
+            }
             await _context.SaveChangesAsync();
             return pedido;
         }

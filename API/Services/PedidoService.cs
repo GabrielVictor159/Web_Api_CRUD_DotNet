@@ -60,7 +60,7 @@ namespace Web_Api_CRUD.Services
             Pedido pedido = await _pedidoRepository.CreateAsync(idCliente, pedidoDto.listaProdutos, pedidoDto.Cupom);
             PedidoMessagingDTO pedidoMessaging = _mapper.Map<PedidoMessagingDTO>(pedido);
             var json = JsonConvert.SerializeObject(pedidoMessaging);
-            _messagingQeue.SendFanoutExchange("Pedido", json);
+            _messagingQeue.SendDefaultQueue("Pedido", json);
             return pedido;
         }
         public async Task<Object> GetAllPage(PedidoConsultaDTO dto)
@@ -102,7 +102,7 @@ namespace Web_Api_CRUD.Services
             {
                 return "Existem produtos na lista que não existem.";
             }
-            var pedido = await _pedidoRepository.UpdatePedidoAsync(dto.Id, dto.listaProdutos, dto.Cupom);
+            var pedido = await _pedidoRepository.UpdatePedidoAsync(dto.Id, dto.listaProdutos, dto.Cupom, dto.IdPagamento);
             if (pedido == null)
             {
                 return "Não foi possivel buscar dados relacionados ao pedido.";

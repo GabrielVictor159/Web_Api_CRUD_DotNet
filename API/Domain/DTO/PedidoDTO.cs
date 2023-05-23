@@ -9,5 +9,6 @@ namespace Web_Api_CRUD.Domain.DTO
     {
         public List<ProdutoQuantidadeDTO> listaProdutos { get; set; } = new();
         public string? Cupom { get; set; } = null;
+        public Guid? IdPagamento { get; set; }
     }
 }

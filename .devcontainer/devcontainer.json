@@ -3,7 +3,7 @@
 {
 	"name": "C# (.NET) and PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"service": "app_pedido",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {
@@ -11,18 +11,9 @@
 				"formulahendry.dotnet-test-explorer",
 				"ckolkman.vscode-postgres",
 				"ms-dotnettools.csharp",
-				"kreativ-software.csharpextensions"
+				"kreativ-software.csharpextensions",
+				"rangav.vscode-thunder-client"
 			]
-		}
-	},
-	"forwardPorts": [
-		5000,
-		5001,
-		5432
-	],
-	"portsAttributes": {
-		"5001": {
-			"protocol": "https"
 		}
 	}
 }
