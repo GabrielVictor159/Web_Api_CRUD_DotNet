@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/workspaces/Web_Api_CRUD/TEST/TEST.csproj": {}
+    "C:\\Nova pasta (2)\\Web_Api_CRUD\\TEST\\TEST.csproj": {}
   },
   "projects": {
-    "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj": {
+    "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\Web_Api_CRUD.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj",
+        "projectUniqueName": "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\Web_Api_CRUD.csproj",
         "projectName": "Web_Api_CRUD",
-        "projectPath": "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj",
-        "packagesPath": "/home/vscode/.nuget/packages/",
-        "outputPath": "/workspaces/Web_Api_CRUD/API/obj/",
+        "projectPath": "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\Web_Api_CRUD.csproj",
+        "packagesPath": "C:\\Users\\Gabriel Victor\\.nuget\\packages\\",
+        "outputPath": "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vscode/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Gabriel Victor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -134,34 +141,41 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.203/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "/workspaces/Web_Api_CRUD/TEST/TEST.csproj": {
+    "C:\\Nova pasta (2)\\Web_Api_CRUD\\TEST\\TEST.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
+        "projectUniqueName": "C:\\Nova pasta (2)\\Web_Api_CRUD\\TEST\\TEST.csproj",
         "projectName": "TEST",
-        "projectPath": "/workspaces/Web_Api_CRUD/TEST/TEST.csproj",
-        "packagesPath": "/home/vscode/.nuget/packages/",
-        "outputPath": "/workspaces/Web_Api_CRUD/TEST/obj/",
+        "projectPath": "C:\\Nova pasta (2)\\Web_Api_CRUD\\TEST\\TEST.csproj",
+        "packagesPath": "C:\\Users\\Gabriel Victor\\.nuget\\packages\\",
+        "outputPath": "C:\\Nova pasta (2)\\Web_Api_CRUD\\TEST\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vscode/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Gabriel Victor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj": {
-                "projectPath": "/workspaces/Web_Api_CRUD/API/Web_Api_CRUD.csproj"
+              "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\Web_Api_CRUD.csproj": {
+                "projectPath": "C:\\Nova pasta (2)\\Web_Api_CRUD\\API\\Web_Api_CRUD.csproj"
               }
             }
           }
@@ -233,7 +247,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.203/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }

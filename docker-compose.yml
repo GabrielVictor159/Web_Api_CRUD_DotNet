@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  web_api_crud:
+    image: ${DOCKER_REGISTRY-}webapicrud
+    build:
+      context: .
+      dockerfile: API/Dockerfile
