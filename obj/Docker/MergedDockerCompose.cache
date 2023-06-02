@@ -24,6 +24,11 @@ services:
       published: "5434"
       protocol: tcp
     restart: always
+    volumes:
+    - type: volume
+      source: postgres-data
+      target: /var/lib/postgresql/data
+      volume: {}
   rabbitmq:
     image: rabbitmq:management
     networks:
@@ -75,3 +80,6 @@ networks:
   ecomerce:
     name: dockercompose17582886479543849482_ecomerce
     driver: bridge
+volumes:
+  postgres-data:
+    name: dockercompose17582886479543849482_postgres-data

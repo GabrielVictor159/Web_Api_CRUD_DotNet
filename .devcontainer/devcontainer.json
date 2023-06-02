@@ -3,7 +3,7 @@
 {
 	"name": "C# (.NET) and PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app_pedido",
+	"service": "web_api_crud",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {

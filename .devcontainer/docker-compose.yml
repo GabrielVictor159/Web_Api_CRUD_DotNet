@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app_pedido:
+  web_api_crud:
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,18 +15,18 @@ services:
 
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     networks:
-      - my-network
+      - ecomerce
     # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     # user: root
 
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-  db_pedido:
+  dbPedido:
     image: postgres:14.3
     restart: unless-stopped
     networks:
-      - my-network
+      - ecomerce
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -37,12 +37,20 @@ services:
       POSTGRES_DB: postgres
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
+  rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    ports:
+      - "5673:5672"
+      - "15672:15672"
+    networks:
+      - ecomerce
+
+networks:
+  ecomerce:
+    driver: bridge
 
 volumes:
   postgres-data:
 
 
-networks:
-  my-network:
-    external:
-      name: rabbitmq_my-network
