@@ -1,19 +1,33 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet-postgres
 {
 	"name": "C# (.NET) and PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app_pedido",
+	"service": "gcsb_ecommerce_webapi",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"formulahendry.dotnet-test-explorer",
 				"ckolkman.vscode-postgres",
 				"ms-dotnettools.csharp",
 				"kreativ-software.csharpextensions",
-				"rangav.vscode-thunder-client"
-			]
+				"rangav.vscode-thunder-client",
+				"patcx.vscode-nuget-gallery",
+				"fernandoescolar.vscode-solution-explorer",
+				"vscode-icons-team.vscode-icons",
+				"adrianwilczynski.add-reference",
+				"ms-dotnettools.csdevkit",
+				"formulahendry.dotnet-test-explorer"
+			],
+			"settings": {
+				
+		"files.exclude": {
+            "**/bin": true,
+            "**/obj": true
+        },
+        "vssolution.itemNesting": true,
+		"vssolution.trackActiveItem": true,
+		"vssolution.openSolutions.inAltFolders": true
+			}
 		}
-	}
+	},
+	"postCreateCommand": "dotnet tool install --global dotnet-ef"
 }

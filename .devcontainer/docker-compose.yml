@@ -1,48 +1,46 @@
 version: '3.8'
 
 services:
-  app_pedido:
+  gcsb_ecommerce_webapi:
+    environment:
+      DBCONN: "Server=gcsb_ecommerce_db;Port=5432;Database=postgres;User Id=postgres;Password=postgres"
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "5001:5001"
+
     volumes:
       - ../..:/workspaces:cached
-
-    # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    depends_on:
+      - gcsb_ecommerce_db
+      - gcsb_ecommerce_rabbitmq
     networks:
-      - my-network
-    # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    # user: root
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
-  db_pedido:
+      - gcsbEcommerceWebapi
+  gcsb_ecommerce_db:
     image: postgres:14.3
     restart: unless-stopped
-    networks:
-      - my-network
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - 5544:5432
+    networks:
+      - gcsbEcommerceWebapi
+    volumes:
+      - gcsb_ecommerce_webapi:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
-    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-volumes:
-  postgres-data:
-
-
+  gcsb_ecommerce_rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    ports:
+      - "5674:5672"
+      - "15673:15672"
+    networks:
+      - gcsbEcommerceWebapi
+      
 networks:
-  my-network:
-    external:
-      name: rabbitmq_my-network
+  gcsbEcommerceWebapi:
+    driver: bridge
+volumes:
+  gcsb_ecommerce_webapi:

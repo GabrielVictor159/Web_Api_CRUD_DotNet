@@ -1,0 +1,105 @@
+# Arquivos de compilação
+*.exe
+*.dll
+*.pdb
+
+# Arquivos gerados pela compilação
+obj/
+bin/
+thunder-tests/
+net7.0/
+# Arquivos NuGet
+*.nupkg
+*.snupkg
+*.pdb
+
+# Logs e arquivos de depuração
+*.log
+*.vspscc
+*.vssscc
+*.suo
+*.user
+*.bak
+*.cache
+*.ncrunch*
+*.swp
+*.crt
+*.pfx
+*.pem
+
+# Arquivos do Visual Studio
+.vs/
+*_i.c
+*_p.c
+*.ncb
+*.sln.docstates
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.obj
+*.lib
+*.sbr
+*.sdf
+*.idb
+*.pdb
+*.pch
+*.res
+*.scc
+*.snk
+*.vspscc
+*.vssscc
+*.user
+*.vbw
+*.resx
+*.vssettings
+*.dotCover
+*.resharper
+*.sln.DotSettings.user
+*.sln.DotSettings
+
+# Arquivos do Rider
+.idea/
+
+# Arquivos do Visual Studio Code
+.vscode/
+
+# Diretório de testes
+testResults/
+
+# Diretório de cobertura de código
+*.opencover.xml
+*.coverage
+.coverage
+.jacoco.xml
+*.lcov
+.cobertura.xml
+.coverage.xml
+
+# Diretório de análise de código
+*.dotCover
+
+# Ferramentas
+_ReSharper*/
+*.resharper*
+[Tt]est[Rr]esult*/
+*.dotCover
+*.sublime-project
+*.sublime-workspace
+
+# Análise de código
+*.sln.DotSettings
+*.sln.DotSettings.user
+
+
+# Outros
+node_modules/
+bower_components/
+*.bak
+*.swp
+*.tmp
+*.dotSettings.user
+*.nupkg
