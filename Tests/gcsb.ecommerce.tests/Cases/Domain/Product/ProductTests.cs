@@ -19,25 +19,25 @@ namespace gcsb.ecommerce.tests.Cases.Domain.Product
             this.faker = faker;
         }
         [Fact]
-        public void ShouldCreateDomainWithSucces()
+        public void ShouldIsValidBeTrueByCreateDomainWithSucces()
         {
             var product = ProductBuilder.New(faker).Build();
             product.IsValid.Should().BeTrue();
         }
         [Fact]
-        public void ShouldNotBeDomainIdEmpty()
+        public void ShouldIsValidBeFalseByIdEmpty()
         {
             var product = ProductBuilder.New(faker).WithId(Guid.Empty).Build();
             product.IsValid.Should().BeFalse();
         }
         [Fact]
-        public void ShouldNotBeDomainNameEmpty()
+        public void ShouldIsValidBeFalseByNameEmpty()
         {
             var product = ProductBuilder.New(faker).WithName("").Build();
             product.IsValid.Should().BeFalse();
         }
         [Fact]
-        public void ShouldNotBeDomainValue0()
+        public void ShouldIsValidBeFalseByValue0()
         {
             var product = ProductBuilder.New(faker).WithValue(0).Build();
             product.IsValid.Should().BeFalse();  

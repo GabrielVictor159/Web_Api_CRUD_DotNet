@@ -19,31 +19,31 @@ namespace gcsb.ecommerce.tests.Cases.Domain.Client
             this.faker = faker;
         }
         [Fact]
-        public void ShouldCreateDomainWithSucces()
+        public void ShouldIsValidBeTrueCreateDomain()
         {
             domain.Client.Client client = ClientBuilder.New(faker).Build();
             client.IsValid.Should().BeTrue();
         }
         [Fact]
-        public void ShouldNotBeIdEmpty()
+        public void ShouldIsValidBeFalseByIdEmpty()
         {
             domain.Client.Client client = ClientBuilder.New(faker).WithId(Guid.Empty).Build();
             client.IsValid.Should().BeFalse();
         }
         [Fact]
-        public void ShouldNotBeNameLessThan8()
+        public void ShouldIsValidBeFalseByNameLessThan8()
         {
           domain.Client.Client client = ClientBuilder.New(faker).WithName(faker.Random.String2(7)).Build();
           client.IsValid.Should().BeFalse();  
         }
         [Fact]
-        public void ShouldNotBePasswordLessThan8()
+        public void ShouldIsValidBeFalseByPasswordLessThan8()
         {
            domain.Client.Client client = ClientBuilder.New(faker).WithPassword(faker.Random.String2(7)).Build();
            client.IsValid.Should().BeFalse();
         }
         [Fact]
-        public void ShouldNotBeRoleAleatoryString()
+        public void ShouldIsValidBeFalseByRoleAleatoryString()
         {
             domain.Client.Client client = ClientBuilder.New(faker).WithRole(faker.Random.String2(7)).Build();
             client.IsValid.Should().BeFalse();  

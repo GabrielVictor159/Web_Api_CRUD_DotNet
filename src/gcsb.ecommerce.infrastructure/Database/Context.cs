@@ -10,7 +10,10 @@ namespace gcsb.ecommerce.infrastructure.Database
 {
     public class Context : DbContext
     {
+        public DbSet<Client> Clients => Set<Client>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderProduct> OrderProducts => Set<OrderProduct>();
+        public DbSet<Product> Products => Set<Product>();
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = Environment.GetEnvironmentVariable("DBCONN");
@@ -32,7 +35,10 @@ namespace gcsb.ecommerce.infrastructure.Database
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new ClientMap());
             modelBuilder.ApplyConfiguration(new OrderMap());
+            modelBuilder.ApplyConfiguration(new OrderProductMap());
+            modelBuilder.ApplyConfiguration(new ProductMap());
             base.OnModelCreating(modelBuilder);
         }
     

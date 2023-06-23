@@ -12,19 +12,21 @@ namespace gcsb.ecommerce.domain.Order
         public Guid IdClient { get; private set; }
         public decimal TotalOrder { get; private set; }
         public string Cupons { get; private set; } = "";
-        public Guid IdPagamento { get; set; }
+        public Guid IdPayment { get; set; }
         public List<domain.OrderProduct.OrderProduct> List { get; private set; } = new();
         public DateTime OrderDate { get; private set; }
 
         public Order(Guid idClient, List<domain.OrderProduct.OrderProduct> list, DateTime orderDate, string? nameCupom = null)
         {
             InitializeOrder(idClient, list, orderDate, nameCupom);
+            Validate(this, new OrderValidator());
         }
 
         public Order(Guid id, Guid idClient, List<domain.OrderProduct.OrderProduct> list, DateTime orderDate, string? nameCupom = null)
         {
             InitializeOrder(idClient, list, orderDate, nameCupom);
             this.Id = id;
+            Validate(this, new OrderValidator());
         }
 
         private void InitializeOrder(Guid idClient, List<domain.OrderProduct.OrderProduct> list, DateTime orderDate, string? nameCupom)
@@ -54,15 +56,18 @@ namespace gcsb.ecommerce.domain.Order
         {
             this.List = list;
             CalculateTotalOrder();
+            Validate(this, new OrderValidator());
         }
 
         public void WithCupom(string nameCupom)
         {
             ApplyCupom(nameCupom);
+            Validate(this, new OrderValidator());
         }
 
         private void ApplyCupom(string nameCupom)
         {
+            this.Cupons = nameCupom;
             Type typeEnum = typeof(Cupons);
             if (Enum.IsDefined(typeEnum, nameCupom))
             {
@@ -70,7 +75,6 @@ namespace gcsb.ecommerce.domain.Order
                 int value = (int)cupom;
                 decimal discountedValue = TotalOrder * (value / 100);
                 this.TotalOrder = TotalOrder - discountedValue;
-                this.Cupons = nameCupom;
             }
         }
     }
