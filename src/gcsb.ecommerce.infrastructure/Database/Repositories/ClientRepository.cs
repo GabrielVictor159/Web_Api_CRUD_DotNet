@@ -41,14 +41,14 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             }
             return _mapper.Map<domain.Client.Client>(user);
         }
-        public async Task<List<domain.Order.Order>> GetAllPagination(Expression<Func<domain.Client.Client, bool>> func, int page, int pageSize)
+        public async Task<List<domain.Client.Client>> GetAllPagination(Expression<Func<domain.Client.Client, bool>> func, int page, int pageSize)
         {
             var predicate = _mapper.Map<Expression<Func<Entities.Client, bool>>>(func);
             var query = _context.Clients.Where(predicate);
             var totalItems = await query.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            var orders = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-            return _mapper.Map<List<domain.Order.Order>>(orders);
+            var clients = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return _mapper.Map<List<domain.Client.Client>>(clients);
         }
         public async Task<domain.Client.Client?> GetClienteByIdAsync(Guid id)
         {

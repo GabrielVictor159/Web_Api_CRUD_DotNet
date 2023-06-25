@@ -25,21 +25,9 @@ namespace gcsb.ecommerce.tests.Cases.Domain.OrderProduct
             orderProduct.IsValid.Should().BeTrue();
         }
         [Fact]
-        public void ShouldIsValidBeFalseByIdEmpty()
-        {
-            var orderProduct = OrderProductBuilder.New(faker).WithId(Guid.Empty).Build();
-            orderProduct.IsValid.Should().BeFalse();
-        }
-        [Fact]
         public void ShouldIsValidBeFalseByAmount0()
         {
             var orderProduct = OrderProductBuilder.New(faker).WithAmount(0).Build();
-            orderProduct.IsValid.Should().BeFalse();
-        }
-        [Fact]
-        public void ShouldIsValidBeFalseByProductInvalid()
-        {
-            var orderProduct = OrderProductBuilder.New(faker).WithProduct(new domain.Product.Product("",0)).Build();
             orderProduct.IsValid.Should().BeFalse();
         }
         [Fact]

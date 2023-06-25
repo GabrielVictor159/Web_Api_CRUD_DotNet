@@ -13,10 +13,6 @@ namespace gcsb.ecommerce.infrastructure.Database.Map
             builder.Property(e => e.Name).IsRequired();
             builder.Property(e => e.Password).IsRequired();
             builder.Property(e => e.Role).IsRequired();
-
-            builder.HasMany(e => e.ListOrder)
-                .WithOne(e => e.Client)
-                .HasForeignKey(e => e.IdClient);
         }
     }
 }

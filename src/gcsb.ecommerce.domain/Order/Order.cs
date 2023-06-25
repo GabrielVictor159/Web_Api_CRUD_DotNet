@@ -13,9 +13,13 @@ namespace gcsb.ecommerce.domain.Order
         public decimal TotalOrder { get; private set; }
         public string Cupons { get; private set; } = "";
         public Guid IdPayment { get; set; }
-        public List<domain.OrderProduct.OrderProduct> List { get; private set; } = new();
+        public List<domain.OrderProduct.OrderProduct> ListOrderProduct { get; private set; } = new();
         public DateTime OrderDate { get; private set; }
 
+        public Order()
+        {
+            Validate(this, new OrderValidator());
+        }
         public Order(Guid idClient, List<domain.OrderProduct.OrderProduct> list, DateTime orderDate, string? nameCupom = null)
         {
             InitializeOrder(idClient, list, orderDate, nameCupom);
@@ -29,11 +33,11 @@ namespace gcsb.ecommerce.domain.Order
             Validate(this, new OrderValidator());
         }
 
-        private void InitializeOrder(Guid idClient, List<domain.OrderProduct.OrderProduct> list, DateTime orderDate, string? nameCupom)
+        private void InitializeOrder(Guid idClient, List<domain.OrderProduct.OrderProduct> ListOrderProduct, DateTime orderDate, string? nameCupom)
         {
             this.Id = Guid.NewGuid();
             this.IdClient = idClient;
-            this.List = list;
+            this.ListOrderProduct = ListOrderProduct;
             CalculateTotalOrder();
             this.OrderDate = orderDate;
             if (nameCupom != null)
@@ -45,7 +49,7 @@ namespace gcsb.ecommerce.domain.Order
         private void CalculateTotalOrder()
         {
             decimal totalOrder = 0;
-            foreach (var orderProduct in List)
+            foreach (var orderProduct in ListOrderProduct)
             {
                 totalOrder += orderProduct.TotalOrderLine;
             }
@@ -54,7 +58,7 @@ namespace gcsb.ecommerce.domain.Order
 
         public void WithList(List<domain.OrderProduct.OrderProduct> list)
         {
-            this.List = list;
+            this.ListOrderProduct = ListOrderProduct;
             CalculateTotalOrder();
             Validate(this, new OrderValidator());
         }

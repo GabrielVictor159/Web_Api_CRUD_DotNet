@@ -9,8 +9,11 @@ namespace gcsb.ecommerce.domain.Product
     public class Product : Entity
     {
         public Guid Id { get; private set; }
-        public String Name { get;private set; }
+        public String Name { get;private set; } = "";
         public decimal Value { get;private set; }
+        public Product()
+        {
+        }
         public Product(String name, decimal value)
         {
             this.Id = Guid.NewGuid();

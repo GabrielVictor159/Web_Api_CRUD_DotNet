@@ -24,11 +24,11 @@ namespace gcsb.ecommerce.domain.Validator.Order
         RuleFor(order => order.OrderDate)
             .LessThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("The OrderDate field must be a date earlier than the current date.");
-        RuleFor(order => order.List)
+        RuleFor(order => order.ListOrderProduct)
              .NotNull()
              .NotEmpty()
              .WithMessage("Product list must have valid items.");
-        RuleForEach(order => order.List)
+        RuleForEach(order => order.ListOrderProduct)
                 .SetValidator(new OrderProductValidator());
         RuleFor(order => order.Cupons)
                 .Must(cupom => string.IsNullOrEmpty(cupom) || Enum.IsDefined(typeof(Cupons), cupom))

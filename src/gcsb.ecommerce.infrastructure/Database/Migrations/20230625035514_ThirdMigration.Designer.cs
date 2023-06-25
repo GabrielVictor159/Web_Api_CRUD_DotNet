@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gcsb.ecommerce.infrastructure.Database;
@@ -11,9 +12,11 @@ using gcsb.ecommerce.infrastructure.Database;
 namespace gcsb.ecommerce.infrastructure.Database.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230625035514_ThirdMigration")]
+    partial class ThirdMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,7 +136,7 @@ namespace gcsb.ecommerce.infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.HasOne("gcsb.ecommerce.infrastructure.Database.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("ListOrderProduct")
                         .HasForeignKey("IdProduct")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -149,6 +152,11 @@ namespace gcsb.ecommerce.infrastructure.Database.Migrations
                 });
 
             modelBuilder.Entity("gcsb.ecommerce.infrastructure.Database.Entities.Order", b =>
+                {
+                    b.Navigation("ListOrderProduct");
+                });
+
+            modelBuilder.Entity("gcsb.ecommerce.infrastructure.Database.Entities.Product", b =>
                 {
                     b.Navigation("ListOrderProduct");
                 });

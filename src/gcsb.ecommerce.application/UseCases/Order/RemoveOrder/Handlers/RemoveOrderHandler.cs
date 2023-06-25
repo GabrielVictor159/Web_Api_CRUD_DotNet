@@ -21,15 +21,15 @@ namespace gcsb.ecommerce.application.UseCases.Order.RemoveOrder.Handlers
 
         public override async Task ProcessRequest(RemoveOrderRequest request)
         {
-            bool deleteResult = await orderRepository.Delete(request.Id);
-            if(deleteResult)
-            {
-                request.SetOutput($"Order with Id: {request.Id} succesfully deleted");
-            }
-            else
-            {
-                notificationService.AddNotification("Invalid Id", "There is no order with this Past Id");
-            }
+            // bool deleteResult = await orderRepository.Delete(request.Id);
+            // if(deleteResult)
+            // {
+            //     request.SetOutput($"Order with Id: {request.Id} succesfully deleted");
+            // }
+            // else
+            // {
+            //     notificationService.AddNotification("Invalid Id", "There is no order with this Past Id");
+            // }
             sucessor?.ProcessRequest(request);
         }
     }

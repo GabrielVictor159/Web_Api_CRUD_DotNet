@@ -14,7 +14,7 @@ namespace gcsb.ecommerce.infrastructure.Database.Map
             builder.Property(e => e.TotalOrder).IsRequired();
             builder.Property(e => e.OrderDate).IsRequired();
             builder.HasOne(e => e.Client)
-                .WithMany(e => e.ListOrder)
+                .WithMany(e=>e.ListOrder)
                 .HasForeignKey(e => e.IdClient);
         }
     }

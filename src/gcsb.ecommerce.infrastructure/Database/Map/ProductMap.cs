@@ -12,10 +12,6 @@ namespace gcsb.ecommerce.infrastructure.Database.Map
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Value).IsRequired();
-
-            builder.HasMany(e => e.ListOrderProduct)
-                .WithOne()
-                .HasForeignKey(e => e.IdProduct);
         }
     }
 }

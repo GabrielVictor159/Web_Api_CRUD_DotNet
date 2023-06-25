@@ -14,14 +14,14 @@ namespace gcsb.ecommerce.infrastructure.Database.Map
             builder.Property(e => e.TotalOrderLine).IsRequired();
             builder.Property(e => e.IdOrder).IsRequired();
             builder.Property(e => e.IdProduct).IsRequired();
-
+            builder.Ignore(e=>e.Product);
             builder.HasOne(e => e.Order)
-                .WithMany(e => e.ListOrderProduct)
+                .WithMany(e=>e.ListOrderProduct)
                 .HasForeignKey(e => e.IdOrder);
-
             builder.HasOne(e => e.Product)
                 .WithMany()
                 .HasForeignKey(e => e.IdProduct);
+
         }
     }
 }

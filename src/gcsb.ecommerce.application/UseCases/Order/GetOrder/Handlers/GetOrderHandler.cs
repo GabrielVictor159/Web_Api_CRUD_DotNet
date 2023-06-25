@@ -15,9 +15,9 @@ namespace gcsb.ecommerce.application.UseCases.Order.GetOrder.Handlers
          }
         public override async Task ProcessRequest(GetOrderRequest request)
         {
-           var result = await _orderRepository.GetOrder(request.func);
-           request.SetOutput(result);
-           sucessor?.ProcessRequest(request);
+         //   var result = await _orderRepository.GetOrderAsync(request.func);
+         //   request.SetOutput(result);
+         //   sucessor?.ProcessRequest(request);
         }
     }
 }

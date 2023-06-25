@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gcsb.ecommerce.infrastructure.Database;
@@ -11,9 +12,11 @@ using gcsb.ecommerce.infrastructure.Database;
 namespace gcsb.ecommerce.infrastructure.Database.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230625035300_SecondMigration")]
+    partial class SecondMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,12 +88,22 @@ namespace gcsb.ecommerce.infrastructure.Database.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("TotalOrderLine")
                         .HasColumnType("numeric");
 
                     b.HasKey("IdOrder", "IdProduct");
 
                     b.HasIndex("IdProduct");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderProduct", "Ecommerce");
                 });
@@ -127,14 +140,24 @@ namespace gcsb.ecommerce.infrastructure.Database.Migrations
             modelBuilder.Entity("gcsb.ecommerce.infrastructure.Database.Entities.OrderProduct", b =>
                 {
                     b.HasOne("gcsb.ecommerce.infrastructure.Database.Entities.Order", "Order")
-                        .WithMany("ListOrderProduct")
+                        .WithMany()
                         .HasForeignKey("IdOrder")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("gcsb.ecommerce.infrastructure.Database.Entities.Product", null)
+                        .WithMany("ListOrderProduct")
+                        .HasForeignKey("IdProduct")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("gcsb.ecommerce.infrastructure.Database.Entities.Order", null)
+                        .WithMany("ListOrderProduct")
+                        .HasForeignKey("OrderId");
+
                     b.HasOne("gcsb.ecommerce.infrastructure.Database.Entities.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("IdProduct")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -149,6 +172,11 @@ namespace gcsb.ecommerce.infrastructure.Database.Migrations
                 });
 
             modelBuilder.Entity("gcsb.ecommerce.infrastructure.Database.Entities.Order", b =>
+                {
+                    b.Navigation("ListOrderProduct");
+                });
+
+            modelBuilder.Entity("gcsb.ecommerce.infrastructure.Database.Entities.Product", b =>
                 {
                     b.Navigation("ListOrderProduct");
                 });

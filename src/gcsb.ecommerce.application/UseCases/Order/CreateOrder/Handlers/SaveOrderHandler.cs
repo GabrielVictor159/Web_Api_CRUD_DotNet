@@ -15,7 +15,7 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers
         }
         public override async Task ProcessRequest(CreateOrderRequest request)
         {
-            await _orderRepository.Add(request.Order);
+            await _orderRepository.CreateAsync(request.Order);
             request.SetOutput(request.Order.Id);
             sucessor?.ProcessRequest(request);
         }

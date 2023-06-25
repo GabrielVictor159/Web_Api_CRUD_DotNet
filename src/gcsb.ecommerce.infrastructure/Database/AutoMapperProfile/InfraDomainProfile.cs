@@ -6,14 +6,17 @@ using gcsb.ecommerce.infrastructure.Database.Entities;
 
 namespace gcsb.ecommerce.infrastructure.Database.AutoMapperProfile
 {
-    public class InfraDomainProfile : AutoMapper.Profile
+  public class InfraDomainProfile : AutoMapper.Profile
+{
+    public InfraDomainProfile()
     {
-        public InfraDomainProfile()
-        {
-            CreateMap<Client, domain.Client.Client>().ReverseMap();
-            CreateMap<OrderProduct, domain.OrderProduct.OrderProduct>().ReverseMap();
-            CreateMap<Order, domain.Order.Order>().ReverseMap();
-            CreateMap<Product, domain.Product.Product>().ReverseMap();
-        }
+        CreateMap<Client, domain.Client.Client>().ReverseMap();
+        CreateMap<OrderProduct, domain.OrderProduct.OrderProduct>().ReverseMap();
+        CreateMap<Order, domain.Order.Order>()
+            .ForMember(dest => dest.ListOrderProduct, opt => opt.Ignore())
+            .ReverseMap();
+        CreateMap<Product, domain.Product.Product>().ReverseMap();
     }
+}
+
 }

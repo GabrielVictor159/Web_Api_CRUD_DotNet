@@ -11,12 +11,6 @@ namespace gcsb.ecommerce.domain.Validator.OrderProduct
     {
         public OrderProductValidator()
         {
-            RuleFor(e => e.Product)
-            .NotNull()
-            .NotEmpty()
-            .WithMessage("The Product property cannot be null.");
-            RuleFor(e=>e.Product)
-            .SetValidator(new ProductValidator());
             RuleFor(e => e.IdOrder)
             .NotNull()
             .NotEmpty()
@@ -27,10 +21,6 @@ namespace gcsb.ecommerce.domain.Validator.OrderProduct
             .WithMessage("The Quantity property cannot be null.")
             .GreaterThan(0)
             .WithMessage("The quantity must be greater than 0.");
-            RuleFor(e=> e.Id)
-            .NotNull()
-            .NotEmpty()
-            .WithMessage("The Id property cannot be null.");
         }
     }
 }
