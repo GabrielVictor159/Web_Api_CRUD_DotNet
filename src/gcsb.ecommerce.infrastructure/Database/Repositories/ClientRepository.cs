@@ -23,7 +23,7 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
         public async Task<domain.Client.Client> CreateAsync(domain.Client.Client clientDomain)
         {
             var client = _mapper.Map<Entities.Client>(clientDomain);
-            _context.Clients.Add(client);
+            await _context.Clients.AddAsync(client);
             await _context.SaveChangesAsync();
             return _mapper.Map<domain.Client.Client>(client);
         }

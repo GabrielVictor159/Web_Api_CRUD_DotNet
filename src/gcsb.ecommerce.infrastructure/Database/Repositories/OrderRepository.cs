@@ -32,12 +32,12 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            await deleteOrderProducts(id);
             var entity = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
             if(entity==null)
             {
                 return false;
             }
+            await deleteOrderProducts(id);
             _context.Orders.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
