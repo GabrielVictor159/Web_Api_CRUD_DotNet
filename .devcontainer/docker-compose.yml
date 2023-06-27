@@ -4,6 +4,7 @@ services:
   gcsb_ecommerce_webapi:
     environment:
       DBCONN: "Server=gcsb_ecommerce_db;Port=5432;Database=postgres;User Id=postgres;Password=postgres"
+      SECRET: "638aa358-2cbd-4536-bc40-db59af69464a"
     build:
       context: .
       dockerfile: Dockerfile

@@ -8,6 +8,7 @@
     <ProjectReference Include="../gcsb.ecommerce.domain/gcsb.ecommerce.domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="FluentValidation" Version="11.5.2" />
     <PackageReference Include="FluentValidator" Version="2.0.4" />
   </ItemGroup>

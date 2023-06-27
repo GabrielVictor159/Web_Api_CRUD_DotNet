@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using gcsb.ecommerce.application.Interfaces.Repositories;
+using gcsb.ecommerce.application.Interfaces.Services;
 using gcsb.ecommerce.domain.Client;
 using gcsb.ecommerce.domain.Client.Cryptography;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,15 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
     {
         private readonly Context _context;
         private readonly IMapper _mapper;
-        public ClientRepository(Context context, IMapper mapper)
+        private readonly IReflectionMethods _reflectionMethods;
+        public ClientRepository(
+            Context context,
+            IMapper mapper,
+            IReflectionMethods reflectionMethods)
         {
             _context = context;
             _mapper = mapper;
+            _reflectionMethods = reflectionMethods;
         }
         public async Task<domain.Client.Client> CreateAsync(domain.Client.Client clientDomain)
         {
@@ -64,11 +70,14 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             var clientResult = await Task.FromResult(_context.Clients.FirstOrDefault(c => c.Id == client.Id));
             if (clientResult != null)
             {
-                clientResult = _mapper.Map<Entities.Client>(client);
+                var newAtributes = _mapper.Map<Entities.Client>(client);
+                _reflectionMethods.ReplaceDifferentAttributes<Entities.Client>(newAtributes,clientResult);
                 await _context.SaveChangesAsync();
                 return _mapper.Map<domain.Client.Client>(clientResult);
             }
                 return null;
         }
+    
+
     }
 }

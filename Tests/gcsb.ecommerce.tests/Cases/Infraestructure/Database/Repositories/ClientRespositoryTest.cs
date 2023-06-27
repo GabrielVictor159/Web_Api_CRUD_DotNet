@@ -47,7 +47,7 @@ namespace gcsb.ecommerce.tests.Cases.Infraestructure.Database.Repositories
             var client = mapper.Map<Client>(clientDomain);
             await context.Clients.AddAsync(client);
             await context.SaveChangesAsync();
-            var result = await repository.GetAllByNameAsync(clientDomain.Name);
+            var result = await repository.GetAllByNameAsync(clientDomain.Name!);
             result.Should().NotBeNullOrEmpty();
         }
         [Fact]
