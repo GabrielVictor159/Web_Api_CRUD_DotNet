@@ -8,6 +8,8 @@ using gcsb.ecommerce.application.Interfaces.Services;
 using gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers;
 using gcsb.ecommerce.infrastructure.Modules;
 using gcsb.ecommerce.infrastructure.Service;
+using gcsb.ecommerce.tests.Cases.WebApi;
+using gcsb.ecommerce.tests.Cases.WebApi.UseCases;
 using gcsb.ecommerce.webapi.Modules;
 using Xunit;
 using Xunit.Abstractions;
@@ -29,6 +31,7 @@ namespace gcsb.ecommerce.tests
           builder.RegisterModule(new ApplicationModule());
           builder.RegisterModule(new InfrastructureModule());
           builder.RegisterModule(new WebapiModule());
+          builder.RegisterType<HttpContextMethods>().As<IHttpContextMethods>().InstancePerLifetimeScope();
         }
     }
 }

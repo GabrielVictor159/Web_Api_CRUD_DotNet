@@ -4,7 +4,7 @@ namespace gcsb.ecommerce.application.UseCases.Client.CreateClient.Handlers
 {
     public class SaveClientHandler : Handler<CreateClientRequest>
     {
-        public readonly IClientRepository clientRepository;
+        private readonly IClientRepository clientRepository;
         public SaveClientHandler(IClientRepository clientRepository)
         {
             this.clientRepository = clientRepository;

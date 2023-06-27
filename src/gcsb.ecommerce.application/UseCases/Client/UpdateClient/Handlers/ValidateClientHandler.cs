@@ -7,22 +7,23 @@ using gcsb.ecommerce.domain.Enums;
 
 namespace gcsb.ecommerce.application.UseCases.Client.UpdateClient.Handlers
 {
-    public class ValidationClientHandler : Handler<UpdateClientRequest>
+    public class ValidateClientHandler : Handler<UpdateClientRequest>
     {
         private readonly INotificationService notificationService;
-        public ValidationClientHandler(INotificationService notificationService)
+        public ValidateClientHandler(INotificationService notificationService)
         {
             this.notificationService = notificationService;
         }
 
         public override async Task ProcessRequest(UpdateClientRequest request)
         {
-         if(!request.idUser.Equals(request.clientUpdate.Id) && !request.Role.Equals(Policies.ADMIN.ToString())){
-                    notificationService.AddNotification("Invalid Request","You are not allowed to make this request.");
+         if(!request.idUser.Equals(request.clientUpdate.Id.ToString()) && !request.Role.Equals(Policies.ADMIN.ToString()))
+         {
+                    notificationService.AddNotification("Invalid Request","You are not allowed to make this request.1");
             } 
-            else if(request.idUser.Equals(request.clientUpdate.Id) && request.Role.Equals(Policies.USER.ToString()) && !request.clientUpdate.Role!.Equals(request.Role))
+            else if(request.idUser.Equals(request.clientUpdate.Id.ToString()) && request.Role.Equals(Policies.USER.ToString()) && !request.clientUpdate.Role!.Equals(request.Role))
             {
-               notificationService.AddNotification("Invalid Request","You are not allowed to make this request.");  
+               notificationService.AddNotification("Invalid Request","You are not allowed to make this request.2");  
             }          
             else
             {

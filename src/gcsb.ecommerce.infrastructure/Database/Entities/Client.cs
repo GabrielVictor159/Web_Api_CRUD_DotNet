@@ -12,10 +12,5 @@ namespace gcsb.ecommerce.infrastructure.Database.Entities
         public string? Password { get; set; }
         public string? Role { get; set; }
         public List<Order> ListOrder { get; set; } = new List<Order>();
-
-         public override string ToString()
-         {
-             return $"Id: {Id}, Name: {Name}, Password: {Password}, Role: {Role}, ListOrder: {string.Join(", ", ListOrder)}";
-         }
     }
 }

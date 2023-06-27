@@ -11,19 +11,21 @@ namespace gcsb.ecommerce.application.UseCases.Client.UpdateClient
     public class UpdateClientUseCase : IUpdateClientRequest
     {
         private readonly IOutputPort<UpdateClientOutput> outputPort;
-        private readonly UpdateClientHandler updateClientHandler;
+        private readonly ValidateClientHandler validateClientHandler;
         public UpdateClientUseCase(
             IOutputPort<UpdateClientOutput> outputPort,
-            UpdateClientHandler updateClientHandler)
+            UpdateClientHandler updateClientHandler,
+            ValidateClientHandler validateClientHandler)
         {
             this.outputPort = outputPort;
-            this.updateClientHandler = updateClientHandler;
+            this.validateClientHandler = validateClientHandler;
+            this.validateClientHandler.SetSucessor(updateClientHandler);
         }
 
         public async Task Execute(UpdateClientRequest request)
         {
            try{
-            await updateClientHandler.ProcessRequest(request);
+            await validateClientHandler.ProcessRequest(request);
             outputPort.Standard(request.updateClientOutput!);
             }
             catch(Exception ex)

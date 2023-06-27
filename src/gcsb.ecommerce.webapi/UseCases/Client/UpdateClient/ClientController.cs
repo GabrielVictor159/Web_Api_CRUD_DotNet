@@ -25,15 +25,15 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.UpdateClient
       [HttpPost]
       [Authorize]
       [Route("Update")]
-      public async Task<IActionResult> Login([FromBody]UpdateClientRequest request)
+      public async Task<IActionResult> UpdateClient([FromBody]UpdateClientRequest request)
       { 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var Id = User.FindFirst("Id")?.Value;
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
         await UpdateClientUseCase.Execute(
             new application.UseCases.Client.UpdateClient.UpdateClientRequest
             (
                 new domain.Client.Client(request.IdUser,request?.newName,request?.newPassword,request?.newRole),
-                userId!,
+                Id!,
                 userRole!
             )
             );

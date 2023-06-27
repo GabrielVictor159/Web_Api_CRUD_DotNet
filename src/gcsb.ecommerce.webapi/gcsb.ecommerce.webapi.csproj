@@ -18,9 +18,9 @@
   </ItemGroup>
   
   <ItemGroup>
-  <ProjectReference Include="../gcsb.ecommerce.domain/gcsb.ecommerce.domain.csproj" />
-  <ProjectReference Include="../gcsb.ecommerce.infrastructure/gcsb.ecommerce.infrastructure.csproj" />
-  <ProjectReference Include="../gcsb.ecommerce.aplication/gcsb.ecommerce.application.csproj" />
+    <ProjectReference Include="..\gcsb.ecommerce.application\gcsb.ecommerce.application.csproj" />
+    <ProjectReference Include="..\gcsb.ecommerce.domain\gcsb.ecommerce.domain.csproj" />
+    <ProjectReference Include="..\gcsb.ecommerce.infrastructure\gcsb.ecommerce.infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
