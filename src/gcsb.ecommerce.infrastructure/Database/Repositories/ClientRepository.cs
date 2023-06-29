@@ -71,7 +71,7 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             if (clientResult != null)
             {
                 var newAtributes = _mapper.Map<Entities.Client>(client);
-                _reflectionMethods.ReplaceDifferentAttributes<Entities.Client>(newAtributes,clientResult);
+                _reflectionMethods.ReplaceDifferentAttributes(newAtributes,clientResult);
                 await _context.SaveChangesAsync();
                 return _mapper.Map<domain.Client.Client>(clientResult);
             }

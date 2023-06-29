@@ -51,7 +51,7 @@ namespace gcsb.ecommerce.tests.Cases.Application.Client.UpdateClient.Handlers
               var client = await clientRepository.CreateAsync(ClientBuilder.New(faker).Build());
               await updateClientHandler.ProcessRequest(
                 new UpdateClientRequest(
-                ClientBuilder.New(faker).WithId(client.Id).WithName("").Build(),
+                ClientBuilder.New(faker).WithId(client.Id).WithName("asd").Build(),
                 Guid.NewGuid().ToString(),
                 Policies.ADMIN.ToString())); 
               notificationService.HasNotifications.Should().BeTrue();

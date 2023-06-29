@@ -10,7 +10,7 @@ namespace gcsb.ecommerce.domain.Product
     {
         public Guid Id { get; private set; }
         public String Name { get;private set; } = "";
-        public decimal Value { get;private set; }
+        public decimal Value { get;private set; } = 0;
         public Product()
         {
         }
@@ -19,15 +19,39 @@ namespace gcsb.ecommerce.domain.Product
             this.Id = Guid.NewGuid();
             this.Name = name;
             this.Value = value;
-            Validate(this,new ProductValidator());
+            ValidateEntity();
         }
          public Product(Guid id,String name, decimal value)
         {
             this.Id = id;
             this.Name = name;
             this.Value = value;
-            Validate(this,new ProductValidator());
+            ValidateEntity();
+        }
+        public void SetId(Guid id)
+        {
+            this.Id = id;
+            ValidateEntity();
         }
 
+        public void SetName(String name)
+        {
+            this.Name = name;
+            ValidateEntity();
+        }
+
+        public void SetValue(decimal value)
+        {
+            this.Value = value;
+            ValidateEntity();
+        }
+        public void ValidateEntity()
+        {
+            Validate(this,new ProductValidator());
+        }
+         public override string ToString()
+        {
+            return $"Id: {Id}, Name: {Name}, Value: {Value}";
+        }
     }
 }

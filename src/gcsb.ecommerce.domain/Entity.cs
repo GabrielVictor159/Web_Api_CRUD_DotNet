@@ -14,7 +14,7 @@ namespace gcsb.ecommerce.domain
         public ValidationResult? ValidationResult { get; private set; }
         public bool Validate<TModel>(TModel model, AbstractValidator<TModel> validator)
         {
-            ValidationResult = validator.Validate(model);
+            this.ValidationResult = validator.Validate(model);
  
             return IsValid = ValidationResult.IsValid;
         }
@@ -22,11 +22,11 @@ namespace gcsb.ecommerce.domain
         {
             if (ValidationResult == null)
             {
-                ValidationResult = new ValidationResult(new List<ValidationFailure>());
+                this.ValidationResult = new ValidationResult(new List<ValidationFailure>());
             }
 
-            ValidationResult.Errors.Add(validationFailure);
-            IsValid = false;
+            this.ValidationResult.Errors.Add(validationFailure);
+            this.IsValid = false;
         }
     }
 }

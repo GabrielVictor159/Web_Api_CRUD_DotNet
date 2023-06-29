@@ -14,15 +14,18 @@ namespace gcsb.ecommerce.application.UseCases.Client.UpdateClient.Handlers
         private readonly IClientRepository clientRepository;
         private readonly INotificationService notificationService;
         private readonly IMapper mapper;
+        private readonly IReflectionMethods reflectionMethods;
         public UpdateClientHandler(
             IClientRepository clientRepository,
             INotificationService notificationService,
-            IMapper mapper
+            IMapper mapper,
+            IReflectionMethods reflectionMethods
         )
         {
             this.clientRepository = clientRepository;
             this.notificationService = notificationService;
             this.mapper = mapper; 
+            this.reflectionMethods = reflectionMethods;
         }
         public override async Task ProcessRequest(UpdateClientRequest request)
         {
@@ -32,18 +35,8 @@ namespace gcsb.ecommerce.application.UseCases.Client.UpdateClient.Handlers
             }
             else
             {
-                if(request.clientUpdate.Name!=null)
-                {
-                    user.WithName(request.clientUpdate.Name);
-                }
-                if(request.clientUpdate.Password!=null)
-                {
-                    user.WithPasswordNotCryptography(request.clientUpdate.Password);
-                }
-                if(request.clientUpdate.Role!=null)
-                {
-                    user.WithRole(request.clientUpdate.Role);
-                }
+                reflectionMethods.ReplaceDifferentAttributes(request.clientUpdate, user);
+                user.ValidateEntity();
                 if(!user.IsValid)
                 {
                     notificationService.AddNotifications(user.ValidationResult);

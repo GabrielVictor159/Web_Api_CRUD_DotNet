@@ -26,7 +26,7 @@ namespace gcsb.ecommerce.domain.OrderProduct
             this.Amount = amount;
             this.IdOrder = idOrder;
             this.IdProduct = product.Id;
-            this.TotalOrderLine = product.Value * amount;
+            this.TotalOrderLine = (decimal)(product.Value! * amount);
             Validate(this, new OrderProductValidator());
         }
     }

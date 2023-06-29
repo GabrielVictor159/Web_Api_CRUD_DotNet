@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using gcsb.ecommerce.application.Interfaces.Repositories;
+using gcsb.ecommerce.application.Interfaces.Services;
 using gcsb.ecommerce.domain.Product;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +15,12 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
     {
         private readonly Context _context;
         private readonly IMapper _mapper;
-        public ProductRepository(Context context, IMapper mapper)
+        private readonly IReflectionMethods _reflectionMethods;
+        public ProductRepository(Context context, IMapper mapper, IReflectionMethods reflectionMethods)
         {
             _context = context;
             _mapper = mapper;
+            _reflectionMethods = reflectionMethods;
         }
         public async Task<domain.Product.Product> CreateAsync(domain.Product.Product product)
         {
@@ -34,12 +37,14 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             {
                 return false;
             }
+            List<Entities.OrderProduct> orderProducts = await _context.OrderProducts.Where(p=>p.IdProduct==id).ToListAsync();
+            _context.OrderProducts.RemoveRange(orderProducts);
             _context.Products.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<List<domain.Product.Product>> GetOrderAsync(Expression<Func<domain.Product.Product, bool>> func, int page, int pageSize)
+        public async Task<List<domain.Product.Product>> GetProductAsync(Expression<Func<domain.Product.Product, bool>> func, int page =1, int pageSize=10)
         {
             var predicate = _mapper.Map<Expression<Func<Entities.Product, bool>>>(func);
             var query = _context.Products.Where(predicate);
@@ -54,7 +59,8 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
            var productResult = await Task.FromResult(_context.Products.FirstOrDefault(c => c.Id == product.Id));
             if (productResult != null)
             {
-                productResult = _mapper.Map<Entities.Product>(product);
+                 var newAtributes = _mapper.Map<Entities.Product>(product);
+                _reflectionMethods.ReplaceDifferentAttributes(newAtributes,productResult);
                 await _context.SaveChangesAsync();
                 return _mapper.Map<domain.Product.Product>(productResult);
             }

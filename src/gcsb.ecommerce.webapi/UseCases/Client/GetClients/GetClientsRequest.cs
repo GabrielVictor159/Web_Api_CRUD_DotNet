@@ -11,6 +11,11 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.GetClients
         public String Name { get; set; } = "";
         public String Role { get; set; } = "";
         public int page {get; set;} = 1;
-        public int pageSize {get; set;} = 10;
+         private int _pageSize = 10;
+        public int pageSize
+        {
+            get => _pageSize;
+            set => _pageSize = Math.Min(value, 100); 
+        }
     }
 }

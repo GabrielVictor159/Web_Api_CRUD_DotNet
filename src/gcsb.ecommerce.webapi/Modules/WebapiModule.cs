@@ -10,6 +10,10 @@ using gcsb.ecommerce.webapi.UseCases.Client.UpdateClient;
 using gcsb.ecommerce.webapi.UseCases.Order.CreateOrder;
 using gcsb.ecommerce.webapi.UseCases.Order.GetOrder;
 using gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder;
+using gcsb.ecommerce.webapi.UseCases.Product.CreateProduct;
+using gcsb.ecommerce.webapi.UseCases.Product.DeleteProducts;
+using gcsb.ecommerce.webapi.UseCases.Product.GetProducts;
+using gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts;
 
 namespace gcsb.ecommerce.webapi.Modules
 {
@@ -36,6 +40,18 @@ namespace gcsb.ecommerce.webapi.Modules
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
              builder.RegisterType<UpdateClientPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<CreateProductPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<DeleteProductPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<UpdateProductPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<GetProductsPresenter>()
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
         }

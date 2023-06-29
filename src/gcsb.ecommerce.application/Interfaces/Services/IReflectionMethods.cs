@@ -7,6 +7,6 @@ namespace gcsb.ecommerce.application.Interfaces.Services
 {
     public interface IReflectionMethods
     {
-        void ReplaceDifferentAttributes<T>(T source, T destination);
+        void ReplaceDifferentAttributes<TSource, TDestination>(TSource source, TDestination destination);
     }
 }

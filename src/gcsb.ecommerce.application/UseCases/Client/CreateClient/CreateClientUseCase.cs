@@ -28,11 +28,7 @@ namespace gcsb.ecommerce.application.UseCases.Client.CreateClient
             {
             await validateClientHandler.ProcessRequest(request);
             outputPort.Standard(
-                new CreateClientOutput(
-                    request.Client.Id,
-                    request.Client.Name!,
-                    request.Client.Role!
-                    ));
+               request.CreateClientOutput!);
             }
             catch (Exception ex)
             {

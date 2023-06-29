@@ -55,7 +55,7 @@ namespace gcsb.ecommerce.tests.Cases.Infraestructure.Database.Repositories
             var productPersist = mapper.Map<infrastructure.Database.Entities.Product>(product);
             await context.Products.AddAsync(productPersist);
             await context.SaveChangesAsync();
-            var result = await repository.GetOrderAsync(e=>e.Id==productPersist.Id,1,10);
+            var result = await repository.GetProductAsync(e=>e.Id==productPersist.Id,1,10);
             result.Should().NotBeNullOrEmpty();
         }
         [Fact]

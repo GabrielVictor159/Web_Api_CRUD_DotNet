@@ -11,6 +11,6 @@ namespace gcsb.ecommerce.application.Interfaces.Repositories
         Task<domain.Product.Product> CreateAsync(domain.Product.Product product);
         Task<domain.Product.Product?> UpdateAsync(domain.Product.Product product);
         Task<Boolean> DeleteAsync(Guid id);
-        Task<List<domain.Product.Product>> GetOrderAsync(Expression<Func<domain.Product.Product, bool>> func, int page, int pageSize);
+        Task<List<domain.Product.Product>> GetProductAsync(Expression<Func<domain.Product.Product, bool>> func, int page=1, int pageSize=10);
     }
 }
