@@ -23,6 +23,10 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.UpdateClient
             this.UpdateClientUseCase = UpdateClientUseCase;
          }
       [HttpPost]
+      [ProducesResponseType(StatusCodes.Status200OK)]
+      [ProducesResponseType(StatusCodes.Status404NotFound)]
+      [ProducesResponseType(StatusCodes.Status400BadRequest)]
+      [ProducesResponseType(StatusCodes.Status500InternalServerError)]
       [Authorize]
       [Route("Update")]
       public async Task<IActionResult> UpdateClient([FromBody]UpdateClientRequest request)

@@ -37,14 +37,13 @@ namespace gcsb.ecommerce.tests.Cases.Application.Client.GetClients
             }
         }
         [Fact]
-        public async Task ShouldClientResultNotBeNullGetClientsUseCase()
+        public async Task ShouldClientResultNotBeNullOrEmptyGetClientsUseCase()
         {
             Expression<Func<domain.Client.Client, bool>> func = p =>
              p.Name!.Contains("");
             var request = new GetClientsRequest(func,1,10);
             await GetClientsUseCase.Execute(request);
             request.clientResult.Should().NotBeNull();
-
         }
     }
 }

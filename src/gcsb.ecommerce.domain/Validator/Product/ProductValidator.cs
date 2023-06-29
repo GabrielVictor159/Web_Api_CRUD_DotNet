@@ -17,7 +17,9 @@ namespace gcsb.ecommerce.domain.Validator.Product
             RuleFor(product => product.Name)
             .NotNull()
             .NotEmpty()
-            .WithMessage("The Name property cannot be null or empty.");
+            .WithMessage("The Name property cannot be null or empty.")
+            .MinimumLength(4)
+            .WithMessage("The Name property cannot have less than 4 digits.");
             RuleFor(product => product.Value)
             .NotNull()
             .GreaterThan(0)

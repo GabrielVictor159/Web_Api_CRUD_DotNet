@@ -30,7 +30,7 @@ namespace gcsb.ecommerce.application.UseCases.Product.UpdateProduct.Handlers
                 notificationService.AddNotification("Product not found",$"No product found with id {request.Product.Id}");
                 return;
             }
-            reflectionMethods.ReplaceDifferentAttributes(request,product);
+            reflectionMethods.ReplaceDifferentAttributes(request.Product,product);
             product.ValidateEntity();
             if(!product.IsValid)
             {
