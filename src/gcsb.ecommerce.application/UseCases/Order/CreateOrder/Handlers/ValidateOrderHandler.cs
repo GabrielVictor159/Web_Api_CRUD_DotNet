@@ -15,7 +15,7 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers
         }
         public override async Task ProcessRequest(CreateOrderRequest request)
         {
-            if(!request.Order.IsValid)
+            if(!request.Order!.IsValid)
             {
                 _notificationService.AddNotifications(request.Order.ValidationResult);
                 return;

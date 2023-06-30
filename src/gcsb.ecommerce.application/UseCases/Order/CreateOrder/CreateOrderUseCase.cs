@@ -11,15 +11,19 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
 {
     public class CreateOrderUseCase : ICreateOrderRequest
     {
-        private readonly ValidateOrderHandler validateOrderHandler;
-        private readonly IOutputPort<OrderOutput> outputPort;
+        private readonly ValidateProductsHandler validateProductsHandler;
+        private readonly IOutputPort<CreateOrderOutput> outputPort;
         public CreateOrderUseCase(
+         ValidateProductsHandler validateProductsHandler,
+         CreateOrderDomainHandler createOrderDomainHandler,
          ValidateOrderHandler validateOrderHandler,
          SaveOrderHandler saveOrderHandler,
-         IOutputPort<OrderOutput> outputPort)
+         IOutputPort<CreateOrderOutput> outputPort)
         {
         validateOrderHandler.SetSucessor(saveOrderHandler);
-        this.validateOrderHandler = validateOrderHandler;
+        createOrderDomainHandler.SetSucessor(validateOrderHandler);
+        validateProductsHandler.SetSucessor(createOrderDomainHandler);
+        this.validateProductsHandler = validateProductsHandler;
         this.outputPort = outputPort;
        
         }
@@ -27,8 +31,8 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
         {
            try
            {
-            await validateOrderHandler.ProcessRequest(request);
-            outputPort.Standard(new OrderOutput(request.Order.Id));
+            await validateProductsHandler.ProcessRequest(request);
+            outputPort.Standard(request.OrderOutput!);
            }
            catch(Exception ex)
            {

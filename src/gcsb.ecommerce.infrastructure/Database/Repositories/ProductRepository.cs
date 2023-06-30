@@ -53,7 +53,15 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             var products= await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return _mapper.Map<List<domain.Product.Product>>(products);
         }
-
+        public async Task<domain.Product.Product?> GetProductByIdAsync(Guid Id)
+        {
+            var product = await _context.Products.FindAsync(Id);
+            if(product==null)
+            {
+                return null;
+            }
+            return _mapper.Map<domain.Product.Product>(product);
+        }
         public async Task<domain.Product.Product?> UpdateAsync(domain.Product.Product product)
         {
            var productResult = await Task.FromResult(_context.Products.FirstOrDefault(c => c.Id == product.Id));

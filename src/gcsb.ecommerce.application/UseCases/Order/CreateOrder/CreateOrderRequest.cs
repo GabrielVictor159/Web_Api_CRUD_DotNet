@@ -8,14 +8,20 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
 {
     public class CreateOrderRequest
     {
-       public domain.Order.Order Order {get;private set;}
-       public OrderOutput? OrderOutput {get; private set;}
-       public CreateOrderRequest(domain.Order.Order order)
+       public domain.Order.Order? Order {get;private set;} 
+       public Guid IdUser {get; private set;}
+       public string? Cupons { get; private set; } 
+       public List<(Guid Id, int Quantity)> listProducts = new List<(Guid Id, int Quantity)>();
+       public CreateOrderOutput? OrderOutput {get; private set;}
+       public CreateOrderRequest(Guid idUser,  List<(Guid Id, int Quantity)> listProducts, string? Cupons)
        {
-        Order = order;
+        this.IdUser = idUser;
+        this.Cupons = Cupons;
+        this.listProducts = listProducts;
        }
-
-       public void SetOutput(Guid id)
-        =>OrderOutput = new OrderOutput(id);
+       public void SetOrder(domain.Order.Order order)
+       =>Order = order;
+       public void SetOutput(CreateOrderOutput output)
+        =>OrderOutput = output;
     }
 }
