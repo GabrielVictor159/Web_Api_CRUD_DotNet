@@ -26,7 +26,8 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             await _context.Orders.AddAsync(orderEntity);
             await _context.SaveChangesAsync();
             var result = _mapper.Map<domain.Order.Order>(orderEntity);
-            result.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(result.Id)));
+            var ListOrderProduct = _mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(result.Id));
+            result.WithList(ListOrderProduct);
             return result;
         }
 
@@ -52,9 +53,21 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             var result = _mapper.Map<List<domain.Order.Order>>(orders);
             foreach(var order in result)
             {
-                order.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(order.Id)));
+                var resultOrderProduct = await getOrderProducts(order.Id);
+                order.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(resultOrderProduct));
             }
             return result;
+        }
+        public async Task<domain.Order.Order?> GetOrderByIdAsync(Guid id)
+        {
+             var OrderResult = await Task.FromResult(_context.Orders.FirstOrDefault(c => c.Id == id));
+            if (OrderResult != null)
+            {
+               var OrderResponse = _mapper.Map<domain.Order.Order>(OrderResult);
+               OrderResponse.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(id)));
+               return OrderResponse; 
+            }
+            return null;
         }
         public async Task<domain.Order.Order?> UpdateAsync(domain.Order.Order order)
         {

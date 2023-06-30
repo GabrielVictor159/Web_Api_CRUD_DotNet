@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using gcsb.ecommerce.application.Boundaries.Order;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.CreateOrder
 {
-    [DataContract(Name = "PostOrderRequest")]
     public sealed class CreateOrderRequest
     {
-        [Required]
-       public DateTime OrderDate { get; set; }
-        [Required]
-        public decimal TotalOrder { get; set; }
+       public required List<listProducts> listProducts {get;set;}
+       public string? Cupons { get; set; } 
     }
 }

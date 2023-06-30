@@ -20,10 +20,8 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
          SaveOrderHandler saveOrderHandler,
          IOutputPort<CreateOrderOutput> outputPort)
         {
-        validateOrderHandler.SetSucessor(saveOrderHandler);
-        createOrderDomainHandler.SetSucessor(validateOrderHandler);
-        validateProductsHandler.SetSucessor(createOrderDomainHandler);
         this.validateProductsHandler = validateProductsHandler;
+        this.validateProductsHandler.SetSucessor(createOrderDomainHandler.SetSucessor(validateOrderHandler.SetSucessor(saveOrderHandler)));
         this.outputPort = outputPort;
        
         }

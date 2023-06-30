@@ -54,6 +54,9 @@ namespace gcsb.ecommerce.webapi.Modules
              builder.RegisterType<GetProductsPresenter>()
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<CreateOrderPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
         }
     }
 }

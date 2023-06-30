@@ -35,7 +35,7 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers
                 inexistItems = true;
                }
             }
-            if(repeatItems && inexistItems && sucessor!=null)
+            if(!repeatItems && !inexistItems && sucessor!=null)
                {
                 await sucessor.ProcessRequest(request);
                }

@@ -20,12 +20,12 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts
                 this.presenter = createProductPresenter;
                 this.updateProductUseCase = updateProductUseCase;
             }
-      [HttpPost]
+      [HttpPut]
       [ProducesResponseType(StatusCodes.Status200OK)]
       [ProducesResponseType(StatusCodes.Status404NotFound)]
       [ProducesResponseType(StatusCodes.Status400BadRequest)]
       [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-//   [Authorize(Roles = nameof(Policies.ADMIN))]
+//    [Authorize(Roles = nameof(Policies.ADMIN))]
       [Route("UpdateProduct")]
       public async Task<IActionResult> UpdateProduct([FromBody]UpdateProductRequest request)
       { 

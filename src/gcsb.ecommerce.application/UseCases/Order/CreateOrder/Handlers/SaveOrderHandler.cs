@@ -22,7 +22,10 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers
         public override async Task ProcessRequest(CreateOrderRequest request)
         {
             var result = await _orderRepository.CreateAsync(request.Order!);
-            request.SetOutput(_mapper.Map<CreateOrderOutput>(result));
+            var output = _mapper.Map<CreateOrderOutput>(result);
+            output.ListOrderProduct = _mapper.Map<List<OrderProductOutput>>(result.ListOrderProduct);
+            
+            request.SetOutput(output);
             if(sucessor!=null)
             {
             await sucessor.ProcessRequest(request);

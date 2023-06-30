@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.CreateOrder
 {
-    public class CreateOrderPresenter : IOutputPort<OrderOutput>
+    public class CreateOrderPresenter : IOutputPort<CreateOrderOutput>
     {
         public IActionResult ViewModel { get; private set; } = new ObjectResult(new { StatusCode = 500 });
 
@@ -27,9 +27,9 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.CreateOrder
             ViewModel = new NotFoundObjectResult(message);
         }
 
-        public void Standard(OrderOutput output)
+        public void Standard(CreateOrderOutput output)
         {
-            var response = new OrderResponse(output.id);
+            var response = new OrderResponse(){orderOutput=output};
             this.ViewModel = new OkObjectResult(response);
         }
     }

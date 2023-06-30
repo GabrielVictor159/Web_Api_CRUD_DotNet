@@ -58,7 +58,7 @@ namespace gcsb.ecommerce.domain.Order
 
         public void WithList(List<domain.OrderProduct.OrderProduct> list)
         {
-            this.ListOrderProduct = ListOrderProduct;
+            this.ListOrderProduct = list;
             CalculateTotalOrder();
             Validate(this, new OrderValidator());
         }

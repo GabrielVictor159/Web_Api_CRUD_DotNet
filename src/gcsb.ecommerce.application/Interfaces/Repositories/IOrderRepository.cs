@@ -12,5 +12,6 @@ namespace gcsb.ecommerce.application.Interfaces.Repositories
         Task<domain.Order.Order?> UpdateAsync(domain.Order.Order order);
         Task<Boolean> DeleteAsync(Guid id);
         Task<List<domain.Order.Order>> GetOrderAsync(Expression<Func<domain.Order.Order, bool>> func, int page, int pageSize);
+        Task<domain.Order.Order?> GetOrderByIdAsync(Guid id);
     }
 }

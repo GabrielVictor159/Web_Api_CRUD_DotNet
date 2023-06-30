@@ -7,6 +7,6 @@ namespace gcsb.ecommerce.application.UseCases.Order.UpdateOrder
 {
     public interface IUpdateOrderRequest
     {
-        
+         Task Execute(UpdateOrderRequest request);
     }
 }

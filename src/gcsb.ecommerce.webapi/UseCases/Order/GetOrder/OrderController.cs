@@ -26,14 +26,17 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.GetOrder
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //   [Authorize(Roles = nameof(Policies.ADMIN))]
         [Route("GetOrder")]
         public async Task<IActionResult> GetOrder([FromBody] GetOrderRequest orderRequest)
         {
-             Expression<Func<domain.Order.Order, bool>> func = p => p.Id.ToString().ToLower().Contains(orderRequest.Id.ToLower()) &&
-             p.OrderDate.ToString().ToLower().Contains(orderRequest.OrderDate.ToLower()) &&
+             Expression<Func<domain.Order.Order, bool>> func = p => p.Id.ToString().ToLower().Contains(orderRequest.Id!.ToLower()) &&
+             p.OrderDate.ToString().ToLower().Contains(orderRequest.OrderDate!.ToLower()) &&
+             p.IdClient.ToString().ToLower().Contains(orderRequest.IdClient!.ToLower()) &&
+             p.IdPayment.ToString().ToLower().Contains(orderRequest.IdPayment!.ToLower()) &&
              p.TotalOrder <= orderRequest.MaximalOrder &&
              p.TotalOrder >= orderRequest.MinimalOrder;
-            await getOrderRequest.Execute(new application.UseCases.Order.GetOrder.GetOrderRequest(func));
+            await getOrderRequest.Execute(new application.UseCases.Order.GetOrder.GetOrderRequest(func, orderRequest.page,orderRequest.pageSize));
             return presenter.ViewModel;
         }
     }

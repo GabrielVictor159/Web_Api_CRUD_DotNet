@@ -22,7 +22,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.UpdateClient
             this.presenter = presenter;
             this.UpdateClientUseCase = UpdateClientUseCase;
          }
-      [HttpPost]
+      [HttpPut]
       [ProducesResponseType(StatusCodes.Status200OK)]
       [ProducesResponseType(StatusCodes.Status404NotFound)]
       [ProducesResponseType(StatusCodes.Status400BadRequest)]

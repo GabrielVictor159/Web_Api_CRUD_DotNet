@@ -15,7 +15,6 @@ namespace gcsb.ecommerce.infrastructure.Service
     var destinationType = destination!.GetType();
     var sourceProperties = sourceType.GetProperties();
     var destinationProperties = destinationType.GetProperties();
-
     foreach (var sourceProperty in sourceProperties)
     {
         var destinationProperty = destinationProperties.FirstOrDefault(p => p.Name == sourceProperty.Name);

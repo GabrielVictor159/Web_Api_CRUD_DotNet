@@ -11,9 +11,9 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
        public domain.Order.Order? Order {get;private set;} 
        public Guid IdUser {get; private set;}
        public string? Cupons { get; private set; } 
-       public List<(Guid Id, int Quantity)> listProducts = new List<(Guid Id, int Quantity)>();
+       public List<listProducts> listProducts = new List<listProducts>();
        public CreateOrderOutput? OrderOutput {get; private set;}
-       public CreateOrderRequest(Guid idUser,  List<(Guid Id, int Quantity)> listProducts, string? Cupons)
+       public CreateOrderRequest(Guid idUser,  List<listProducts> listProducts, string? Cupons)
        {
         this.IdUser = idUser;
         this.Cupons = Cupons;
