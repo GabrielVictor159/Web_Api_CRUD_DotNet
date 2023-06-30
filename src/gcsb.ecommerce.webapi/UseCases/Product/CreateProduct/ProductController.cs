@@ -14,13 +14,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.CreateProduct
     public class ProductController : ControllerBase
     {
         private readonly CreateProductPresenter presenter;
-        private readonly CreateProductUseCase createProductUseCase;
+        private readonly ICreateProductRequest createProductRequest;
         public ProductController(
             CreateProductPresenter createProductPresenter,
-            CreateProductUseCase createProductUseCase)
+            ICreateProductRequest createProductRequest)
             {
                 this.presenter = createProductPresenter;
-                this.createProductUseCase = createProductUseCase;
+                this.createProductRequest = createProductRequest;
             }
       [HttpPost]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -31,7 +31,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.CreateProduct
       [Route("CreateProduct")]
       public async Task<IActionResult> CreateProduct([FromBody]CreateProductRequest request)
       { 
-        await createProductUseCase.Execute(
+        await createProductRequest.Execute(
             new application.UseCases.Product.CreateProduct.CreateProductRequest(
                 new domain.Product.Product(request.Name,request.Value)
             ));

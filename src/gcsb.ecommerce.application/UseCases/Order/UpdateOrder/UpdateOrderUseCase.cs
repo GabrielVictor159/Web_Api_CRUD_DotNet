@@ -20,10 +20,8 @@ namespace gcsb.ecommerce.application.UseCases.Order.UpdateOrder
             UpdateOrderHandler updateOrderHandler
         )
         {
-            validateProductsHandler.SetSucessor(createListOrderProductHandler);
-            createListOrderProductHandler.SetSucessor(validateOrderHandler);
-            validateOrderHandler.SetSucessor(updateOrderHandler);
             this.validateProductsHandler = validateProductsHandler;
+            this.validateProductsHandler.SetSucessor(createListOrderProductHandler.SetSucessor(validateOrderHandler.SetSucessor(updateOrderHandler)));
             this.outputPort = output;
         }
         public async Task Execute(UpdateOrderRequest request)
@@ -35,6 +33,7 @@ namespace gcsb.ecommerce.application.UseCases.Order.UpdateOrder
            }
            catch (Exception ex)
            {
+            Console.WriteLine(ex);
              outputPort.Error(ex.Message);
            }
         }

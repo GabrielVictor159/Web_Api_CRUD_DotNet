@@ -14,13 +14,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.DeleteProducts
     public class ProductController : ControllerBase
     {
         private readonly DeleteProductPresenter presenter;
-        private readonly DeleteProductUseCase createProductUseCase;
+        private readonly IDeleteProductRequest deleteProductRequest;
         public ProductController(
             DeleteProductPresenter createProductPresenter,
-            DeleteProductUseCase createProductUseCase)
+            IDeleteProductRequest deleteProductRequest)
             {
                 this.presenter = createProductPresenter;
-                this.createProductUseCase = createProductUseCase;
+                this.deleteProductRequest = deleteProductRequest;
             }
       [HttpDelete]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -31,7 +31,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.DeleteProducts
       [Route("DeleteProduct")]
       public async Task<IActionResult> DeleteProduct([FromBody]DeleteProductRequest request)
       { 
-        await createProductUseCase.Execute(
+        await deleteProductRequest.Execute(
             new application.UseCases.Product.DeleteProduct.DeleteProductRequest(
                 request.ProductId
             ));

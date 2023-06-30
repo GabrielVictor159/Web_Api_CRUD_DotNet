@@ -14,13 +14,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.CreateClient
     public class ClientController : ControllerBase
     {
          private readonly CreateClientPresenter presenter;
-         private readonly CreateClientUseCase createClientUseCase;
+         private readonly ICreateClientRequest createClientRequest;
          public ClientController(
             CreateClientPresenter presenter,
-            CreateClientUseCase createClientUseCase)
+            ICreateClientRequest createClientRequest)
          {
             this.presenter = presenter;
-            this.createClientUseCase = createClientUseCase;
+            this.createClientRequest = createClientRequest;
          }
       
       [HttpPost]
@@ -31,7 +31,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.CreateClient
       [Route("Register")]
       public async Task<IActionResult> CreateClient([FromBody]CreateClientRequest request)
       { 
-        await createClientUseCase.Execute(
+        await createClientRequest.Execute(
             new application.UseCases.Client.CreateClient.CreateClientRequest(
                new domain.Client.Client(request.Name,request.Password,Policies.USER.ToString()) 
             ));
@@ -46,7 +46,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.CreateClient
       [Route("RegisterAdmin")]
       public async Task<IActionResult> CreateClientAdmin([FromBody]CreateClientRequest request)
       {
-        await createClientUseCase.Execute(
+        await createClientRequest.Execute(
             new application.UseCases.Client.CreateClient.CreateClientRequest(
                new domain.Client.Client(request.Name,request.Password,Policies.ADMIN.ToString()) 
             ));

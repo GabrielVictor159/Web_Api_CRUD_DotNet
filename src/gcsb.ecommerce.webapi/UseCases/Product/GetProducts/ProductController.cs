@@ -13,13 +13,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.GetProducts
     public class ProductController : ControllerBase
     {
         private readonly GetProductsPresenter presenter;
-        private readonly GetProductsUseCase getProductsUseCase;
+        private readonly IGetProductsRequest getProductsRequest;
         public ProductController(
             GetProductsPresenter createProductPresenter,
-            GetProductsUseCase getProductsUseCase)
+            IGetProductsRequest getProductsRequest)
             {
                 this.presenter = createProductPresenter;
-                this.getProductsUseCase = getProductsUseCase;
+                this.getProductsRequest = getProductsRequest;
             }
       [HttpPost]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,7 +33,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.GetProducts
              p.Name.ToLower().Contains(request.Name.ToLower()) &&
              p.Value <= request.MaxValue &&
              p.Value >= request.MinValue;
-        await getProductsUseCase.Execute(
+        await getProductsRequest.Execute(
             new application.UseCases.Product.GetProducts.GetProductsRequest(
                 func,request.Page,request.PageSize
             ));

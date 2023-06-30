@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
 {
-    [DataContract(Name = "RemoveOrderRequest")]
     public class RemoveOrderRequest
     {
         public Guid id { get; set; }

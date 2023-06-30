@@ -10,5 +10,9 @@ namespace gcsb.ecommerce.application.Boundaries.Order
         public int Amount { get; set; }
         public decimal TotalOrderLine { get; set; } = 0;
         public Guid IdProduct { get; set; }
+        public OrderProductOutput()
+        {
+            
+        }
     }
 }

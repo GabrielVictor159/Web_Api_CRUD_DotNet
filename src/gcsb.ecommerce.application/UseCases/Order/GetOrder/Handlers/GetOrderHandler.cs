@@ -20,8 +20,14 @@ namespace gcsb.ecommerce.application.UseCases.Order.GetOrder.Handlers
         public override async Task ProcessRequest(GetOrderRequest request)
         {
            var result = await _orderRepository.GetOrderAsync(request.func,request.page,request.pageSize);
-         //   var orderOutput = mapper.Map<List<OrderOutput>>(result);
-         //   request.SetOutput(orderOutput);
+           var orderOutput = mapper.Map<List<OrderOutput>>(result);
+           int index =0;
+           foreach(var output in orderOutput)
+           {
+            output.ListOrderProduct = mapper.Map<List<OrderProductOutput>>(result[index].ListOrderProduct);
+            index++;
+           }
+           request.SetOutput(orderOutput);
            sucessor?.ProcessRequest(request);
         }
     }

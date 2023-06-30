@@ -10,6 +10,7 @@ using gcsb.ecommerce.webapi.UseCases.Client.UpdateClient;
 using gcsb.ecommerce.webapi.UseCases.Order.CreateOrder;
 using gcsb.ecommerce.webapi.UseCases.Order.GetOrder;
 using gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder;
+using gcsb.ecommerce.webapi.UseCases.Order.UpdateOrder;
 using gcsb.ecommerce.webapi.UseCases.Product.CreateProduct;
 using gcsb.ecommerce.webapi.UseCases.Product.DeleteProducts;
 using gcsb.ecommerce.webapi.UseCases.Product.GetProducts;
@@ -21,15 +22,6 @@ namespace gcsb.ecommerce.webapi.Modules
     {
          protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<CreateOrderPresenter>()
-             .AsImplementedInterfaces()
-             .InstancePerLifetimeScope().AsSelf();
-             builder.RegisterType<GetOrderPresenter>()
-             .AsImplementedInterfaces()
-             .InstancePerLifetimeScope().AsSelf();
-             builder.RegisterType<RemoveOrderPresenter>()
-             .AsImplementedInterfaces()
-             .InstancePerLifetimeScope().AsSelf();
              builder.RegisterType<CreateClientPresenter>()
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
@@ -55,6 +47,15 @@ namespace gcsb.ecommerce.webapi.Modules
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
              builder.RegisterType<CreateOrderPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<RemoveOrderPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<GetOrderPresenter>()
+             .AsImplementedInterfaces()
+             .InstancePerLifetimeScope().AsSelf();
+             builder.RegisterType<UpdateOrderPresenter>()
              .AsImplementedInterfaces()
              .InstancePerLifetimeScope().AsSelf();
         }

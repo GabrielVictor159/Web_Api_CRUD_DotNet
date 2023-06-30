@@ -53,8 +53,7 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             var result = _mapper.Map<List<domain.Order.Order>>(orders);
             foreach(var order in result)
             {
-                var resultOrderProduct = await getOrderProducts(order.Id);
-                order.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(resultOrderProduct));
+                order.WithList(_mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(order.Id)));
             }
             return result;
         }

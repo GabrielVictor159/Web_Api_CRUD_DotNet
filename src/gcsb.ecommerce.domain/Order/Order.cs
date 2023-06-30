@@ -68,7 +68,10 @@ namespace gcsb.ecommerce.domain.Order
             ApplyCupom(nameCupom);
             Validate(this, new OrderValidator());
         }
-
+        public void ValidateEntity()
+        {
+            Validate(this,new OrderValidator());
+        }
         private void ApplyCupom(string nameCupom)
         {
             this.Cupons = nameCupom;

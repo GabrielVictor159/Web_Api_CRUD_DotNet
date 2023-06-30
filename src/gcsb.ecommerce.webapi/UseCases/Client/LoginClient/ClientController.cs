@@ -12,13 +12,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.LoginClient
     public class ClientController : ControllerBase
     {
          private readonly LoginClientPresenter presenter;
-         private readonly LoginClientUseCase loginClientUseCase;
+         private readonly ILoginClientRequest loginClientRequest;
          public ClientController(
             LoginClientPresenter presenter,
-            LoginClientUseCase loginClientUseCase)
+            ILoginClientRequest loginClientRequest)
          {
             this.presenter = presenter;
-            this.loginClientUseCase = loginClientUseCase;
+            this.loginClientRequest = loginClientRequest;
          }
       [HttpPost]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,7 +28,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.LoginClient
       [Route("Login")]
       public async Task<IActionResult> Login([FromBody]LoginClientRequest request)
       { 
-        await loginClientUseCase.Execute(
+        await loginClientRequest.Execute(
             new application.UseCases.Client.LoginClient.LoginClientRequest(request.Name,request.Password)
             );
             return presenter.ViewModel;

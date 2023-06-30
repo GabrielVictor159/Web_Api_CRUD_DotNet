@@ -9,9 +9,9 @@ namespace gcsb.ecommerce.domain.OrderProduct
 {
     public class OrderProduct : Entity
     {
-        public int Amount { get; private set; }
-        public decimal TotalOrderLine { get; private set; } = 0;
-        public Guid IdOrder { get; private set; }
+        public int Amount { get; private  set; }
+        public decimal TotalOrderLine { get; private  set; } = 0;
+        public Guid IdOrder { get;  private set; }
         public Guid IdProduct { get; private set; }
         public OrderProduct()
         {}
@@ -19,6 +19,14 @@ namespace gcsb.ecommerce.domain.OrderProduct
         public OrderProduct(int amount, Guid idOrder, domain.Product.Product product)
         {
             InitializeOrderProduct( amount, idOrder, product);
+        }
+        public OrderProduct(int Amount,decimal TotalOrderLine, Guid IdOrder,Guid IdProduct)
+        {
+            this.Amount = Amount;
+            this.IdOrder = IdOrder;
+            this.IdProduct = IdProduct;
+            this.TotalOrderLine = TotalOrderLine;
+            Validate(this, new OrderProductValidator());
         }
 
         private void InitializeOrderProduct( int amount, Guid idOrder, domain.Product.Product product)

@@ -20,11 +20,12 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
             this.presenter = presenter;
             this.removeOrderRequest = removeOrderRequest;
         }   
-        [HttpPost]
+        [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+         //   [Authorize(Roles = nameof(Policies.ADMIN))]
         [Route("RemoveOrder")]
         public async Task<IActionResult> GetOrder([FromBody] RemoveOrderRequest orderRequest)
         {

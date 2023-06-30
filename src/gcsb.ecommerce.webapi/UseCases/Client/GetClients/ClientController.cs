@@ -15,13 +15,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.GetClients
     public class ClientController : ControllerBase
     {
          private readonly GetClientsPresenter presenter;
-         private readonly GetClientsUseCase GetClientsUseCase;
+         private readonly IGetClientsRequest getClientsRequest;
          public ClientController(
             GetClientsPresenter presenter,
-            GetClientsUseCase GetClientsUseCase)
+            IGetClientsRequest getClientsRequest)
          {
             this.presenter = presenter;
-            this.GetClientsUseCase = GetClientsUseCase;
+            this.getClientsRequest = getClientsRequest;
          }
 
       [HttpPost]
@@ -39,7 +39,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.GetClients
          p.Name!.ToLower().Contains(request.Name.ToLower())
          &&
          p.Role!.ToLower().Contains(request.Role.ToLower());
-        await GetClientsUseCase.Execute(
+        await getClientsRequest.Execute(
             new application.UseCases.Client.GetClients.GetClientsRequest
             (
                 func,request.page,request.pageSize

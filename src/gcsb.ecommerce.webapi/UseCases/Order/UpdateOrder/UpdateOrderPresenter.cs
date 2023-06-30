@@ -6,9 +6,9 @@ using gcsb.ecommerce.application.Boundaries;
 using gcsb.ecommerce.application.Boundaries.Order;
 using Microsoft.AspNetCore.Mvc;
 
-namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
+namespace gcsb.ecommerce.webapi.UseCases.Order.UpdateOrder
 {
-    public class RemoveOrderPresenter : IOutputPort<DeleteOrderOutput>
+    public class UpdateOrderPresenter : IOutputPort<UpdateOrderOutput>
     {
         public IActionResult ViewModel { get; private set; } = new ObjectResult(new { StatusCode = 500 });
 
@@ -27,12 +27,10 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
             ViewModel = new NotFoundObjectResult(message);
         }
 
-        public void Standard(DeleteOrderOutput output)
+        public void Standard(UpdateOrderOutput output)
         {
             var response = new OrderResponse(output);
             this.ViewModel = new OkObjectResult(response);
         }
-
-       
     }
 }

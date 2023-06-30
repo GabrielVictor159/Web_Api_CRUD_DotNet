@@ -14,13 +14,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.UpdateClient
     public class ClientController : ControllerBase
     {
          private readonly UpdateClientPresenter presenter;
-         private readonly UpdateClientUseCase UpdateClientUseCase;
+         private readonly IUpdateClientRequest updateClientRequest;
          public ClientController(
             UpdateClientPresenter presenter,
-            UpdateClientUseCase UpdateClientUseCase)
+            IUpdateClientRequest updateClientRequest)
          {
             this.presenter = presenter;
-            this.UpdateClientUseCase = UpdateClientUseCase;
+            this.updateClientRequest = updateClientRequest;
          }
       [HttpPut]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,7 +33,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Client.UpdateClient
       { 
         var Id = User.FindFirst("Id")?.Value;
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-        await UpdateClientUseCase.Execute(
+        await updateClientRequest.Execute(
             new application.UseCases.Client.UpdateClient.UpdateClientRequest
             (
                 new domain.Client.Client(request.IdUser,request?.newName,request?.newPassword,request?.newRole),

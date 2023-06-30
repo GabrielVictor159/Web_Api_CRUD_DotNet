@@ -20,13 +20,14 @@ namespace gcsb.ecommerce.application.UseCases.Order.UpdateOrder.Handlers
         }
         public override async Task ProcessRequest(UpdateOrderRequest request)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(request.Order.Id);
+            var order = await _orderRepository.GetOrderByIdAsync(request.NewAttributesOrder!.Id);
             if(order == null)
             {
-                _notificationService.AddNotification("Invalid Order Id", $"Could not find an order with that id: {request.Order.Id}");
+                _notificationService.AddNotification("Invalid Order Id", $"Could not find an order with that id: {request.NewAttributesOrder!.Id}");
                 return;
             }
-            _reflectionMethods.ReplaceDifferentAttributes(request.Order,order);
+            _reflectionMethods.ReplaceDifferentAttributes(request.NewAttributesOrder,order);
+            order.ValidateEntity();
             if(!order.IsValid)
             {
                 _notificationService.AddNotifications(order.ValidationResult);

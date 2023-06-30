@@ -12,13 +12,13 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts
     public class ProductController : ControllerBase
     {
         private readonly UpdateProductPresenter presenter;
-        private readonly UpdateProductUseCase updateProductUseCase;
+        private readonly IUpdateProductRequest updateProductRequest;
         public ProductController(
             UpdateProductPresenter createProductPresenter,
-            UpdateProductUseCase updateProductUseCase)
+            IUpdateProductRequest updateProductRequest)
             {
                 this.presenter = createProductPresenter;
-                this.updateProductUseCase = updateProductUseCase;
+                this.updateProductRequest = updateProductRequest;
             }
       [HttpPut]
       [ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,7 +39,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts
         {
             domain.SetValue((decimal)request.Value);
         }
-        await updateProductUseCase.Execute(
+        await updateProductRequest.Execute(
             new application.UseCases.Product.UpdateProduct.UpdateProductRequest(domain)
         );
             return presenter.ViewModel;

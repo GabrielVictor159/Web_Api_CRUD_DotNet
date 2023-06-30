@@ -14,5 +14,10 @@ namespace gcsb.ecommerce.application.Boundaries.Order
         public Guid IdPayment { get; set; }
         public List<OrderProductOutput> ListOrderProduct { get;  set; } = new();
         public DateTime OrderDate { get;  set; }
+
+        public OrderOutput()
+        {
+            
+        }
     }
 }
