@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
 using gcsb.ecommerce.application.Boundaries.Client;
 using gcsb.ecommerce.application.Interfaces.Repositories;
 using gcsb.ecommerce.application.Interfaces.Services;
+using gcsb.ecommerce.domain.Enums;
 using gcsb.ecommerce.tests.Builder.Domain.Client;
 using gcsb.ecommerce.webapi.UseCases.Client.GetClients;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +28,19 @@ namespace gcsb.ecommerce.tests.Cases.WebApi.UseCases.Client.GetClients
         public ClientControllerTest(
             Faker faker,
             ClientController controller,
+            IHttpContextMethods httpContextMethods,
             INotificationService notificationService,
             IClientRepository clientRepository)
         {
             this.faker = faker;
             this.controller = controller;
+            var claims = new[]
+            {
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role,Policies.ADMIN.ToString())
+
+            };
+             httpContextMethods.SetHttpContextWithClaims(claims,this.controller);
             this.notificationService = notificationService;
 
             InitializeAsync(clientRepository).Wait();

@@ -8,6 +8,6 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
 {
     public class RemoveOrderRequest
     {
-        public Guid id { get; set; }
+        public required Guid id { get; set; }
     }
 }

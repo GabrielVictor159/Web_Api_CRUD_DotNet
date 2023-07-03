@@ -6,33 +6,43 @@ using Bogus;
 using FluentAssertions;
 using gcsb.ecommerce.application.Interfaces.Services;
 using gcsb.ecommerce.application.UseCases.Order.CreateOrder;
+using gcsb.ecommerce.application.UseCases.Order.CreateOrder.Handlers;
 using gcsb.ecommerce.infrastructure.Database;
-using gcsb.ecommerce.tests.Builder.Domain;
 using gcsb.ecommerce.tests.Builder.Entities.Client;
+using gcsb.ecommerce.tests.Builder.Entities.OrderProduct;
 using gcsb.ecommerce.tests.Builder.Entities.Product;
 using Xunit;
 using Xunit.Frameworks.Autofac;
 
-namespace gcsb.ecommerce.tests.Cases.Application.Order.CreateOrder
+namespace gcsb.ecommerce.tests.Cases.Application.Order.CreateOrder.Handlers
 {
     [UseAutofacTestFramework]
-    public class CreateOrderUseCaseTest
+    public class SaveOrderHandlerTest
     {
-        public readonly ICreateOrderRequest createOrderUseCase;
+        private readonly SaveOrderHandler SaveOrderHandler;
+        private readonly CreateOrderDomainHandler createOrderDomainHandler;
+        private readonly INotificationService notificationService;
         private readonly List<infrastructure.Database.Entities.Product> products = new();
         private readonly Faker faker;
+        private readonly Context context;
         private infrastructure.Database.Entities.Client? client;
-        public CreateOrderUseCaseTest(
-            ICreateOrderRequest createOrderUseCase,
+
+        public SaveOrderHandlerTest(
+            SaveOrderHandler SaveOrderHandler,
+            CreateOrderDomainHandler CreateOrderDomainHandler,
+            INotificationService notificationService,
             Faker faker,
-            Context context 
-            )
+            Context context)
         {
-            this.createOrderUseCase = createOrderUseCase;
+            this.SaveOrderHandler = SaveOrderHandler;
+            this.notificationService = notificationService;
             this.faker = faker;
+            this.context = context;
+            this.createOrderDomainHandler = CreateOrderDomainHandler;
             InitializeMethodsAsync(context).Wait();
-        } 
-         private async Task InitializeMethodsAsync(Context context)
+        }
+
+        private async Task InitializeMethodsAsync(Context context)
         {
             for (int i = 0; i < faker.Random.Int(2, 10); i++)
             {
@@ -44,7 +54,7 @@ namespace gcsb.ecommerce.tests.Cases.Application.Order.CreateOrder
         }
 
         [Fact]
-        public async Task ShouldExecute()
+        public async Task ShouldOrderOutputNotBeNullAndOrderPesistNotBeNullAfterProcessRequest()
         {
             List<application.Boundaries.Order.listProducts> listProducts = new();
             foreach(var product in products)
@@ -52,8 +62,11 @@ namespace gcsb.ecommerce.tests.Cases.Application.Order.CreateOrder
                 listProducts.Add(new application.Boundaries.Order.listProducts(){Id=product.Id,Quantity=faker.Random.Int(2, 10)});
             }
             var request = new CreateOrderRequest(client!.Id,listProducts);
-            await createOrderUseCase.Execute(request);
+            await createOrderDomainHandler.ProcessRequest(request);
+            await SaveOrderHandler.ProcessRequest(request);
             request.OrderOutput.Should().NotBeNull();
+            var orderPersist = await context.Orders.FindAsync(request.OrderOutput!.Id);
+            orderPersist.Should().NotBeNull();
         }
     }
 }

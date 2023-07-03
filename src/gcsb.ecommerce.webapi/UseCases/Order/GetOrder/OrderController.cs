@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using gcsb.ecommerce.application.UseCases.Order.GetOrder;
+using gcsb.ecommerce.domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.GetOrder
@@ -26,7 +28,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.GetOrder
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //   [Authorize(Roles = nameof(Policies.ADMIN))]
+        [Authorize(Roles = nameof(Policies.ADMIN))]
         [Route("GetOrder")]
         public async Task<IActionResult> GetOrder([FromBody] GetOrderRequest orderRequest)
         {

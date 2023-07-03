@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using gcsb.ecommerce.application.UseCases.Product.UpdateProduct;
+using gcsb.ecommerce.domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts
@@ -25,7 +27,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.UpdateProducts
       [ProducesResponseType(StatusCodes.Status404NotFound)]
       [ProducesResponseType(StatusCodes.Status400BadRequest)]
       [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-//    [Authorize(Roles = nameof(Policies.ADMIN))]
+      [Authorize(Roles = nameof(Policies.ADMIN))]
       [Route("UpdateProduct")]
       public async Task<IActionResult> UpdateProduct([FromBody]UpdateProductRequest request)
       { 

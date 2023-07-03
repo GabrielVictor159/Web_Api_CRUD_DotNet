@@ -27,7 +27,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Product.CreateProduct
       [ProducesResponseType(StatusCodes.Status404NotFound)]
       [ProducesResponseType(StatusCodes.Status400BadRequest)]
       [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    //   [Authorize(Roles = nameof(Policies.ADMIN))]
+      [Authorize(Roles = nameof(Policies.ADMIN))]
       [Route("CreateProduct")]
       public async Task<IActionResult> CreateProduct([FromBody]CreateProductRequest request)
       { 

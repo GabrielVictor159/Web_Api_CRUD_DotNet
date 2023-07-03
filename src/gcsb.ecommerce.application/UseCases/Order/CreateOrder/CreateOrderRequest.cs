@@ -13,7 +13,7 @@ namespace gcsb.ecommerce.application.UseCases.Order.CreateOrder
        public string? Cupons { get; private set; } 
        public List<listProducts> listProducts = new List<listProducts>();
        public CreateOrderOutput? OrderOutput {get; private set;}
-       public CreateOrderRequest(Guid idUser,  List<listProducts> listProducts, string? Cupons)
+       public CreateOrderRequest(Guid idUser,  List<listProducts> listProducts, string? Cupons = "")
        {
         this.IdUser = idUser;
         this.Cupons = Cupons;

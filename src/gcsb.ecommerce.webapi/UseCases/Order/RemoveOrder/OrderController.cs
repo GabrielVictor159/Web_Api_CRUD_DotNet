@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using gcsb.ecommerce.application.UseCases.Order.RemoveOrder;
+using gcsb.ecommerce.domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
@@ -25,9 +27,9 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-         //   [Authorize(Roles = nameof(Policies.ADMIN))]
+        [Authorize(Roles = nameof(Policies.ADMIN))]
         [Route("RemoveOrder")]
-        public async Task<IActionResult> GetOrder([FromBody] RemoveOrderRequest orderRequest)
+        public async Task<IActionResult> RemoveOrder([FromBody] RemoveOrderRequest orderRequest)
         {
             await removeOrderRequest.Execute(new application.UseCases.Order.RemoveOrder.RemoveOrderRequest(orderRequest.id));
             return presenter.ViewModel;

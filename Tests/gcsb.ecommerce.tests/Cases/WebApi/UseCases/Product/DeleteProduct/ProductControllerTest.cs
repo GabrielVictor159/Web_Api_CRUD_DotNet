@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
 using gcsb.ecommerce.application.Boundaries.Product;
 using gcsb.ecommerce.application.Interfaces.Repositories;
+using gcsb.ecommerce.domain.Enums;
 using gcsb.ecommerce.tests.Builder.Domain.Product;
 using gcsb.ecommerce.webapi.UseCases.Product.DeleteProducts;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +26,17 @@ namespace gcsb.ecommerce.tests.Cases.WebApi.UseCases.Product.DeleteProduct
         public ProductControllerTest(
             Faker faker,
             ProductController controller,
+            IHttpContextMethods httpContextMethods,
             IProductRepository productRepository)
             {
                 this.faker = faker;
                 this.controller = controller;
+                var claims = new[]
+                {
+                    new Claim("Id", Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role,Policies.ADMIN.ToString())
+                };
+                httpContextMethods.SetHttpContextWithClaims(claims,this.controller);
                 product = ProductBuilder.New(faker).Build();
                 productRepository.CreateAsync(product).Wait();
             }

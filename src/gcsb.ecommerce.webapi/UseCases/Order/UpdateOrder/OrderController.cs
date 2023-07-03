@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using gcsb.ecommerce.application.UseCases.Order.UpdateOrder;
+using gcsb.ecommerce.domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.UpdateOrder
@@ -25,9 +27,9 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.UpdateOrder
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-         //   [Authorize(Roles = nameof(Policies.ADMIN))]
+        [Authorize(Roles = nameof(Policies.ADMIN))]
         [Route("UpdateOrder")]
-         public async Task<IActionResult> CreateOrder([FromBody]UpdateOrderRequest request)  
+         public async Task<IActionResult> UpdateOrder([FromBody]UpdateOrderRequest request)  
       {
        
              await updateOrderRequest.Execute(
