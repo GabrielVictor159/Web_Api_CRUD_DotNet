@@ -31,7 +31,7 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.GetOrder
         public async Task<IActionResult> GetOrder([FromBody] GetOrderRequest orderRequest)
         {
              Expression<Func<domain.Order.Order, bool>> func = p => p.Id.ToString().ToLower().Contains(orderRequest.Id!.ToLower()) &&
-             p.OrderDate.ToString().ToLower().Contains(orderRequest.OrderDate!.ToLower()) &&
+             p.OrderDate.ToString()!.ToLower().Contains(orderRequest.OrderDate!.ToLower()) &&
              p.IdClient.ToString().ToLower().Contains(orderRequest.IdClient!.ToLower()) &&
              p.IdPayment.ToString().ToLower().Contains(orderRequest.IdPayment!.ToLower()) &&
              p.TotalOrder <= orderRequest.MaximalOrder &&

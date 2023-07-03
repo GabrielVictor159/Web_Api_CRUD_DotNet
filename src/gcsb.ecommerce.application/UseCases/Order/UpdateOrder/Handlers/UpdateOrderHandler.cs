@@ -22,7 +22,9 @@ namespace gcsb.ecommerce.application.UseCases.Order.UpdateOrder.Handlers
            if(request.NewAttributesOrder!=null)
            {
             var newOrder = await orderRepository.UpdateAsync(request.NewAttributesOrder);
-            request.SetOutput(mapper.Map<UpdateOrderOutput>(newOrder!));
+            var output = mapper.Map<UpdateOrderOutput>(newOrder!);
+            output.ListOrderProduct = mapper.Map<List<OrderProductOutput>>(newOrder!.ListOrderProduct);
+            request.SetOutput(output);
            }
             if(sucessor!=null)
             {

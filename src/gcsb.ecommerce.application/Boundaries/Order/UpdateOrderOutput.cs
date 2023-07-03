@@ -12,7 +12,7 @@ namespace gcsb.ecommerce.application.Boundaries.Order
         public decimal TotalOrder { get;  set; }
         public string Cupons { get;  set; } = "";
         public Guid IdPayment { get; set; }
-        public List<domain.OrderProduct.OrderProduct> ListOrderProduct { get;  set; } = new();
+        public List<Boundaries.Order.OrderProductOutput> ListOrderProduct { get;  set; } = new();
         public DateTime OrderDate { get;  set; }
     }
 }

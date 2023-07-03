@@ -14,7 +14,7 @@ namespace gcsb.ecommerce.domain.Order
         public string Cupons { get; private set; } = "";
         public Guid IdPayment { get; set; }
         public List<domain.OrderProduct.OrderProduct> ListOrderProduct { get; private set; } = new();
-        public DateTime OrderDate { get; private set; }
+        public DateTime? OrderDate { get; set; }
 
         public Order()
         {
@@ -60,6 +60,7 @@ namespace gcsb.ecommerce.domain.Order
         {
             this.ListOrderProduct = list;
             CalculateTotalOrder();
+            ApplyCupom(Cupons);
             Validate(this, new OrderValidator());
         }
 
@@ -79,8 +80,8 @@ namespace gcsb.ecommerce.domain.Order
             if (Enum.IsDefined(typeEnum, nameCupom))
             {
                 Cupons cupom = (Cupons)Enum.Parse(typeEnum, nameCupom);
-                int value = (int)cupom;
-                decimal discountedValue = TotalOrder * (value / 100);
+                decimal value = (decimal)cupom/100;
+                var discountedValue = this.TotalOrder * value;
                 this.TotalOrder = TotalOrder - discountedValue;
             }
         }

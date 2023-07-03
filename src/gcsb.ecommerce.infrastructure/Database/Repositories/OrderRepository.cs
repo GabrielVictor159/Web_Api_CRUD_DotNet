@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using gcsb.ecommerce.application.Interfaces.Repositories;
+using gcsb.ecommerce.application.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace gcsb.ecommerce.infrastructure.Database.Repositories
@@ -13,10 +14,12 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
     {
         private readonly Context _context;
         private readonly IMapper _mapper;
-        public OrderRepository(Context context, IMapper mapper)
+        private readonly IReflectionMethods _reflectionMethods;
+        public OrderRepository(Context context, IMapper mapper, IReflectionMethods reflectionMethods)
         {
             _context = context;
             _mapper = mapper;
+            _reflectionMethods = reflectionMethods;
         }   
        public async Task<domain.Order.Order> CreateAsync(domain.Order.Order orderDomain)
         {
@@ -73,17 +76,23 @@ namespace gcsb.ecommerce.infrastructure.Database.Repositories
             var OrderResult = await Task.FromResult(_context.Orders.FirstOrDefault(c => c.Id == order.Id));
             if (OrderResult != null)
             {
-            if(await deleteOrderProducts(OrderResult.Id))
-            {
-            OrderResult = _mapper.Map<Entities.Order>(order);
-            OrderResult.ListOrderProduct = _mapper.Map<List<Entities.OrderProduct>>(order.ListOrderProduct);
+            await deleteOrderProducts(OrderResult.Id);
+            _reflectionMethods.ReplaceDifferentAttributes(order,OrderResult);
+            OrderResult.ListOrderProduct = await saveOrderProducts(order.ListOrderProduct);
             await _context.SaveChangesAsync();
             var result = _mapper.Map<domain.Order.Order>(OrderResult);
+            var ListOrderProduct = _mapper.Map<List<domain.OrderProduct.OrderProduct>>(await getOrderProducts(result.Id));
+            result.WithList(ListOrderProduct);
             return result;
             }
             return null;
-            }
-            return null;
+        }
+        private async Task<List<Entities.OrderProduct>> saveOrderProducts(List<domain.OrderProduct.OrderProduct> order)
+        {
+        var list = _mapper.Map<List<Entities.OrderProduct>>(order);
+         await _context.OrderProducts.AddRangeAsync(list);
+         await _context.SaveChangesAsync();
+         return list;
         }
         private async Task<List<Entities.OrderProduct>> getOrderProducts(Guid id)
         {
