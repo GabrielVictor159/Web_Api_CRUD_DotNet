@@ -16,8 +16,12 @@ namespace gcsb.ecommerce.infrastructure.Service
         public string GenerateToken(Client client)
         {
             var secret = Environment.GetEnvironmentVariable("SECRET");
+            if(secret == null)
+            {
+                 throw new Exception("a SECRET environment variable is required");
+            }
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Settings.Secret);
+            var key = Encoding.ASCII.GetBytes(secret!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]

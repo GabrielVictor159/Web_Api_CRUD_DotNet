@@ -12,7 +12,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddFilters();
-var key = Encoding.ASCII.GetBytes(Settings.Secret);
+if(Environment.GetEnvironmentVariable("SECRET")==null)
+{
+    throw new Exception("a SECRET environment variable is required");
+}
+var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("SECRET")!);
 builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Cliente", policy => policy.RequireRole(Policies.USER.ToString()));
