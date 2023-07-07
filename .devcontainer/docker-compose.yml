@@ -5,11 +5,10 @@ services:
     environment:
       DBCONN: "Server=gcsb_ecommerce_db;Port=5432;Database=postgres;User Id=postgres;Password=postgres"
       SECRET: "014906ff-949b-4064-8ec6-66ac8790f25c"
-      RabbitMQ_HostName: "gcsb_ecommerce_rabbitmq"
-      RabbitMQ_Port: "5672"
-      RabbitMQ_UserName: "guest"
-      RabbitMQ_Password: "guest"
-      RabbitMQ_VirtualHost: "/"
+      RABBITMQ_HOST: "gcsb_ecommerce_rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "guest"
     build:
       context: .
       dockerfile: Dockerfile
