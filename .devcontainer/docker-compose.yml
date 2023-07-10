@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  gcsb_ecommerce_webapi:
+    environment:
+      DBCONN: "Server=gcsb_ecommerce_db;Port=5432;Database=postgres;User Id=postgres;Password=postgres"
+      SECRET: "014906ff-949b-4064-8ec6-66ac8790f25c"
+      RabbitMQ_HostName: "gcsb_ecommerce_rabbitmq"
+      RabbitMQ_Port: "5672"
+      RabbitMQ_UserName: "guest"
+      RabbitMQ_Password: "guest"
+      RabbitMQ_VirtualHost: "/"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    depends_on:
+      - gcsb_ecommerce_db
+      - gcsb_ecommerce_rabbitmq
+    networks:
+      - gcsbEcommerceWebapi
+
+      
+  gcsb_ecommerce_db:
+    image: postgres:14.3
+    restart: unless-stopped
+    ports:
+      - 5544:5432
+    networks:
+      - gcsbEcommerceWebapi
+    volumes:
+      - gcsb_ecommerce_webapi:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+
+  gcsb_ecommerce_rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    ports:
+      - "5674:5672"
+      - "15673:15672"
+    networks:
+      - gcsbEcommerceWebapi
+      
+networks:
+  gcsbEcommerceWebapi:
+    driver: bridge
+volumes:
+  gcsb_ecommerce_webapi:

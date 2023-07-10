@@ -1,0 +1,53 @@
+version: '3.4'
+
+services:
+  web_api_crud:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      DBCONN: "Server=dbPedido;Port=5432;Database=postgres;User Id=postgres;Password=postgres"
+
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    networks:
+      - ecomerce
+
+  dbPedido:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    networks:
+      - ecomerce
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  
+  rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    ports:
+      - "5673:5672"
+      - "15672:15672"
+    networks:
+      - ecomerce
+
+networks:
+  ecomerce:
+    driver: bridge
+
+volumes:
+  postgres-data:
