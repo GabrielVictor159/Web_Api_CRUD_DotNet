@@ -24,6 +24,7 @@ namespace gcsb.ecommerce.tests
            : base(diagnosticMessageSink)
         {
             Environment.SetEnvironmentVariable("USEINMEMORY", true.ToString());
+             Environment.SetEnvironmentVariable("SECRET", Guid.NewGuid().ToString());
         }
         protected override void ConfigureContainer(ContainerBuilder builder)
         {
