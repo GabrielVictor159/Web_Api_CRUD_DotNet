@@ -9,5 +9,9 @@ namespace gcsb.ecommerce.webapi.UseCases.Order.CreateOrder
     public sealed class OrderResponse
     {
        public CreateOrderOutput? orderOutput {get;set;}
+       public OrderResponse(CreateOrderOutput orderOutput)
+       {
+        this.orderOutput = orderOutput;
+       }
     }
 }

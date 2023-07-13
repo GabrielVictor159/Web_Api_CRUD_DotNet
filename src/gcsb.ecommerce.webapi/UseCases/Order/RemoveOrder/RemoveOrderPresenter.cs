@@ -8,31 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace gcsb.ecommerce.webapi.UseCases.Order.RemoveOrder
 {
-    public class RemoveOrderPresenter : IOutputPort<DeleteOrderOutput>
+    public class RemoveOrderPresenter : Presenter<DeleteOrderOutput, OrderResponse>
     {
-        public IActionResult ViewModel { get; private set; } = new ObjectResult(new { StatusCode = 500 });
 
-        public void Error(string message)
-        {
-           var problemdetails = new ProblemDetails()
-            {
-                Status = 500,
-                Detail = message
-            };
-            ViewModel = new BadRequestObjectResult(problemdetails);
-        }
-
-        public void NotFound(string message)
-        {
-            ViewModel = new NotFoundObjectResult(message);
-        }
-
-        public void Standard(DeleteOrderOutput output)
-        {
-            var response = new OrderResponse(output);
-            this.ViewModel = new OkObjectResult(response);
-        }
-
-       
     }
 }

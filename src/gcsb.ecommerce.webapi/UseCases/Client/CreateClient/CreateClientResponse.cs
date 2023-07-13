@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using gcsb.ecommerce.application.Boundaries.Client;
 
 namespace gcsb.ecommerce.webapi.UseCases.Client.CreateClient
 {
-    public class CreateOrderResponse
+    public class CreateClientResponse
     {
         public Guid Id {get; set;}
-        public String Name { get; private set; }
-        public String Role { get; private set; }
-        public CreateOrderResponse(Guid id, String name, String role)
+        public String Name { get;  set; }
+        public String Role { get;  set; }
+        public CreateClientResponse(CreateClientOutput output)
         {
-            Id = id;
-            Name = name;
-            Role = role;
-        } 
+            Id = output.Id;
+            Name = output.Name;
+            Role = output.Role;
+        }
+       
     }
 }
